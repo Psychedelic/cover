@@ -12,11 +12,11 @@ use crate::service::store::registry::ValidationsRegistry;
 use ic_kit::ic::{get, get_mut};
 
 #[inline]
-fn get_requests_registry_mut() -> &'static mut ValidationsRegistry {
+fn get_validation_registry_mut() -> &'static mut ValidationsRegistry {
     get_mut()
 }
 
 #[inline]
-fn get_request_registry() -> &'static ValidationsRegistry {
+fn get_validation_registry() -> &'static ValidationsRegistry {
     get()
 }

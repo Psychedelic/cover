@@ -1,4 +1,4 @@
-use super::{get_request_registry, get_requests_registry_mut};
+use super::{get_validation_registry, get_validation_registry_mut};
 use crate::common::types::{CanisterId, ValidationId};
 use crate::service::constants::{Error, Ok};
 use crate::service::types::{NewValidationRequest, Validation, BuildParams};
@@ -16,7 +16,7 @@ use std::ops::Not;
 pub async fn request_validation(req: NewValidationRequest) -> ValidationResult<()> {
   let caller = caller();
 
-  get_requests_registry_mut()
+  get_validation_registry_mut()
     .add_request(
       caller,
       req.canister_id,
@@ -33,17 +33,9 @@ pub async fn request_validation(req: NewValidationRequest) -> ValidationResult<(
 
 /// Return list of unprocessed validations
 pub fn list_validations() -> ValidationResult<Vec<Validation>> {
+  let reg = get_validation_registry();
   ValidationResult::data(
-    get_request_registry().requests
-      .iter()
-      .map(|(canister_id, c)| Validation {
-        caller_id: None,
-        build_settings: BuildParams {
-          git_ref: "".into(),
-          git_sha: "".into(),
-        },
-      })
-      .collect(),
+    reg.fresh.iter().map(|validation_id| reg.validations.get(validation_id)).collect()
   )
 }
 

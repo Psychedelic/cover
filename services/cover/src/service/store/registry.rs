@@ -6,23 +6,22 @@ use std::collections::BTreeMap;
 use std::ops::{Bound::Included, Not};
 use crate::service::types::{Validation, BuildParams};
 
-
-type RequestKey = (CanisterId, ValidationId);
-
-// Validation requests
 #[derive(CandidType, Deserialize)]
 pub struct ValidationsRegistry {
   count: ValidationId,
-  pub requests: BTreeMap<RequestKey, Validation>,
-  // validations: BTreeMap<RequestKey, Validation<'a>>,
+  // unique counter
+  pub fresh: Vec<ValidationId>,
+  pub requests: BTreeMap<CanisterId, Vec<ValidationId>>,
+  pub validations: BTreeMap<ValidationId, Validation>,
 }
 
 impl Default for ValidationsRegistry {
   fn default() -> Self {
     Self {
       count: 0,
+      fresh: Vec::new(),
       requests: BTreeMap::new(),
-      // validations: BTreeMap::new(),
+      validations: BTreeMap::new(),
     }
   }
 }
@@ -47,11 +46,14 @@ impl ValidationsRegistry {
     self.contains_request(canister_id)
       .not()
       .then(|| {
-        self.count += 1;
-        self.requests.insert((canister_id, self.count), Validation {
-          caller_id: Some(caller_id),
-          build_settings
+        self.count += 1; // increase counter
+        self.validations.insert(self.count, Validation {
+          fetched: false,
+          caller_id,
+          build_settings: build_settings.clone(),
         });
+        self.fresh.add(self.count);
+        // self.requests.conatins_canister_id(canister_id, self.count).ok_or_else(||  )
       })
       .ok_or_else(|| Error::new(ErrorKind::AddExistedCanister, None))
   }
@@ -63,21 +65,11 @@ impl ValidationsRegistry {
   pub fn fetch_request(
     &mut self,
     validation_id: ValidationId,
-  ) -> Result<Validation, Error> {
-    self.requests
-      .get_mut(&(_, validation_id))
-      .map(|c| c.canister_type = canister_type)
+  ) -> Result<&Validation, Error> {
+    self.validations
+      .get_mut(&validation_id)
+      .map(|v| v.mark_fetched())
       .ok_or_else(|| Error::new(ErrorKind::CanisterNotFound, None))
-  }
-
-  /// canister upgrade support
-  pub fn archive(&mut self) -> Vec<(RequestKey, Validation)> {
-    std::mem::take(&mut self.requests).into_iter().collect()
-  }
-
-  /// canister upgrade support
-  pub fn load(&mut self, archive: Vec<(RequestKey, Validation)>) {
-    self.requests = archive.into_iter().collect();
   }
 }
 

@@ -11,8 +11,18 @@ pub struct BuildParams {
 
 #[derive(CandidType, Clone, Deserialize, PartialEq, Debug)]
 pub struct Validation {
-  pub caller_id: Option<CallerId>,
+  pub caller_id: CallerId,
   pub build_settings: BuildParams,
+  pub fetched: bool,
+}
+
+impl Validation {
+
+  pub fn mark_fetched(&mut self) -> &Self {
+    self.fetched = true;
+    self
+  }
+
 }
 
 #[derive(CandidType, Clone, Deserialize, Debug)]

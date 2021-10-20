@@ -18,8 +18,8 @@ fn whoami() -> CallerId {
     Builder API
 */
 #[update]
-async fn request_validation(request: NewValidationRequest) -> ValidationResult<()> {
-    cover_service::request_validation(request).await
+fn request_validation(request: NewValidationRequest) -> ValidationResult<()> {
+    cover_service::request_validation(request)
 }
 
 #[query]
