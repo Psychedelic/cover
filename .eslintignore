@@ -1,0 +1,10 @@
+.github/
+.storybook/
+**/build
+**/config
+**/dist
+**/node_modules
+**/public
+**/scripts
+**/*.stories.js
+**/storybook-static

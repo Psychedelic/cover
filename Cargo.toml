@@ -1,0 +1,8 @@
+[workspace]
+members = [
+  "services/cover",
+]
+
+[profile.release]
+lto = true
+opt-level = 'z'
