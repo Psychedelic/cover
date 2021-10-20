@@ -9,7 +9,6 @@ use crate::service::types::{Validation, BuildParams};
 #[derive(CandidType, Deserialize)]
 pub struct ValidationsRegistry {
   count: ValidationId,
-  // unique counter
   pub fresh: Vec<ValidationId>,
   pub requests: BTreeMap<CanisterId, Vec<ValidationId>>,
   pub validations: BTreeMap<ValidationId, Validation>,
@@ -28,9 +27,8 @@ impl Default for ValidationsRegistry {
 
 /// Internal store implementation of validation requests
 impl ValidationsRegistry {
-  /// Return list canisters internal information
-  pub fn get_requests(&self) -> Vec<(&CanisterId, &ValidationId, &Validation)> {
-    self.requests.iter().collect()
+  pub fn contains_request(&self, canister_id: &CanisterId) -> bool {
+    self.requests.contains_key(canister_id)
   }
 
   /// Add validation request to internal storage
@@ -40,9 +38,9 @@ impl ValidationsRegistry {
   pub fn add_request(
     &mut self,
     caller_id: CallerId,
-    canister_id: CanisterId,
-    build_settings: BuildParams,
-  ) -> Result<(ValidationId), Error> {
+    canister_id: &CanisterId,
+    build_settings: &BuildParams,
+  ) -> Result<ValidationId, Error> {
     self.contains_request(canister_id)
       .not()
       .then(|| {
@@ -52,8 +50,9 @@ impl ValidationsRegistry {
           caller_id,
           build_settings: build_settings.clone(),
         });
-        self.fresh.add(self.count);
+        self.fresh.push(self.count);
         // self.requests.conatins_canister_id(canister_id, self.count).ok_or_else(||  )
+        self.count
       })
       .ok_or_else(|| Error::new(ErrorKind::AddExistedCanister, None))
   }
@@ -108,51 +107,6 @@ pub mod test {
     CanisterId::from_text("rdmx6-jaaaa-aaaaa-aaadq-cai").unwrap()
   }
 
-  pub fn fake_store(store: Option<BTreeMap<RequestKey, CanisterInfoInternal>>) -> ValidationsRegistry {
-    ValidationsRegistry {
-      requests: store.unwrap_or(BTreeMap::new()),
-    }
-  }
-
-  pub fn fake_data() -> BTreeMap<RequestKey, CanisterInfoInternal> {
-    let mut store = BTreeMap::new();
-    store.insert(
-      (mock_principals::bob(), fake_canister1()),
-      CanisterInfoInternal {
-        name: "Bob canister 1".into(),
-        canister_type: "".into(),
-      },
-    );
-    store.insert(
-      (mock_principals::bob(), fake_canister2()),
-      CanisterInfoInternal {
-        name: "Bob canister 2".into(),
-        canister_type: "".into(),
-      },
-    );
-    store.insert(
-      (mock_principals::bob(), fake_canister3()),
-      CanisterInfoInternal {
-        name: "Bob canister 3".into(),
-        canister_type: "".into(),
-      },
-    );
-    store.insert(
-      (mock_principals::alice(), fake_canister4()),
-      CanisterInfoInternal {
-        name: "Alice canister 1".into(),
-        canister_type: "".into(),
-      },
-    );
-    store.insert(
-      (mock_principals::alice(), fake_canister5()),
-      CanisterInfoInternal {
-        name: "Alice canister 2".into(),
-        canister_type: "".into(),
-      },
-    );
-    store
-  }
 
   #[test]
   fn initial_state_ok() {

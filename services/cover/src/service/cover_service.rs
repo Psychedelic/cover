@@ -13,14 +13,14 @@ use std::ops::Not;
 
 /// Builder API
 ///   - request_validation
-pub async fn request_validation(req: NewValidationRequest) -> ValidationResult<()> {
+pub fn request_validation(req: NewValidationRequest) -> ValidationResult<()> {
   let caller = caller();
 
   get_validation_registry_mut()
     .add_request(
       caller,
-      req.canister_id,
-      req.build_settings,
+      &req.canister_id,
+      &req.build_settings,
     )
     .map(|_| ValidationResult::success(Ok::validation_request_added()))
     .unwrap_or_else(|_| ValidationResult::fail(Error::validation_requested()))
@@ -32,14 +32,15 @@ pub async fn request_validation(req: NewValidationRequest) -> ValidationResult<(
 ///  - update_validation
 
 /// Return list of unprocessed validations
-pub fn list_validations() -> ValidationResult<Vec<Validation>> {
+pub fn list_validations() -> Vec<Validation> {
   let reg = get_validation_registry();
-  ValidationResult::data(
-    reg.fresh.iter().map(|validation_id| reg.validations.get(validation_id)).collect()
-  )
+  reg.fresh.iter().map(|validation_id|
+    reg.validations.get(&validation_id)
+  ).map(|v| v.unwrap().clone())
+    .collect()
 }
 
-pub async fn fetch_validation(validation_id: ValidationId) -> ValidationResult<ValidationId> {
-  let vid: ValidationId = 123;
-  ValidationResult::data(vid)
+pub fn fetch_validation(validation_id: ValidationId) -> Option<Validation> {
+  let reg = get_validation_registry();
+  reg.validations.get(&validation_id).cloned()
 }

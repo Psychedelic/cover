@@ -1,7 +1,6 @@
-use crate::common::types::{CanisterId, Controller, ValidationId, CallerId};
+use crate::common::types::{CanisterId, ValidationId, CallerId};
 use ic_cdk::export::candid::CandidType;
 use serde::Deserialize;
-use std::time::SystemTime;
 
 #[derive(CandidType, Clone, Deserialize, PartialEq, Debug)]
 pub struct BuildParams {
