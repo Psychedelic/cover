@@ -7,28 +7,22 @@
 [![Services](https://github.com/Psychedelic/fleek-ooo/actions/workflows/pr-test-runner-services.yml/badge.svg)](https://github.com/Psychedelic/fleek-ooo/actions/workflows/pr-test-runner-services.yml)
 
 
-# Fleek.ooo
+# Cover
 
-A trustless development platform for deploying, monitoring, updating and managing canisters & apps on the Internet Computer.
+A canister validation service.
+
+TODO: cleanup 
 
 ## Requirements ⚙️
 
-- Nodejs
-- Yarn or NPM
-- Configure NPM for Github Package Registry
-- The [Plug extension](#plug-extension)
+- Cargo / rust
 - Candid CLI, find more [here](docs/dfx.md#developer-tools)
 
 ⚠️ We mainly support MacOS and Ubuntu (Debian). Where our dev tools target mostly MacOS (we do a best effort regarding Debian) and cloud runners primarily Ubuntu. For Windows users, we suggest use of [Ubuntu on WSL](https://ubuntu.com/wsl). If you find a lack of support on your operating system, feel free to provide a PR for support, thank you!
 
-## Configure NPM 🕵🏻‍♀️
-
-You'll need to have **@Psychedelic** and **@FleekHQ** Github Package Registry setup, if you haven't done for other projects find out how [here](docs/packages.md).
-
 ## Getting started 🤔
 
 The project is split into different packages and uses [Lerna](https://lerna.js.org/), a tool to manage multiple packages in a monorepo.
-
 
 Use the Lerna boostrap command to install and link the packages and their dependencies.
 
