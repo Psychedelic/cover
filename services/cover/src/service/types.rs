@@ -9,13 +9,24 @@ pub struct BuildParams {
 }
 
 #[derive(CandidType, Clone, Deserialize, PartialEq, Debug)]
-pub struct Validation {
+pub struct ValidationRequest {
+  pub canister_id: CanisterId,
   pub caller_id: CallerId,
   pub build_settings: BuildParams,
   pub fetched: bool,
 }
 
-impl Validation {
+#[derive(CandidType, Clone, Deserialize, PartialEq, Debug)]
+pub struct ValidationResult {
+  validation_id: ValidationId,
+  pub build_checksum: String,
+  pub wasm_checksum: String,
+  pub build_log_url: String,
+  pub source_snapshot_url: String,
+  pub status: String,
+}
+
+impl ValidationRequest {
 
   pub fn mark_fetched(&mut self) -> &Self {
     self.fetched = true;

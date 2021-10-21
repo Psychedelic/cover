@@ -3,7 +3,7 @@ mod service;
 
 use crate::common::types::{CallerId, ValidationId};
 use crate::service::cover_service;
-use crate::service::types::{NewValidationRequest, Validation};
+use crate::service::types::{NewValidationRequest, ValidationRequest};
 use crate::service::utils::ValidationResult;
 use ic_kit::ic::caller;
 use ic_kit::macros::{query, update};
@@ -22,7 +22,7 @@ fn request_validation(request: NewValidationRequest) -> ValidationResult<()> {
 }
 
 #[query]
-fn validation_requests() -> ValidationResult<Vec<Validation>> {
+fn list_validations() -> ValidationResult<Vec<ValidationRequest>> {
   ValidationResult::data(
     cover_service::list_validations()
   )
@@ -32,7 +32,7 @@ fn validation_requests() -> ValidationResult<Vec<Validation>> {
    Validator API
 */
 #[query]
-fn fetch_validation(validation_id: ValidationId) -> ValidationResult<Validation> {
+fn fetch_validation(validation_id: ValidationId) -> ValidationResult<ValidationRequest> {
   ValidationResult::data(
     cover_service::fetch_validation(validation_id).unwrap()
   )
@@ -60,6 +60,6 @@ mod tests {
   #[test]
   fn initial_state_success() {
     MockContext::new().inject();
-    assert_eq!(list_canisters().data.unwrap().len(), 0);
+    assert_eq!(list_validations().data.unwrap().len(), 0);
   }
 }
