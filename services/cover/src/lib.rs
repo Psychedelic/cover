@@ -21,12 +21,13 @@ fn request_validation(request: NewValidationRequest) -> ValidationResult<()> {
   cover_service::request_validation(request)
 }
 
-// #[query]
-// fn my_validations() -> ValidationResult<Vec<CanisterId>> {
-//   ValidationResult::data(
-//     cover_service::all_validations()
-//   )
-// }
+#[query]
+fn my_validations() -> ValidationResult<Vec<ValidationRequest>> {
+  let caller = caller();
+  ValidationResult::data(
+    cover_service::all_validations(Some(&caller))
+  )
+}
 
 
 /*
@@ -64,7 +65,7 @@ mod tests {
   }
 
   #[test]
-  fn list_canisters_ok() {
+  fn list_fresh_ok() {
     MockContext::new()
       .with_caller(mock_principals::alice())
       .with_data(fake_registry())
@@ -79,7 +80,7 @@ mod tests {
       .with_caller(mock_principals::alice())
       .with_data(fake_registry())
       .inject();
-    list_canisters_ok();
+    list_fresh_ok();
     request_validation(NewValidationRequest {
       canister_id: fake_canister1(),
       build_settings: fake_build_params(),
@@ -93,5 +94,46 @@ mod tests {
     });
     let fresh = fresh_validations();
     assert_eq!(fresh.data.unwrap().len(), 2);
+  }
+
+  #[test]
+  fn list_my_validations() {
+    let mut reg = fake_registry();
+
+    let mut context = MockContext::new()
+      .with_caller(mock_principals::alice())
+      .with_data(reg)
+      .inject();
+
+    list_fresh_ok();
+
+    request_validation(NewValidationRequest {
+      canister_id: fake_canister1(),
+      build_settings: fake_build_params(),
+    });
+    request_validation(NewValidationRequest {
+      canister_id: fake_canister2(),
+      build_settings: fake_build_params(),
+    });
+
+    context.update_caller(mock_principals::bob());
+
+    request_validation(NewValidationRequest {
+      canister_id: fake_canister2(),
+      build_settings: fake_build_params(),
+    });
+
+    context.update_caller(mock_principals::alice());
+    let list = my_validations();
+    assert_eq!(list.data.unwrap().len(), 2);
+
+    context.update_caller(mock_principals::bob());
+    let list = my_validations();
+    assert_eq!(list.data.unwrap().len(), 1);
+
+    context.update_caller(mock_principals::john());
+    let list = my_validations();
+    assert_eq!(list.data.unwrap().len(), 0);
+
   }
 }

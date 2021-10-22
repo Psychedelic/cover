@@ -1,5 +1,5 @@
 use super::{get_validation_registry, get_validation_registry_mut};
-use crate::common::types::{CanisterId, ValidationId};
+use crate::common::types::{CanisterId, ValidationId, CallerId};
 use crate::service::constants::{Error, Ok};
 use crate::service::types::{NewValidationRequest, ValidationRequest, BuildParams};
 use crate::service::utils::ValidationResult;
@@ -27,6 +27,13 @@ pub fn fresh_validations() -> Vec<CanisterId> {
   let reg = get_validation_registry();
   reg.list_fresh().iter().map(|(can_id, val_id)| can_id.clone()).collect()
 }
+
+/// Return list of unprocessed requested canister_ids
+pub fn all_validations(caller: Option<&CallerId>) -> Vec<ValidationRequest> {
+  let reg = get_validation_registry();
+  reg.list_all(caller)
+}
+
 
 /// Fetch request from fresh list, mark it as fetched
 /// returns ValidationRequest

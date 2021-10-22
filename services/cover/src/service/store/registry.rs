@@ -81,13 +81,19 @@ impl ValidationsRegistry {
 
   /// Get all stored validations
   /// Provided for debugging purpose
-  pub fn list_all(&self) -> Vec<ValidationRequest> {
-    self.validations.keys().map(|req_id|
-      ValidationRequest {
-        validation_id: Some(req_id.clone()),
-        ..self.validations.get(req_id).unwrap().clone()
-      }
-    ).collect()
+  pub fn list_all(&self, caller: Option<&CallerId>) -> Vec<ValidationRequest> {
+    self.validations.iter()
+      .filter(|(key, val)|
+        match caller {
+          Some(caller_id) => &val.caller_id == caller_id,
+          _ => true, // include all if no filter provided
+        })
+      .map(|(val_id, val)|
+        ValidationRequest {
+          validation_id: Some(val_id.clone()),
+          ..val.clone()
+        }
+      ).collect()
   }
 
   /// Return list of fresh canister ids
@@ -200,7 +206,7 @@ pub mod test {
       &fake_canister3(),
     ].sort());
     assert_eq!(registry.list_fresh().len(), 2); // removed from fresh
-    assert_eq!(registry.list_all(), vec![
+    assert_eq!(registry.list_all(None), vec![
       ValidationRequest {
         validation_id: Some(1),
         canister_id: fake_canister1(),
