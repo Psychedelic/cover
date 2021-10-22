@@ -1,7 +1,7 @@
 mod common;
 mod service;
 
-use crate::common::types::{CallerId, ValidationId};
+use crate::common::types::{CallerId, ValidationId, CanisterId};
 use crate::service::cover_service;
 use crate::service::types::{NewValidationRequest, ValidationRequest};
 use crate::service::utils::ValidationResult;
@@ -22,9 +22,9 @@ fn request_validation(request: NewValidationRequest) -> ValidationResult<()> {
 }
 
 #[query]
-fn list_validations() -> ValidationResult<Vec<ValidationRequest>> {
+fn list_validations() -> ValidationResult<Vec<CanisterId>> {
   ValidationResult::data(
-    cover_service::list_validations()
+    cover_service::fresh_validations()
   )
 }
 
@@ -32,10 +32,8 @@ fn list_validations() -> ValidationResult<Vec<ValidationRequest>> {
    Validator API
 */
 #[query]
-fn fetch_validation(validation_id: ValidationId) -> ValidationResult<ValidationRequest> {
-  ValidationResult::data(
-    cover_service::fetch_validation(validation_id).unwrap()
-  )
+fn fetch_validation(canister_id: CanisterId) -> ValidationResult<ValidationRequest> {
+  cover_service::fetch_request(&canister_id)
 }
 
 
