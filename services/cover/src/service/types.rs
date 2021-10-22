@@ -10,6 +10,7 @@ pub struct BuildParams {
 
 #[derive(CandidType, Clone, Deserialize, PartialEq, Debug)]
 pub struct ValidationRequest {
+  pub validation_id: Option<ValidationId>,
   pub canister_id: CanisterId,
   pub caller_id: CallerId,
   pub build_settings: BuildParams,

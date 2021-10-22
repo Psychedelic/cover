@@ -8,19 +8,20 @@ use crate::service::types::{ValidationRequest, BuildParams};
 
 #[derive(CandidType, Deserialize)]
 pub struct ValidationsRegistry {
-  count: ValidationId,
-  fresh: Vec<(CanisterId, ValidationId)>,
-  canister_reqs: BTreeMap<CanisterId, Vec<ValidationId>>,
-  validation_reqs: BTreeMap<ValidationId, ValidationRequest>,
+  validation_counter: ValidationId,
+  validations: BTreeMap<ValidationId, ValidationRequest>,
+  fresh_validations: Vec<(CanisterId, ValidationId)>,
+  // lookup helper
+  validation_by_canister_id: BTreeMap<CanisterId, Vec<ValidationId>>, // lookup helper
 }
 
 impl Default for ValidationsRegistry {
   fn default() -> Self {
     Self {
-      count: 0,
-      fresh: Vec::new(),
-      canister_reqs: BTreeMap::new(),
-      validation_reqs: BTreeMap::new(),
+      validation_counter: 0,
+      validations: BTreeMap::new(),
+      validation_by_canister_id: BTreeMap::new(),
+      fresh_validations: Vec::new(),
     }
   }
 }
@@ -28,10 +29,9 @@ impl Default for ValidationsRegistry {
 /// Internal store implementation of validation requests
 impl ValidationsRegistry {
   /// Add validation request to internal storage
-  ///
   /// Return () when success
   /// and Error when fail
-  pub fn add_request(
+  pub fn add_validation(
     &mut self,
     caller_id: &CallerId,
     canister_id: &CanisterId,
@@ -40,14 +40,15 @@ impl ValidationsRegistry {
     self.contains_request(canister_id)
       .not()
       .then(|| {
-        self.count += 1; // increase counter
-        self.validation_reqs.insert(self.count, ValidationRequest {
+        self.validation_counter += 1; // increase counter
+        self.validations.insert(self.validation_counter, ValidationRequest {
+          validation_id: None,
           canister_id: canister_id.clone(),
           fetched: false,
           caller_id: caller_id.clone(),
           build_settings: build_settings.clone(),
         });
-        self.fresh.push((canister_id.clone(), self.count));
+        self.fresh_validations.push((canister_id.clone(), self.validation_counter));
         // self.canister_requests.conatins_canister_id(canister_id, self.count).ok_or_else(||
         //   request.add(canister_id, self.count)
         // );
@@ -55,36 +56,46 @@ impl ValidationsRegistry {
       .ok_or_else(|| Error::new(ErrorKind::FetchRequestNotFound, None))
   }
 
-  /// Get request and mark it as fetched
+  /// Get validation request and mark it as fetched
   ///
   /// Return Validation when success
   /// and Error when fail
-  pub fn fetch_request(
+  pub fn fetch_validation(
     &mut self,
     canister_id: &CanisterId,
-  ) -> Result<&ValidationRequest, Error> {
-    let index = self.fresh.iter().position(|(c_id, _vid)| c_id == canister_id).unwrap();
-    let (_cid, request_id) = self.fresh.remove(index);
+  ) -> Result<ValidationRequest, Error> {
+    let index = self.fresh_validations.iter().position(|(c_id, _vid)| c_id == canister_id).unwrap();
+    let (_cid, request_id) = self.fresh_validations.swap_remove(index); // use faster swap_remove
 
-    self.validation_reqs
+    self.validations
       .get_mut(&request_id)
       .map(|v| {
-        v.mark_fetched()
+        v.mark_fetched();
+        ValidationRequest {
+          validation_id: Some(request_id), // populate validation_id
+          ..v.clone()
+        }
       })
       .ok_or_else(|| Error::new(ErrorKind::FetchRequestNotFound, None))
   }
 
-  pub fn list_all(&self) -> Vec<&ValidationRequest> {
-    self.validation_reqs.keys().map(|req_id|
-      self.validation_reqs.get(req_id).unwrap()
+  /// Get all stored validations
+  /// Provided for debugging purpose
+  pub fn list_all(&self) -> Vec<ValidationRequest> {
+    self.validations.keys().map(|req_id|
+      ValidationRequest {
+        validation_id: Some(req_id.clone()),
+        ..self.validations.get(req_id).unwrap().clone()
+      }
     ).collect()
   }
 
   /// Return list of fresh canister ids
-  pub fn list_fresh(&self) -> Vec<&CanisterId> {
-    self.fresh.iter().map(|(canister_id, _req_id)|
-      canister_id
-    ).collect()
+  pub fn list_fresh(&self) -> Vec<&(CanisterId, ValidationId)> {
+    self.fresh_validations.iter()
+      .map(|entry|
+        entry
+      ).collect()
   }
 
 
@@ -94,7 +105,11 @@ impl ValidationsRegistry {
   // }
 
   pub fn contains_request(&self, canister_id: &CanisterId) -> bool {
-    self.canister_reqs.contains_key(canister_id)
+    self.validation_by_canister_id.contains_key(canister_id)
+  }
+
+  pub fn get_request(&self, validation_id: ValidationId) -> Result<&ValidationRequest, Error> {
+    Ok(self.validations.get(&validation_id).unwrap())
   }
 }
 
@@ -109,10 +124,10 @@ pub mod test {
 
   impl ValidationsRegistry {
     pub fn count_all(&self) -> usize {
-      self.validation_reqs.len()
+      self.validations.len()
     }
     pub fn count_fresh(&self) -> usize {
-      self.fresh.len()
+      self.fresh_validations.len()
     }
   }
 
@@ -137,67 +152,71 @@ pub mod test {
   fn adding_request_ok() {
     let mut registry = fake_registry();
     assert_eq!(registry.count_fresh(), 0);
-    let r = registry.add_request(&fake_caller1(), &fake_canister1(), &fake_build_params());
+    let r = registry.add_validation(&fake_caller1(), &fake_canister1(), &fake_build_params());
     assert_eq!(r, Ok(()));
     assert_eq!(registry.count_fresh(), 1);
     assert_eq!(registry.count_all(), 1);
 
-    let r = registry.add_request(&fake_caller1(), &fake_canister2(), &fake_build_params());
+    let r = registry.add_validation(&fake_caller1(), &fake_canister2(), &fake_build_params());
     assert_eq!(r, Ok(()));
     assert_eq!(registry.count_fresh(), 2);
     assert_eq!(registry.count_all(), 2);
 
-    let r = registry.add_request(&fake_caller1(), &fake_canister3(), &fake_build_params());
+    let r = registry.add_validation(&fake_caller1(), &fake_canister3(), &fake_build_params());
     assert_eq!(r, Ok(()));
     assert_eq!(registry.count_fresh(), 3);
     assert_eq!(registry.count_all(), 3);
 
     assert_eq!(registry.list_fresh(), vec![
-      &fake_canister1(),
-      &fake_canister2(),
-      &fake_canister3(),
+      &(fake_canister1(), 1),
+      &(fake_canister2(), 2),
+      &(fake_canister3(), 3),
     ]);
   }
 
   #[test]
   fn fetching_request_ok() {
     let mut registry = fake_registry();
-    registry.add_request(&fake_caller1(), &fake_canister1(), &fake_build_params());
-    registry.add_request(&fake_caller1(), &fake_canister2(), &fake_build_params());
-    registry.add_request(&fake_caller1(), &fake_canister3(), &fake_build_params());
+    registry.add_validation(&fake_caller1(), &fake_canister1(), &fake_build_params());
+    registry.add_validation(&fake_caller1(), &fake_canister2(), &fake_build_params());
+    registry.add_validation(&fake_caller1(), &fake_canister3(), &fake_build_params());
 
     assert_eq!(registry.list_fresh(), vec![
-      &fake_canister1(),
-      &fake_canister2(),
-      &fake_canister3(),
+      &(fake_canister1(), 1),
+      &(fake_canister2(), 2),
+      &(fake_canister3(), 3),
     ]);
 
     {
-      let req1 = registry.fetch_request(&fake_canister1()).unwrap();
+      let req1 = registry.fetch_validation(&fake_canister1()).unwrap();
       assert_eq!(req1.caller_id, fake_caller1());
       assert_eq!(req1.canister_id, fake_canister1());
       assert_eq!(req1.fetched, true);
     }
 
-    assert_eq!(registry.list_fresh(), vec![
+    // sort ids to deal with shuffle
+    assert_eq!(registry.list_fresh().sort(), vec![
       &fake_canister2(),
       &fake_canister3(),
-    ]);
+    ].sort());
     assert_eq!(registry.list_fresh().len(), 2); // removed from fresh
     assert_eq!(registry.list_all(), vec![
-      &ValidationRequest {
+      ValidationRequest {
+        validation_id: Some(1),
         canister_id: fake_canister1(),
         caller_id: fake_caller1(),
         build_settings: fake_build_params(),
         fetched: true,
       },
-      &ValidationRequest {
+      ValidationRequest {
+        validation_id: Some(2),
         canister_id: fake_canister2(),
         caller_id: fake_caller1(),
         build_settings: fake_build_params(),
         fetched: false,
       },
-      &ValidationRequest {
+      ValidationRequest {
+        validation_id: Some(3),
         canister_id: fake_canister3(),
         caller_id: fake_caller1(),
         build_settings: fake_build_params(),

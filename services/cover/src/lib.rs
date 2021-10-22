@@ -21,19 +21,27 @@ fn request_validation(request: NewValidationRequest) -> ValidationResult<()> {
   cover_service::request_validation(request)
 }
 
-#[query]
-fn list_validations() -> ValidationResult<Vec<CanisterId>> {
-  ValidationResult::data(
-    cover_service::fresh_validations()
-  )
-}
+// #[query]
+// fn my_validations() -> ValidationResult<Vec<CanisterId>> {
+//   ValidationResult::data(
+//     cover_service::all_validations()
+//   )
+// }
+
 
 /*
    Validator API
 */
 #[query]
+fn fresh_validations() -> ValidationResult<Vec<CanisterId>> {
+  ValidationResult::data(
+    cover_service::fresh_validations()
+  )
+}
+
+#[query]
 fn fetch_validation(canister_id: CanisterId) -> ValidationResult<ValidationRequest> {
-  cover_service::fetch_request(&canister_id)
+  cover_service::fetch_validation(&canister_id)
 }
 
 
@@ -56,8 +64,34 @@ mod tests {
   }
 
   #[test]
-  fn initial_state_success() {
-    MockContext::new().inject();
-    assert_eq!(list_validations().data.unwrap().len(), 0);
+  fn list_canisters_ok() {
+    MockContext::new()
+      .with_caller(mock_principals::alice())
+      .with_data(fake_registry())
+      .inject();
+    let fresh = fresh_validations();
+    assert_eq!(fresh.data.unwrap().len(), 0);
+  }
+
+  #[test]
+  fn list_add_request_ok() {
+    MockContext::new()
+      .with_caller(mock_principals::alice())
+      .with_data(fake_registry())
+      .inject();
+    list_canisters_ok();
+    request_validation(NewValidationRequest {
+      canister_id: fake_canister1(),
+      build_settings: fake_build_params(),
+    });
+    let fresh = fresh_validations();
+    assert_eq!(fresh.data.unwrap().len(), 1);
+
+    request_validation(NewValidationRequest {
+      canister_id: fake_canister2(),
+      build_settings: fake_build_params(),
+    });
+    let fresh = fresh_validations();
+    assert_eq!(fresh.data.unwrap().len(), 2);
   }
 }
