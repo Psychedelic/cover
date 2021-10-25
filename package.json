@@ -1,0 +1,49 @@
+{
+  "name": "cover",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Psychedelic/cover"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/@psychedelic"
+  },
+  "workspaces": {
+    "packages": [
+      "packages/*"
+    ],
+    "nohoist": [
+      "**/webpack",
+      "**/babel-loader"
+    ]
+  },
+  "scripts": {
+    "rebuild": "cargo clean && yarn dfx:build",
+    "dfx:full": "yarn dfx:stop; yarn dfx:start; yarn dfx:create; yarn dfx:build && yarn dfx:install",
+    "dfx:start": "dfx start --clean --background",
+    "dfx:stop": "dfx stop",
+    "dfx:create": "dfx canister create --all",
+    "dfx:build": "dfx build --all",
+    "dfx:install": "dfx canister install --all",
+    "dfx:upgrade": "dfx build --check && dfx canister install --all --mode=upgrade",
+    "storybook": "yarn build:ui && start-storybook -p 6006",
+    "bootstrap": "npx lerna bootstrap",
+    "build:storybook": "build-storybook",
+    "build:ui": "lerna run --scope ui build",
+    "build:wallet-connect": "lerna run --scope wallet-connect build",
+    "build:dashboard": "yarn build:ui && lerna run --scope dashboard build",
+    "dev:dashboard": "yarn build:ui && lerna run --scope dashboard start",
+    "lint:ui": "lerna run --scope ui lint",
+    "lint:dashboard": "lerna run --scope dashboard lint",
+    "lint": "yarn lint:ui && yarn lint:dashboard",
+    "test:services": "cargo run"
+  },
+  "devDependencies": {
+    "@stdlib/streams-node-stdout": "^0.0.6",
+    "minimist": "^1.2.5"
+  },
+  "engines": {
+    "node": ">=10.0.0",
+    "npm": ">=6.0.0"
+  }
+}

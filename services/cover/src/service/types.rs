@@ -1,4 +1,4 @@
-use crate::common::types::{CanisterId, ValidationId, CallerId};
+use crate::common::types::{CanisterId, RequestId, CallerId};
 use ic_cdk::export::candid::CandidType;
 use serde::Deserialize;
 
@@ -10,7 +10,7 @@ pub struct BuildParams {
 
 #[derive(CandidType, Clone, Deserialize, PartialEq, Debug)]
 pub struct ValidationRequest {
-  pub validation_id: Option<ValidationId>,
+  pub request_id: Option<RequestId>,
   pub canister_id: CanisterId,
   pub caller_id: CallerId,
   pub build_settings: BuildParams,
@@ -19,7 +19,7 @@ pub struct ValidationRequest {
 
 #[derive(CandidType, Clone, Deserialize, PartialEq, Debug)]
 pub struct ValidationResult {
-  validation_id: ValidationId,
+  validation_id: RequestId,
   pub build_checksum: String,
   pub wasm_checksum: String,
   pub build_log_url: String,

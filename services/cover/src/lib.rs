@@ -1,7 +1,7 @@
 mod common;
 mod service;
 
-use crate::common::types::{CallerId, ValidationId, CanisterId};
+use crate::common::types::{CallerId, RequestId, CanisterId};
 use crate::service::cover_service;
 use crate::service::types::{NewValidationRequest, ValidationRequest};
 use crate::service::utils::ValidationResult;
@@ -18,31 +18,26 @@ fn whoami() -> CallerId {
 */
 #[update]
 fn request_validation(request: NewValidationRequest) -> ValidationResult<()> {
-  cover_service::request_validation(request)
+  cover_service::add_validation_request(request)
 }
 
 #[query]
-fn my_validations() -> ValidationResult<Vec<ValidationRequest>> {
+fn my_validations() -> Vec<ValidationRequest> {
   let caller = caller();
-  ValidationResult::data(
-    cover_service::all_validations(Some(&caller))
-  )
+  cover_service::all_validation_requests(Some(&caller))
 }
-
 
 /*
    Validator API
 */
 #[query]
-fn fresh_validations() -> ValidationResult<Vec<CanisterId>> {
-  ValidationResult::data(
-    cover_service::fresh_validations()
-  )
+fn fresh_validations() -> Vec<CanisterId> {
+  cover_service::fresh_validation_requests()
 }
 
 #[query]
 fn fetch_validation(canister_id: CanisterId) -> ValidationResult<ValidationRequest> {
-  cover_service::fetch_validation(&canister_id)
+  cover_service::fetch_validation_request(&canister_id)
 }
 
 
@@ -71,7 +66,7 @@ mod tests {
       .with_data(fake_registry())
       .inject();
     let fresh = fresh_validations();
-    assert_eq!(fresh.data.unwrap().len(), 0);
+    assert_eq!(fresh.len(), 0);
   }
 
   #[test]
@@ -86,14 +81,14 @@ mod tests {
       build_settings: fake_build_params(),
     });
     let fresh = fresh_validations();
-    assert_eq!(fresh.data.unwrap().len(), 1);
+    assert_eq!(fresh.len(), 1);
 
     request_validation(NewValidationRequest {
       canister_id: fake_canister2(),
       build_settings: fake_build_params(),
     });
     let fresh = fresh_validations();
-    assert_eq!(fresh.data.unwrap().len(), 2);
+    assert_eq!(fresh.len(), 2);
   }
 
   #[test]
@@ -125,15 +120,14 @@ mod tests {
 
     context.update_caller(mock_principals::alice());
     let list = my_validations();
-    assert_eq!(list.data.unwrap().len(), 2);
+    assert_eq!(list.len(), 2);
 
     context.update_caller(mock_principals::bob());
     let list = my_validations();
-    assert_eq!(list.data.unwrap().len(), 1);
+    assert_eq!(list.len(), 1);
 
     context.update_caller(mock_principals::john());
     let list = my_validations();
-    assert_eq!(list.data.unwrap().len(), 0);
-
+    assert_eq!(list.len(), 0);
   }
 }
