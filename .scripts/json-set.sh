@@ -1,9 +1,6 @@
 #!/bin/bash
 # Add/change attributes in a json file using jq tool
-# json.sh file.json key "Value"
-
-#source "${BASH_SOURCE%/*}/utils.sh"
-#(verifyExecDependency "jq")
+# json-set.sh file.json key "Value"
 
 OUTPUT_FILE=$1
 if [[ ! -f $OUTPUT_FILE ]]; then
