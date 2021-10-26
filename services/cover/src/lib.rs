@@ -3,23 +3,37 @@ mod service;
 
 use crate::common::types::{CallerId, RequestId, CanisterId};
 use crate::service::cover_service;
-use crate::service::types::{NewValidationRequest, ValidationRequest};
+use crate::service::types::{NewValidationRequest, ValidationRequest, BuildParams};
 use crate::service::utils::ValidationResult;
 use ic_kit::ic::caller;
 use ic_kit::macros::{query, update};
+use serde::{Deserialize, Serialize};
 
 #[query]
 fn whoami() -> CallerId {
   caller()
 }
 
+#[query]
+fn json(str: String) -> () {
+  ic_kit::ic::print(format!("JSON received: {:?}", str));
+  let request: BuildParams = serde_json::from_str(str.as_ref()).unwrap();
+  ic_kit::ic::print(format!("Parsed: {:?}", serde_json::to_string_pretty(&request)));
+}
+
 /*
     Builder API
 */
 #[update]
-fn request_validation(request: NewValidationRequest) -> ValidationResult<()> {
+fn add_validation_request(request: NewValidationRequest) -> ValidationResult<()> {
   cover_service::add_validation_request(request)
 }
+#[update]
+fn add_validation_request_json(str: String) -> ValidationResult<()> {
+  let request: NewValidationRequest = serde_json::from_str(str.as_ref()).unwrap();
+  cover_service::add_validation_request(request)
+}
+
 
 #[query]
 fn my_validations() -> Vec<ValidationRequest> {
@@ -39,6 +53,11 @@ fn fresh_validations() -> Vec<CanisterId> {
 fn fetch_validation(canister_id: CanisterId) -> ValidationResult<ValidationRequest> {
   cover_service::fetch_validation_request(&canister_id)
 }
+#[query]
+fn fetch_validation_json(canister_id: CanisterId) -> String {
+  let res = cover_service::fetch_validation_request(&canister_id);
+  serde_json::to_string_pretty(&res.data.unwrap()).unwrap()
+}
 
 
 #[cfg(test)]
@@ -50,6 +69,16 @@ mod tests {
   use crate::service::CanisterInternalStoreTest;
   use ic_kit::interfaces::management::*;
   use ic_kit::*;
+
+  #[test]
+  fn json_test() {
+    MockContext::new()
+        .with_caller(mock_principals::bob())
+        .inject();
+    let str="{\"git_ref\": \"REF\", \"git_sha\":\"SHA\"}".to_string();
+    json(str);
+  }
+
 
   #[test]
   fn whoami_success() {
@@ -76,14 +105,40 @@ mod tests {
       .with_data(fake_registry())
       .inject();
     list_fresh_ok();
-    request_validation(NewValidationRequest {
+    add_validation_request(NewValidationRequest {
       canister_id: fake_canister1(),
       build_settings: fake_build_params(),
     });
     let fresh = fresh_validations();
     assert_eq!(fresh.len(), 1);
 
-    request_validation(NewValidationRequest {
+    add_validation_request(NewValidationRequest {
+      canister_id: fake_canister2(),
+      build_settings: fake_build_params(),
+    });
+    let fresh = fresh_validations();
+    assert_eq!(fresh.len(), 2);
+  }
+
+  #[test]
+  fn list_add_request_json_ok() {
+    MockContext::new()
+        .with_caller(mock_principals::alice())
+        .with_data(fake_registry())
+        .inject();
+    list_fresh_ok();
+    let str=r#"{
+      "canister_id": "rrkah-fqaaa-aaaaa-aaaaq-cai",
+      "build_settings": {
+        "git_ref": "REF",
+        "git_sha": "SHA"
+      }
+    }"#;
+    add_validation_request_json(str.to_string());
+    let fresh = fresh_validations();
+    assert_eq!(fresh.len(), 1);
+
+    add_validation_request(NewValidationRequest {
       canister_id: fake_canister2(),
       build_settings: fake_build_params(),
     });
@@ -102,18 +157,18 @@ mod tests {
 
     list_fresh_ok();
 
-    request_validation(NewValidationRequest {
+    add_validation_request(NewValidationRequest {
       canister_id: fake_canister1(),
       build_settings: fake_build_params(),
     });
-    request_validation(NewValidationRequest {
+    add_validation_request(NewValidationRequest {
       canister_id: fake_canister2(),
       build_settings: fake_build_params(),
     });
 
     context.update_caller(mock_principals::bob());
 
-    request_validation(NewValidationRequest {
+    add_validation_request(NewValidationRequest {
       canister_id: fake_canister2(),
       build_settings: fake_build_params(),
     });

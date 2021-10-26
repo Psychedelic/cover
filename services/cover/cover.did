@@ -1,6 +1,6 @@
 type BuildParams = record {
   git_ref: text;
-  git_shat: text;
+  git_sha: text;
 };
 
 type ValidationRequest = record {
@@ -10,14 +10,29 @@ type ValidationRequest = record {
   fetched: bool;
 };
 
+type NewValidationRequest = record {
+  canister_id: principal;
+  build_settings: BuildParams;
+};
+
+
 type ValidationResult = record {
-  git_ref: text;
-  git_shat: text;
+  data: opt record {
+    canister_id: principal
+  };
+  is_error: bool;
+  message: opt text;
+  code: opt text;
 };
 
 service: {
     whoami: () -> (principal);
-    my_validations: () -> (vec ValidationRequest);
+    json: (text) -> ();
     // Builder API
+    add_validation_request: (NewValidationRequest) -> (ValidationResult);
+    add_validation_request_json: (text) -> (ValidationResult);
+    my_validations: () -> (vec ValidationRequest);
+
+    // Validator API
     fresh_validations: () -> (vec principal);
 }

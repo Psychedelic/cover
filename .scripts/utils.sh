@@ -20,3 +20,4 @@ verifyExecDependency() {
     echo "👍 $cmd CLI is available"
   done;
 }
+
