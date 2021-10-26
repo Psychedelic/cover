@@ -1,375 +1,233 @@
-use crate::common::types::{CallerId, CanisterId, ValidationId};
+use crate::common::types::{CallerId, CanisterId, RequestId};
 use crate::service::store::error::{Error, ErrorKind};
 use ic_cdk::export::candid::CandidType;
 use serde::Deserialize;
 use std::collections::BTreeMap;
 use std::ops::{Bound::Included, Not};
-use crate::service::types::{Validation, BuildParams};
+use crate::service::types::{ValidationRequest, BuildParams};
 
-
-type RequestKey = (CanisterId, ValidationId);
-
-// Validation requests
 #[derive(CandidType, Deserialize)]
 pub struct ValidationsRegistry {
-  count: ValidationId,
-  pub requests: BTreeMap<RequestKey, Validation>,
-  // validations: BTreeMap<RequestKey, Validation<'a>>,
+  validation_counter: RequestId,
+  validations: BTreeMap<RequestId, ValidationRequest>,
+  fresh_validations: Vec<(CanisterId, RequestId)>,
+  // lookup helper
+  validation_by_canister_id: BTreeMap<CanisterId, Vec<RequestId>>, // lookup helper
 }
 
 impl Default for ValidationsRegistry {
   fn default() -> Self {
     Self {
-      count: 0,
-      requests: BTreeMap::new(),
-      // validations: BTreeMap::new(),
+      validation_counter: 0,
+      validations: BTreeMap::new(),
+      validation_by_canister_id: BTreeMap::new(),
+      fresh_validations: Vec::new(),
     }
   }
 }
 
 /// Internal store implementation of validation requests
 impl ValidationsRegistry {
-  /// Return list canisters internal information
-  pub fn get_requests(&self) -> Vec<(&CanisterId, &ValidationId, &Validation)> {
-    self.requests.iter().collect()
-  }
-
   /// Add validation request to internal storage
-  ///
   /// Return () when success
   /// and Error when fail
   pub fn add_request(
     &mut self,
-    caller_id: CallerId,
-    canister_id: CanisterId,
-    build_settings: BuildParams,
-  ) -> Result<(ValidationId), Error> {
+    caller_id: &CallerId,
+    canister_id: &CanisterId,
+    build_settings: &BuildParams,
+  ) -> Result<(), Error> {
     self.contains_request(canister_id)
       .not()
       .then(|| {
-        self.count += 1;
-        self.requests.insert((canister_id, self.count), Validation {
-          caller_id: Some(caller_id),
-          build_settings
+        self.validation_counter += 1; // increase counter
+        self.validations.insert(self.validation_counter, ValidationRequest {
+          request_id: None,
+          canister_id: canister_id.clone(),
+          fetched: false,
+          caller_id: caller_id.clone(),
+          build_settings: build_settings.clone(),
         });
+        self.fresh_validations.push((canister_id.clone(), self.validation_counter));
+        // self.canister_requests.conatins_canister_id(canister_id, self.count).ok_or_else(||
+        //   request.add(canister_id, self.count)
+        // );
       })
-      .ok_or_else(|| Error::new(ErrorKind::AddExistedCanister, None))
+      .ok_or_else(|| Error::new(ErrorKind::FetchRequestNotFound, None))
   }
 
-  /// Get request and mark it as fetched
+  /// Get validation request and mark it as fetched
   ///
   /// Return Validation when success
   /// and Error when fail
   pub fn fetch_request(
     &mut self,
-    validation_id: ValidationId,
-  ) -> Result<Validation, Error> {
-    self.requests
-      .get_mut(&(_, validation_id))
-      .map(|c| c.canister_type = canister_type)
-      .ok_or_else(|| Error::new(ErrorKind::CanisterNotFound, None))
+    canister_id: &CanisterId,
+  ) -> Result<ValidationRequest, Error> {
+    let index = self.fresh_validations.iter().position(|(c_id, _vid)| c_id == canister_id).unwrap();
+    let (_cid, request_id) = self.fresh_validations.swap_remove(index); // use faster swap_remove
+
+    self.validations
+      .get_mut(&request_id)
+      .map(|v| {
+        v.mark_fetched();
+        ValidationRequest {
+          request_id: Some(request_id), // populate validation_id
+          ..v.clone()
+        }
+      })
+      .ok_or_else(|| Error::new(ErrorKind::FetchRequestNotFound, None))
   }
 
-  /// canister upgrade support
-  pub fn archive(&mut self) -> Vec<(RequestKey, Validation)> {
-    std::mem::take(&mut self.requests).into_iter().collect()
+  /// Get all stored validations
+  /// Provided for debugging purpose
+  pub fn list_all_requests(&self, caller: Option<&CallerId>) -> Vec<ValidationRequest> {
+    self.validations.iter()
+      .filter(|(key, val)|
+        match caller {
+          Some(caller_id) => &val.caller_id == caller_id,
+          _ => true, // include all if no filter provided
+        })
+      .map(|(val_id, val)|
+        ValidationRequest {
+          request_id: Some(val_id.clone()),
+          ..val.clone()
+        }
+      ).collect()
   }
 
-  /// canister upgrade support
-  pub fn load(&mut self, archive: Vec<(RequestKey, Validation)>) {
-    self.requests = archive.into_iter().collect();
+  /// Return list of fresh canister ids
+  pub fn list_fresh_requests(&self) -> Vec<&(CanisterId, RequestId)> {
+    self.fresh_validations.iter()
+      .map(|entry|
+        entry
+      ).collect()
+  }
+
+
+  // pub fn update_request(&mut self, validation_id: ValidationId, params: UpdateRequestParams) {
+  //   let & mut validation = validations.get(params.validation_id);
+  //   validation.setValidationStatus(params);
+  // }
+
+  pub fn contains_request(&self, canister_id: &CanisterId) -> bool {
+    self.validation_by_canister_id.contains_key(canister_id)
+  }
+
+  pub fn get_request(&self, validation_id: RequestId) -> Result<&ValidationRequest, Error> {
+    Ok(self.validations.get(&validation_id).unwrap())
   }
 }
+
 
 #[cfg(test)]
 pub mod test {
   use super::*;
   use ic_kit::*;
+  use crate::service::store::registry::ValidationsRegistry;
+  use std::collections::BTreeMap;
+  use crate::common::types::CallerId;
 
   impl ValidationsRegistry {
-    pub fn count(&self) -> usize {
+    pub fn count_all(&self) -> usize {
       self.validations.len()
     }
-  }
-
-  pub fn fake_canister1() -> CanisterId {
-    CanisterId::from_text("rkp4c-7iaaa-aaaaa-aaaca-cai").unwrap()
-  }
-
-  pub fn fake_canister2() -> CanisterId {
-    CanisterId::from_text("rrkah-fqaaa-aaaaa-aaaaq-cai").unwrap()
-  }
-
-  pub fn fake_canister3() -> CanisterId {
-    CanisterId::from_text("ryjl3-tyaaa-aaaaa-aaaba-cai").unwrap()
-  }
-
-  pub fn fake_canister4() -> CanisterId {
-    CanisterId::from_text("rno2w-sqaaa-aaaaa-aaacq-cai").unwrap()
-  }
-
-  pub fn fake_canister5() -> CanisterId {
-    CanisterId::from_text("renrk-eyaaa-aaaaa-aaada-cai").unwrap()
-  }
-
-  pub fn fake_canister6() -> CanisterId {
-    CanisterId::from_text("rdmx6-jaaaa-aaaaa-aaadq-cai").unwrap()
-  }
-
-  pub fn fake_store(store: Option<BTreeMap<RequestKey, CanisterInfoInternal>>) -> ValidationsRegistry {
-    ValidationsRegistry {
-      requests: store.unwrap_or(BTreeMap::new()),
+    pub fn count_fresh(&self) -> usize {
+      self.fresh_validations.len()
     }
   }
 
-  pub fn fake_data() -> BTreeMap<RequestKey, CanisterInfoInternal> {
-    let mut store = BTreeMap::new();
-    store.insert(
-      (mock_principals::bob(), fake_canister1()),
-      CanisterInfoInternal {
-        name: "Bob canister 1".into(),
-        canister_type: "".into(),
+  pub fn fake_registry() -> ValidationsRegistry { ValidationsRegistry::default() }
+
+  pub fn fake_caller1() -> CallerId { CallerId::from_text("rdmx6-jaaaa-aaaaa-aaadq-cai").unwrap() }
+
+  pub fn fake_canister1() -> CanisterId { CanisterId::from_text("rkp4c-7iaaa-aaaaa-aaaca-cai").unwrap() }
+
+  pub fn fake_canister2() -> CanisterId { CanisterId::from_text("rrkah-fqaaa-aaaaa-aaaaq-cai").unwrap() }
+
+  pub fn fake_canister3() -> CanisterId { CanisterId::from_text("ryjl3-tyaaa-aaaaa-aaaba-cai").unwrap() }
+
+  pub fn fake_build_params() -> BuildParams {
+    BuildParams {
+      git_ref: "git@github.com/Psychedelic/cover".into(),
+      git_sha: "".into(),
+    }
+  }
+
+  #[test]
+  fn adding_request_ok() {
+    let mut registry = fake_registry();
+    assert_eq!(registry.count_fresh(), 0);
+    let r = registry.add_request(&fake_caller1(), &fake_canister1(), &fake_build_params());
+    assert_eq!(r, Ok(()));
+    assert_eq!(registry.count_fresh(), 1);
+    assert_eq!(registry.count_all(), 1);
+
+    let r = registry.add_request(&fake_caller1(), &fake_canister2(), &fake_build_params());
+    assert_eq!(r, Ok(()));
+    assert_eq!(registry.count_fresh(), 2);
+    assert_eq!(registry.count_all(), 2);
+
+    let r = registry.add_request(&fake_caller1(), &fake_canister3(), &fake_build_params());
+    assert_eq!(r, Ok(()));
+    assert_eq!(registry.count_fresh(), 3);
+    assert_eq!(registry.count_all(), 3);
+
+    assert_eq!(registry.list_fresh_requests(), vec![
+      &(fake_canister1(), 1),
+      &(fake_canister2(), 2),
+      &(fake_canister3(), 3),
+    ]);
+  }
+
+  #[test]
+  fn fetching_request_ok() {
+    let mut registry = fake_registry();
+    registry.add_request(&fake_caller1(), &fake_canister1(), &fake_build_params());
+    registry.add_request(&fake_caller1(), &fake_canister2(), &fake_build_params());
+    registry.add_request(&fake_caller1(), &fake_canister3(), &fake_build_params());
+
+    assert_eq!(registry.list_fresh_requests(), vec![
+      &(fake_canister1(), 1),
+      &(fake_canister2(), 2),
+      &(fake_canister3(), 3),
+    ]);
+
+    {
+      let req1 = registry.fetch_request(&fake_canister1()).unwrap();
+      assert_eq!(req1.caller_id, fake_caller1());
+      assert_eq!(req1.canister_id, fake_canister1());
+      assert_eq!(req1.fetched, true);
+    }
+
+    // sort ids to deal with shuffle
+    assert_eq!(registry.list_fresh_requests().sort(), vec![
+      &fake_canister2(),
+      &fake_canister3(),
+    ].sort());
+    assert_eq!(registry.list_fresh_requests().len(), 2); // removed from fresh
+    assert_eq!(registry.list_all_requests(None), vec![
+      ValidationRequest {
+        request_id: Some(1),
+        canister_id: fake_canister1(),
+        caller_id: fake_caller1(),
+        build_settings: fake_build_params(),
+        fetched: true,
       },
-    );
-    store.insert(
-      (mock_principals::bob(), fake_canister2()),
-      CanisterInfoInternal {
-        name: "Bob canister 2".into(),
-        canister_type: "".into(),
+      ValidationRequest {
+        request_id: Some(2),
+        canister_id: fake_canister2(),
+        caller_id: fake_caller1(),
+        build_settings: fake_build_params(),
+        fetched: false,
       },
-    );
-    store.insert(
-      (mock_principals::bob(), fake_canister3()),
-      CanisterInfoInternal {
-        name: "Bob canister 3".into(),
-        canister_type: "".into(),
+      ValidationRequest {
+        request_id: Some(3),
+        canister_id: fake_canister3(),
+        caller_id: fake_caller1(),
+        build_settings: fake_build_params(),
+        fetched: false,
       },
-    );
-    store.insert(
-      (mock_principals::alice(), fake_canister4()),
-      CanisterInfoInternal {
-        name: "Alice canister 1".into(),
-        canister_type: "".into(),
-      },
-    );
-    store.insert(
-      (mock_principals::alice(), fake_canister5()),
-      CanisterInfoInternal {
-        name: "Alice canister 2".into(),
-        canister_type: "".into(),
-      },
-    );
-    store
-  }
-
-  #[test]
-  fn initial_state_ok() {
-    let store = fake_store(None);
-    assert_eq!(store.get_all(CallerId::anonymous()).len(), 0);
-  }
-
-  #[test]
-  fn get_all_ok() {
-    let store = fake_store(Some(fake_data()));
-    assert_eq!(
-      store.get_all(mock_principals::alice()),
-      vec![
-        (
-          (&fake_canister4()),
-          &CanisterInfoInternal {
-            name: "Alice canister 1".into(),
-            canister_type: "".into(),
-          },
-        ),
-        (
-          (&fake_canister5()),
-          &CanisterInfoInternal {
-            name: "Alice canister 2".into(),
-            canister_type: "".into(),
-          }
-        ),
-      ]
-    )
-  }
-
-  #[test]
-  fn get_by_id_return_some() {
-    let store = fake_store(Some(fake_data()));
-    assert_eq!(
-      store.get_canister(mock_principals::alice(), fake_canister5()),
-      Some(&CanisterInfoInternal {
-        name: "Alice canister 2".into(),
-        canister_type: "".into(),
-      })
-    )
-  }
-
-  #[test]
-  fn get_by_id_return_none() {
-    let store = fake_store(Some(fake_data()));
-    assert_eq!(
-      store.get_canister(mock_principals::bob(), fake_canister5()),
-      None
-    )
-  }
-
-  #[test]
-  fn contains_canister_true() {
-    let store = fake_store(Some(fake_data()));
-    assert!(store.contains_request(mock_principals::alice(), fake_canister5()))
-  }
-
-  #[test]
-  fn contains_canister_false() {
-    let store = fake_store(Some(fake_data()));
-    assert!(!store.contains_request(mock_principals::bob(), fake_canister5()))
-  }
-
-  #[test]
-  fn add_canister_ok() {
-    let mut store = fake_store(Some(fake_data()));
-    assert_eq!(
-      store.add_canister(
-        mock_principals::alice(),
-        fake_canister6(),
-        CanisterInfoInternal {
-          name: "Alice canister 3".into(),
-          canister_type: "".into(),
-        },
-      ),
-      Ok(())
-    );
-    assert_eq!(store.validations.len(), 6);
-    let canister = store
-      .validations
-      .get(&(mock_principals::alice(), fake_canister6()))
-      .unwrap();
-    assert_eq!(
-      canister,
-      &CanisterInfoInternal {
-        name: "Alice canister 3".into(),
-        canister_type: "".into(),
-      }
-    );
-  }
-
-  #[test]
-  fn add_canister_error() {
-    let mut store = fake_store(Some(fake_data()));
-    assert_eq!(
-      store.add_request(
-        mock_principals::alice(),
-        fake_canister5(),
-        CanisterInfoInternal {
-          name: "Alice canister 2".into(),
-          canister_type: "".into(),
-        },
-      ),
-      Err(Error::new(ErrorKind::AddExistedCanister, None))
-    );
-    assert_eq!(store.validations.len(), 5);
-  }
-
-  #[test]
-  fn remove_canister_ok() {
-    let mut store = fake_store(Some(fake_data()));
-    assert_eq!(
-      store.remove_canister(mock_principals::alice(), fake_canister5()),
-      Ok(CanisterInfoInternal {
-        name: "Alice canister 2".into(),
-        canister_type: "".into(),
-      })
-    );
-    assert_eq!(store.validations.len(), 4);
-    let canister = store
-      .validations
-      .get(&(mock_principals::alice(), fake_canister5()));
-    assert_eq!(canister, None);
-  }
-
-  #[test]
-  fn remove_canister_error() {
-    let mut store = fake_store(Some(fake_data()));
-    assert_eq!(
-      store.remove_canister(mock_principals::bob(), fake_canister5()),
-      Err(Error::new(ErrorKind::CanisterNotFound, None))
-    );
-    assert_eq!(store.validations.len(), 5);
-  }
-
-  #[test]
-  fn update_canister_type_ok() {
-    let mut store = fake_store(Some(fake_data()));
-    assert_eq!(
-      store.update_canister_type(
-        mock_principals::alice(),
-        fake_canister5(),
-        "new type".into(),
-      ),
-      Ok(())
-    );
-    let canister = store
-      .validations
-      .get(&(mock_principals::alice(), fake_canister5()))
-      .unwrap();
-    assert_eq!(canister.canister_type, "new type");
-  }
-
-  #[test]
-  fn update_canister_type_error() {
-    let mut store = fake_store(Some(fake_data()));
-    assert_eq!(
-      store.update_canister_type(mock_principals::bob(), fake_canister5(), "new type".into()),
-      Err(Error::new(ErrorKind::CanisterNotFound, None))
-    );
-  }
-
-  #[test]
-  fn update_canister_name_ok() {
-    let mut store = fake_store(Some(fake_data()));
-    assert_eq!(
-      store.update_canister_name(
-        mock_principals::alice(),
-        fake_canister5(),
-        "new name".into(),
-      ),
-      Ok(())
-    );
-    let canister = store
-      .validations
-      .get(&(mock_principals::alice(), fake_canister5()))
-      .unwrap();
-    assert_eq!(canister.name, "new name");
-  }
-
-  #[test]
-  fn update_canister_name_error() {
-    let mut store = fake_store(Some(fake_data()));
-    assert_eq!(
-      store.update_canister_name(mock_principals::bob(), fake_canister5(), "new new".into()),
-      Err(Error::new(ErrorKind::CanisterNotFound, None))
-    );
-  }
-
-  #[test]
-  fn archive_ok() {
-    let mut store = fake_store(Some(fake_data()));
-    assert_eq!(
-      store.archive(),
-      fake_data()
-        .into_iter()
-        .collect::<Vec<(RequestKey, CanisterInfoInternal)>>()
-    )
-  }
-
-  #[test]
-  fn load() {
-    let mut store = fake_store(None);
-    store.load(
-      fake_data()
-        .into_iter()
-        .collect::<Vec<(RequestKey, CanisterInfoInternal)>>(),
-    );
-    assert_eq!(fake_data(), store.validations)
+    ]);
   }
 }

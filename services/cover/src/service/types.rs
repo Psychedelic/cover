@@ -1,7 +1,6 @@
-use crate::common::types::{CanisterId, Controller, ValidationId, CallerId};
+use crate::common::types::{CanisterId, RequestId, CallerId};
 use ic_cdk::export::candid::CandidType;
 use serde::Deserialize;
-use std::time::SystemTime;
 
 #[derive(CandidType, Clone, Deserialize, PartialEq, Debug)]
 pub struct BuildParams {
@@ -10,9 +9,31 @@ pub struct BuildParams {
 }
 
 #[derive(CandidType, Clone, Deserialize, PartialEq, Debug)]
-pub struct Validation {
-  pub caller_id: Option<CallerId>,
+pub struct ValidationRequest {
+  pub request_id: Option<RequestId>,
+  pub canister_id: CanisterId,
+  pub caller_id: CallerId,
   pub build_settings: BuildParams,
+  pub fetched: bool,
+}
+
+#[derive(CandidType, Clone, Deserialize, PartialEq, Debug)]
+pub struct ValidationResult {
+  validation_id: RequestId,
+  pub build_checksum: String,
+  pub wasm_checksum: String,
+  pub build_log_url: String,
+  pub source_snapshot_url: String,
+  pub status: String,
+}
+
+impl ValidationRequest {
+
+  pub fn mark_fetched(&mut self) -> &Self {
+    self.fetched = true;
+    self
+  }
+
 }
 
 #[derive(CandidType, Clone, Deserialize, Debug)]

@@ -1,91 +1,23 @@
-type CanisterInfo = record {
-  name: text;
+type BuildParams = record {
+  git_ref: text;
+  git_shat: text;
+};
+
+type ValidationRequest = record {
+  validation_id: opt nat32;
+  caller_id: principal;
   canister_id: principal;
-  canister_type: text;
+  fetched: bool;
 };
 
-type AddExistingCanisterRequest = record {
-  name: text;
-  canister_id: principal;
-  canister_type: text;
-};
-
-type CanisterListResult = record {
-  data: opt vec CanisterInfo;
-  is_error: bool;
-  message: opt text;
-  code: opt text;
-};
-
-type CanisterResult = record {
-  data: opt CanisterInfo;
-  is_error: bool;
-  message: opt text;
-  code: opt text;
-};
-
-type CanisterMutateResult = record {
-  is_error: bool;
-  message: opt text;
-  code: opt text;
-};
-
-type CreateCanisterRequest = record {
-  cycles: nat64;
-  controller: opt vec principal;
-  wasm_module: blob;
-  canister_name: text;
-  canister_type: text;
-};
-
-type CreateCanisterResponse = record {
-  is_error: bool;
-  message: opt text;
-  code: opt text;
-  data: opt record {
-    canister_id: principal
-  }
-};
-
-// part of ic management
-type CanisterSettings = record {
-  controllers: opt vec principal;
-  compute_allocation: opt nat;
-  memory_allocation: opt nat;
-  freezing_threshold: opt nat;
-};
-type DefiniteCanisterSettings = record {
-  controllers: vec principal;
-  compute_allocation: nat;
-  memory_allocation: nat;
-  freezing_threshold: nat;
+type ValidationResult = record {
+  git_ref: text;
+  git_shat: text;
 };
 
 service: {
     whoami: () -> (principal);
-    get_by_canister_id: (id: principal) -> (CanisterResult);
-    list_canisters: () -> (CanisterListResult);
-    add_existing_canister: (AddExistingCanisterRequest) -> (CanisterMutateResult);
-    update_canister_type: (id: principal, canister_type: text) -> (CanisterMutateResult);
-    update_canister_name: (id: principal, name: text) -> (CanisterMutateResult);
-    delete_canister: (id: principal) -> (CanisterMutateResult);
-    create_canister: (CreateCanisterRequest) -> (CreateCanisterResponse);
-
-    // part of ic management
-    canister_status: (record {canister_id: principal}) -> (record {
-      data: opt record {
-        status: variant { running; stopping; stopped };
-        settings: DefiniteCanisterSettings;
-        module_hash: opt blob;
-        memory_size: nat;
-        cycles: nat;
-      };
-      is_error: bool;
-      message: opt text;
-      code: opt text;
-    });
-    update_settings: (record {
-        canister_id: principal;
-        settings: CanisterSettings
-    }) -> (CanisterMutateResult);
+    my_validations: () -> (vec ValidationRequest);
+    // Builder API
+    fresh_validations: () -> (vec principal);
 }

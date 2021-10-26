@@ -12,6 +12,6 @@ impl Error {
 
 #[derive(Debug, PartialEq)]
 pub enum ErrorKind {
-    CanisterNotFound,
-    AddExistedCanister,
+  RequestNotFound,
+  FetchRequestNotFound,
 }
