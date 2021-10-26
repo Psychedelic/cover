@@ -32,7 +32,7 @@ pub struct ValidationRequest {
 
 #[derive(CandidType, Clone, Deserialize, PartialEq, Debug)]
 pub struct ValidationResult {
-  validation_id: RequestId,
+  request_id: RequestId,
   pub build_checksum: String,
   pub wasm_checksum: String,
   pub build_log_url: String,

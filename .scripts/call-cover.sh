@@ -1,9 +1,10 @@
 #!/bin/bash
-source "${BASH_SOURCE%/*}/utils.sh"
-verifyExecDependency jq
-verifyDependency DFX_NETWORK
-
 NAME=$1
-JSON=$(jq tojson $2)
+JSON_FILE=$2
+if [[ ! -f $JSON_FILE ]]; then
+  JSON=""
+else
+  JSON="$(jq tojson "$JSON_FILE")"
+fi;
 echo "Calling $DFX_NETWORK: cover.$NAME($JSON)"
-dfx canister --network=$DFX_NETWORK call cover $NAME "$JSON"
+dfx canister --network=$DFX_NETWORK call cover $NAME $JSON

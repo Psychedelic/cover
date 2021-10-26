@@ -4,7 +4,7 @@ type BuildParams = record {
 };
 
 type ValidationRequest = record {
-  validation_id: opt nat32;
+  request_id: opt nat32;
   caller_id: principal;
   canister_id: principal;
   fetched: bool;
@@ -29,10 +29,10 @@ service: {
     whoami: () -> (principal);
     json: (text) -> ();
     // Builder API
-    add_validation_request: (NewValidationRequest) -> (ValidationResult);
-    add_validation_request_json: (text) -> (ValidationResult);
-    my_validations: () -> (vec ValidationRequest);
+    add_validation_request          : (NewValidationRequest) -> (ValidationResult);
+    add_validation_request_json     : (text) -> (ValidationResult);
+    my_validations                  : () -> (vec ValidationRequest);
 
     // Validator API
-    fresh_validations: () -> (vec principal);
+    fetch_validation_json           : () -> (text);
 }
