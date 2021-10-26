@@ -51,9 +51,9 @@ fn my_validations() -> Vec<ValidationRequest> {
    Validator API
 */
 
-// returns json
-#[query]
-fn fetch_validation_request() -> String {
+// returns json with validation params or empty string if none found
+#[update]
+fn fetch_validation_json() -> String {
     let res = cover_service::fetch_next_request();
     match res.data {
         Some(value) => serde_json::to_string_pretty(&value).unwrap(),
@@ -61,14 +61,22 @@ fn fetch_validation_request() -> String {
     }
 }
 
-#[query]
-fn fresh_validations() -> Vec<CanisterId> {
-    cover_service::fresh_validation_requests()
+#[update]
+fn insert_validation_result(str: String) -> ValidationResult<ValidationRequest> {
+    // let request: NewValidationRequest = serde_json::from_str(str.as_ref()).unwrap();
+    // cover_service::fetch_validation_request(&canister_id)
+    unimplemented!()
+}
+
+
+#[update]
+fn fetch_validation(canister_id: CanisterId) -> ValidationResult<ValidationRequest> {
+    cover_service::fetch_validation_request(&canister_id)
 }
 
 #[query]
-fn fetch_validation(canister_id: CanisterId) -> ValidationResult<ValidationRequest> {
-    cover_service::fetch_validation_request(&canister_id)
+fn fresh_validations() -> Vec<CanisterId> {
+    cover_service::fresh_validation_requests()
 }
 
 #[cfg(test)]
@@ -138,15 +146,15 @@ mod tests {
         let fresh = fresh_validations();
         assert_eq!(fresh.len(), 2);
 
-        let json = fetch_validation_request();
+        let json = fetch_validation_json();
         assert_eq!(fresh_validations().len(), 1);
 
-        let json = fetch_validation_request();
+        let json = fetch_validation_json();
         assert_eq!(fresh_validations().len(), 0);
 
-        let json = fetch_validation_request();
+        let json = fetch_validation_json();
         assert_eq!(fresh_validations().len(), 0);
-        assert_eq!(json, ""); // "{ \"error\": \"Not found\" }")
+        assert_eq!(json, ""); // "{ \"error \": \"Not found\" }")
     }
 
     #[test]

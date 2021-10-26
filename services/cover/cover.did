@@ -33,6 +33,7 @@ service: {
     add_validation_request_json     : (text) -> (ValidationResult);
     my_validations                  : () -> (vec ValidationRequest);
 
-    // Validator API
+    // Validator API uses json as the data format
     fetch_validation_json           : () -> (text);
+    insert_validation_result        : (text) -> ();
 }
