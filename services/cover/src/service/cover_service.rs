@@ -28,16 +28,16 @@ pub fn fresh_validation_requests() -> Vec<CanisterId> {
     reg.list_fresh_requests().iter().map(|(can_id, val_id)| can_id.clone()).collect()
 }
 
-/// Return list of unprocessed requested canister_ids
+/// Return list of all requests
 pub fn all_validation_requests(caller: Option<&CallerId>) -> Vec<ValidationRequest> {
     let reg = get_validation_registry();
     reg.list_all_requests(caller)
 }
 
-
 /// Fetch request from fresh FIFO list
 /// returns JSON
 pub fn fetch_next_request() -> ValidationResult<ValidationRequest> {
+    check_caller_whitelisted();
     let req = get_validation_registry_mut().fetch_next_request();
     match req {
         Err(msg) => ValidationResult::fail(Error::request_not_found()),
@@ -47,15 +47,35 @@ pub fn fetch_next_request() -> ValidationResult<ValidationRequest> {
 
 /// Fetch request from fresh list, mark it as fetched
 /// returns ValidationRequest
-pub fn fetch_validation_request(canister_id: &CanisterId) -> ValidationResult<ValidationRequest> {
+pub fn fetch_request_by_canister_id(canister_id: &CanisterId) -> ValidationResult<ValidationRequest> {
+    check_caller_whitelisted();
     let val = get_validation_registry_mut().fetch_request(&canister_id).unwrap();
     ValidationResult::data(val)
 }
 
-/// Get a validation request
-/// returns ValidationRequest
-pub fn get_validation_request(validation_id: RequestId) -> ValidationResult<ValidationRequest> {
-    let val = get_validation_registry_mut().get_request(validation_id).unwrap();
+/// Get a validation request - part of public api
+/// return ValidationRequest with provided request_id
+pub fn get_validation_request(request_id: RequestId) -> ValidationResult<ValidationRequest> {
+    let val = get_validation_registry_mut().get_request(request_id).unwrap();
     ValidationResult::data(val.clone())
 }
 
+/// Adds a new validation request to registry
+pub fn update_request(req: NewValidationRequest) -> ValidationResult<()> {
+    let caller = caller();
+
+    get_validation_registry_mut()
+        .add_request(
+            &caller,
+            &req.canister_id,
+            &req.build_settings,
+        )
+        .map(|_| ValidationResult::success(Ok::validation_request_added()))
+        .unwrap_or_else(|_| ValidationResult::fail(Error::validation_requested()))
+}
+
+
+/// Check if caller is allowed to call the ValidateAPI endpoints
+fn check_caller_whitelisted() {
+    // TODO finish implementation
+}

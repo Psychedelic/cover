@@ -47,6 +47,8 @@ impl ValidationsRegistry {
                     fetched: false,
                     caller_id: caller_id.clone(),
                     build_settings: build_settings.clone(),
+                    validation: None,
+                    status: "fresh".to_string()
                 });
                 self.fresh_validations.push((canister_id.clone(), self.validation_counter));
                 // self.canister_requests.conatins_canister_id(canister_id, self.count).ok_or_else(||
@@ -86,7 +88,7 @@ impl ValidationsRegistry {
             .map(|v| {
                 v.mark_fetched();
                 ValidationRequest {
-                    request_id: Some(request_id), // populate validation_id
+                    request_id: Some(request_id), // populate request_id
                     ..v.clone()
                 }
             })
@@ -119,8 +121,8 @@ impl ValidationsRegistry {
     }
 
 
-    // pub fn update_request(&mut self, validation_id: ValidationId, params: UpdateRequestParams) {
-    //   let & mut validation = validations.get(params.validation_id);
+    // pub fn update_request(&mut self, request_id: ValidationId, params: UpdateRequestParams) {
+    //   let & mut validation = validations.get(params.request_id);
     //   validation.setValidationStatus(params);
     // }
 
@@ -128,8 +130,8 @@ impl ValidationsRegistry {
         self.validation_by_canister_id.contains_key(canister_id)
     }
 
-    pub fn get_request(&self, validation_id: RequestId) -> Result<&ValidationRequest, Error> {
-        Ok(self.validations.get(&validation_id).unwrap())
+    pub fn get_request(&self, request_id: RequestId) -> Result<&ValidationRequest, Error> {
+        Ok(self.validations.get(&request_id).unwrap())
     }
 }
 
@@ -227,6 +229,8 @@ pub mod test {
                 caller_id: fake_caller1(),
                 build_settings: fake_build_params(),
                 fetched: true,
+                validation: None,
+                status: "fresh".to_string()
             },
             ValidationRequest {
                 request_id: Some(2),
@@ -234,6 +238,8 @@ pub mod test {
                 caller_id: fake_caller1(),
                 build_settings: fake_build_params(),
                 fetched: false,
+                validation: None,
+                status: "fresh".to_string()
             },
             ValidationRequest {
                 request_id: Some(3),
@@ -241,6 +247,8 @@ pub mod test {
                 caller_id: fake_caller1(),
                 build_settings: fake_build_params(),
                 fetched: false,
+                validation: None,
+                status: "fresh".to_string()
             },
         ]);
     }

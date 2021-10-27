@@ -23,23 +23,22 @@ fn json(str: String) -> () {
 
 /*
     Builder API
-    add_request   "record(....)"
 */
+
+/*
+    Allow creation of validation requests
+    add_validation_request
+    add_validation_request_json
+ */
 #[update]
 fn add_validation_request(request: NewValidationRequest) -> ValidationResult<()> {
     cover_service::add_validation_request(request)
 }
-
-/*
-add_request  "{ name: "1234" }"
-call-cover add_request file.json
- */
 #[update]
 fn add_validation_request_json(str: String) -> ValidationResult<()> {
     let request: NewValidationRequest = serde_json::from_str(str.as_ref()).unwrap();
     cover_service::add_validation_request(request)
 }
-
 
 #[query]
 fn my_validations() -> Vec<ValidationRequest> {
@@ -62,7 +61,7 @@ fn fetch_validation_json() -> String {
 }
 
 #[update]
-fn insert_validation_result(str: String) -> ValidationResult<ValidationRequest> {
+fn insert_validation_result(json: String) -> ValidationResult<ValidationRequest> {
     // let request: NewValidationRequest = serde_json::from_str(str.as_ref()).unwrap();
     // cover_service::fetch_validation_request(&canister_id)
     unimplemented!()
@@ -71,7 +70,7 @@ fn insert_validation_result(str: String) -> ValidationResult<ValidationRequest> 
 
 #[update]
 fn fetch_validation(canister_id: CanisterId) -> ValidationResult<ValidationRequest> {
-    cover_service::fetch_validation_request(&canister_id)
+    cover_service::fetch_request_by_canister_id(&canister_id)
 }
 
 #[query]
