@@ -21,3 +21,9 @@ verifyExecDependency() {
   done;
 }
 
+jget() {
+  .scripts/json-get.sh $JSON_PATH $1
+}
+jset() {
+  .scripts/json-set.sh $JSON_PATH $1 $2
+}

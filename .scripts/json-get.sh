@@ -10,4 +10,4 @@ if [[ ! -f $INPUT_FILE ]]; then
   exit 1;
 fi
 
-cat $INPUT_FILE | jq ".[\"$FIELD\"]"
+cat $INPUT_FILE | jq ".$FIELD"
