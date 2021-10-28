@@ -128,6 +128,19 @@ impl ValidationsRegistry {
             ).collect()
     }
 
+    pub fn list_all_responses(&self, caller: Option<&CallerId>) -> Vec<ValidationResponse> {
+        self.responses.iter()
+            .filter(|(key, val)|
+                match caller {
+                    Some(caller_id) => &val.validator_id.unwrap() == caller_id,
+                    _ => true, // include all if no filter provided
+                })
+            .map(|(val_id, val)|
+                    val.clone()
+            ).collect()
+    }
+
+
     pub fn add_response(
         &mut self,
         caller_id: &CallerId,
@@ -141,6 +154,10 @@ impl ValidationsRegistry {
                 self.responses.insert(data.request_id, data);
             })
             .ok_or_else(|| Error::new(ErrorKind::AddValidationError, None))
+    }
+
+    pub fn get_response(&self, request_id: RequestId) -> Result<&ValidationResponse, Error> {
+        Ok(self.responses.get(&request_id).unwrap())
     }
 
     pub fn contains_request(&self, canister_id: &CanisterId) -> bool {

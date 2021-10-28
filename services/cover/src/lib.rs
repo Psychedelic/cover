@@ -8,6 +8,7 @@ use crate::service::utils::ValidationResult;
 use ic_kit::ic::caller;
 use ic_kit::macros::{query, update};
 use serde::{Deserialize, Serialize};
+use crate::service::cover_service::get_response;
 
 #[query]
 fn whoami() -> CallerId {
@@ -49,6 +50,20 @@ fn get_request_json(request_id: RequestId) -> String {
 }
 
 #[query]
+fn get_validation(request_id: RequestId) -> ValidationResult<ValidationResponse> {
+    cover_service::get_response(request_id)
+}
+
+#[query]
+fn get_validation_json(request_id: RequestId) -> String {
+    let res = get_response(request_id);
+    match res.data {
+        Some(value) => serde_json::to_string_pretty(&value).unwrap(),
+        _ => "".to_string(),
+    }
+}
+
+#[query]
 fn my_requests() -> Vec<ValidationRequest> {
     let caller = caller();
     cover_service::list_requests(Some(&caller))
@@ -58,6 +73,12 @@ fn my_requests() -> Vec<ValidationRequest> {
 fn all_requests() -> Vec<ValidationRequest> {
     cover_service::list_requests(None)
 }
+
+#[query]
+fn all_validations() -> Vec<ValidationResponse> {
+    cover_service::list_responses(None)
+}
+
 
 /*
    Validator API
@@ -202,7 +223,6 @@ mod tests {
         let str = r#"{
             "request_id": {REQ_ID},
             "canister_id": "{CAN_ID}",
-            "validator_id": null,
             "validation_started_at": "String",
             "validation_completed_at": "String",
             "git_checksum": "String",
@@ -219,7 +239,6 @@ mod tests {
         assert_eq!(str, r#"{
             "request_id": 1,
             "canister_id": "rrkah-fqaaa-aaaaa-aaaaq-cai",
-            "validator_id": null,
             "validation_started_at": "String",
             "validation_completed_at": "String",
             "git_checksum": "String",

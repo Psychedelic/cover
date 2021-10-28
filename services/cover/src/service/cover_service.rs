@@ -36,6 +36,13 @@ pub fn list_requests(caller: Option<&CallerId>) -> Vec<ValidationRequest> {
     reg.list_all_requests(caller)
 }
 
+/// Return list of all requests
+pub fn list_responses(caller: Option<&CallerId>) -> Vec<ValidationResponse> {
+    let reg = get_validation_registry();
+    reg.list_all_responses(caller)
+}
+
+
 /// Fetch request from fresh FIFO list
 /// returns JSON
 pub fn fetch_next_request() -> ValidationResult<ValidationRequest> {
@@ -50,6 +57,11 @@ pub fn fetch_next_request() -> ValidationResult<ValidationRequest> {
 pub fn get_request(request_id: RequestId) -> ValidationResult<ValidationRequest> {
     let req = get_validation_registry().get_request(request_id).unwrap();
     ValidationResult::data(req.clone())
+}
+
+pub fn get_response(request_id: RequestId) -> ValidationResult<ValidationResponse> {
+    let res = get_validation_registry().get_response(request_id).unwrap();
+    ValidationResult::data(res.clone())
 }
 
 /// Fetch request from fresh list, mark it as fetched

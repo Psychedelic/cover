@@ -11,9 +11,8 @@ type ValidationRequest = record {
 };
 
 type ValidationResponse = record {
-  request_id: opt nat32;
-  caller_id: principal;
-  canister_id: principal;
+  request_id: nat32;
+  canister_id: opt principal;
   validator_id: opt principal;
   validation_started_at: text;
   validation_completed_at: text;
@@ -27,6 +26,7 @@ type ValidationResponse = record {
 
 type NewValidationRequest = record {
   canister_id: principal;
+  validator_id: opt principal;
   build_settings: BuildParams;
 };
 
@@ -50,6 +50,10 @@ service: {
     get_request_json    : (nat32) -> (text);
     my_requests         : () -> (vec ValidationRequest);
     all_requests        : () -> (vec ValidationRequest);
+
+    get_validation      : (nat32) -> (ValidationResult);
+    get_validation_json : (nat32) -> (text);
+    all_validations     : () -> (vec ValidationResponse);
 
     // Validator API
     fetch_request_json  : () -> (text); // json data format
