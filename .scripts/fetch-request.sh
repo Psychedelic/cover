@@ -3,7 +3,7 @@
 # If no file is received, remove fetched.json
 
 echo "Fetching request validation ..."
-RESPONSE=$(.scripts/call-to-json.sh fetch_validation_json)
+RESPONSE=$(.scripts/call-to-json.sh fetch_request_json)
 
 timestamp=$(echo '('$(date +"%s.%N") ') * 100 / 1'|bc)
 FILENAME="fetched-$timestamp.json"
@@ -18,6 +18,8 @@ if [[ $RESPONSE ]]; then
   echo $RESPONSE > $TARGET_JSON
   cd $TARGET_DIR; ln -s $FILENAME fetched.json; cd -
   echo "Saved new request: $TARGET_SYMLINK -> $TARGET_JSON"
+  exit 0;
 else
   echo "No new requests found!"
+  exit 1;
 fi

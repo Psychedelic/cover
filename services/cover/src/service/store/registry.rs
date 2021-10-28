@@ -4,24 +4,27 @@ use ic_cdk::export::candid::CandidType;
 use serde::Deserialize;
 use std::collections::BTreeMap;
 use std::ops::{Bound::Included, Not};
-use crate::service::types::{ValidationRequest, BuildParams};
+use crate::service::types::{ValidationRequest, BuildParams, ValidationResponse};
 
 #[derive(CandidType, Deserialize)]
 pub struct ValidationsRegistry {
-    validation_counter: RequestId,
-    validations: BTreeMap<RequestId, ValidationRequest>,
-    fresh_validations: Vec<(CanisterId, RequestId)>,
-    // lookup helper
-    validation_by_canister_id: BTreeMap<CanisterId, Vec<RequestId>>, // lookup helper
+    request_counter: RequestId,
+
+    requests: BTreeMap<RequestId, ValidationRequest>,
+    fresh_requests: Vec<(CanisterId, RequestId)>,
+    request_by_canister_id: BTreeMap<CanisterId, Vec<RequestId>>, // lookup helper
+
+    responses: BTreeMap<RequestId, ValidationResponse>,
 }
 
 impl Default for ValidationsRegistry {
     fn default() -> Self {
         Self {
-            validation_counter: 0,
-            validations: BTreeMap::new(),
-            validation_by_canister_id: BTreeMap::new(),
-            fresh_validations: Vec::new(),
+            request_counter: 0,
+            requests: BTreeMap::new(),
+            request_by_canister_id: BTreeMap::new(),
+            fresh_requests: Vec::new(),
+            responses: BTreeMap::new(),
         }
     }
 }
@@ -40,22 +43,24 @@ impl ValidationsRegistry {
         self.contains_request(canister_id)
             .not()
             .then(|| {
-                self.validation_counter += 1; // increase counter
-                self.validations.insert(self.validation_counter, ValidationRequest {
+                self.request_counter += 1; // increase counter
+                self.requests.insert(self.request_counter, ValidationRequest {
                     request_id: None,
                     canister_id: canister_id.clone(),
                     fetched: false,
                     caller_id: caller_id.clone(),
                     build_settings: build_settings.clone(),
-                    validation: None,
-                    status: "fresh".to_string()
                 });
-                self.fresh_validations.push((canister_id.clone(), self.validation_counter));
+                self.fresh_requests.push((canister_id.clone(), self.request_counter));
                 // self.canister_requests.conatins_canister_id(canister_id, self.count).ok_or_else(||
                 //   request.add(canister_id, self.count)
                 // );
             })
             .ok_or_else(|| Error::new(ErrorKind::FetchRequestNotFound, None))
+    }
+
+    pub fn get_request(&self, request_id: RequestId) -> Result<&ValidationRequest, Error> {
+        Ok(self.requests.get(&request_id).unwrap())
     }
 
     /// Get validation request and mark it as fetched
@@ -66,24 +71,25 @@ impl ValidationsRegistry {
         &mut self,
         canister_id: &CanisterId,
     ) -> Result<ValidationRequest, Error> {
-        let index = self.fresh_validations.iter().position(|(c_id, _vid)| c_id == canister_id).unwrap();
-        let (_cid, request_id) = self.fresh_validations.swap_remove(index); // use faster swap_remove
+        let index = self.fresh_requests.iter().position(|(c_id, _vid)| c_id == canister_id).unwrap();
+        let (_cid, request_id) = self.fresh_requests.swap_remove(index); // use faster swap_remove
         self.pull_request(request_id)
     }
 
     pub fn fetch_next_request(&mut self) -> Result<ValidationRequest, Error> {
-        if self.fresh_validations.is_empty() {
+        if self.fresh_requests.is_empty() {
             return Result::Err(Error::new(ErrorKind::RequestNotFound, None));
         }
 
-        match self.fresh_validations.remove(0) {
+        match self.fresh_requests.remove(0) {
             (_canister_id, request_id) => self.pull_request(request_id),
             _ => Result::Err(Error::new(ErrorKind::RequestNotFound, None))
         }
     }
 
+    /// pull requests from fresh list (mark fetched)
     fn pull_request(&mut self, request_id: RequestId) -> Result<ValidationRequest, Error> {
-        self.validations
+        self.requests
             .get_mut(&request_id)
             .map(|v| {
                 v.mark_fetched();
@@ -95,10 +101,12 @@ impl ValidationsRegistry {
             .ok_or_else(|| Error::new(ErrorKind::FetchRequestNotFound, None))
     }
 
-    /// Get all stored validations
-    /// Provided for debugging purpose
+    /// Get all stored validation requests
+    /// If caller is provided return caller's validations
+    /// Otherwise return all requests
+    /// Note: Used for debugging purpose
     pub fn list_all_requests(&self, caller: Option<&CallerId>) -> Vec<ValidationRequest> {
-        self.validations.iter()
+        self.requests.iter()
             .filter(|(key, val)|
                 match caller {
                     Some(caller_id) => &val.caller_id == caller_id,
@@ -114,24 +122,33 @@ impl ValidationsRegistry {
 
     /// Return list of fresh canister ids
     pub fn list_fresh_requests(&self) -> Vec<&(CanisterId, RequestId)> {
-        self.fresh_validations.iter()
+        self.fresh_requests.iter()
             .map(|entry|
                 entry
             ).collect()
     }
 
-
-    // pub fn update_request(&mut self, request_id: ValidationId, params: UpdateRequestParams) {
-    //   let & mut validation = validations.get(params.request_id);
-    //   validation.setValidationStatus(params);
-    // }
-
-    pub fn contains_request(&self, canister_id: &CanisterId) -> bool {
-        self.validation_by_canister_id.contains_key(canister_id)
+    pub fn add_response(
+        &mut self,
+        caller_id: &CallerId,
+        resp: &ValidationResponse,
+    ) -> Result<(), Error> {
+        let mut data = resp.clone();
+        data.validator_id = Some(caller_id.clone());
+        self.contains_validation(&data.request_id)
+            .not()
+            .then(|| {
+                self.responses.insert(data.request_id, data);
+            })
+            .ok_or_else(|| Error::new(ErrorKind::AddValidationError, None))
     }
 
-    pub fn get_request(&self, request_id: RequestId) -> Result<&ValidationRequest, Error> {
-        Ok(self.validations.get(&request_id).unwrap())
+    pub fn contains_request(&self, canister_id: &CanisterId) -> bool {
+        self.request_by_canister_id.contains_key(canister_id)
+    }
+
+    pub fn contains_validation(&self, req_id: &RequestId) -> bool {
+        self.responses.contains_key(req_id)
     }
 }
 
@@ -146,10 +163,10 @@ pub mod test {
 
     impl ValidationsRegistry {
         pub fn count_all(&self) -> usize {
-            self.validations.len()
+            self.requests.len()
         }
         pub fn count_fresh(&self) -> usize {
-            self.fresh_validations.len()
+            self.fresh_requests.len()
         }
     }
 
@@ -166,7 +183,7 @@ pub mod test {
     pub fn fake_build_params() -> BuildParams {
         BuildParams {
             git_ref: "git@github.com/Psychedelic/cover".into(),
-            git_sha: "".into(),
+            git_tag: "".into(),
         }
     }
 
@@ -229,8 +246,6 @@ pub mod test {
                 caller_id: fake_caller1(),
                 build_settings: fake_build_params(),
                 fetched: true,
-                validation: None,
-                status: "fresh".to_string()
             },
             ValidationRequest {
                 request_id: Some(2),
@@ -238,8 +253,6 @@ pub mod test {
                 caller_id: fake_caller1(),
                 build_settings: fake_build_params(),
                 fetched: false,
-                validation: None,
-                status: "fresh".to_string()
             },
             ValidationRequest {
                 request_id: Some(3),
@@ -247,8 +260,6 @@ pub mod test {
                 caller_id: fake_caller1(),
                 build_settings: fake_build_params(),
                 fetched: false,
-                validation: None,
-                status: "fresh".to_string()
             },
         ]);
     }

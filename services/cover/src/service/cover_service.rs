@@ -1,7 +1,7 @@
 use super::{get_validation_registry, get_validation_registry_mut};
 use crate::common::types::{CanisterId, RequestId, CallerId};
 use crate::service::constants::{Error, Ok};
-use crate::service::types::{NewValidationRequest, ValidationRequest, BuildParams};
+use crate::service::types::{NewValidationRequest, ValidationRequest, BuildParams, ValidationResponse};
 use crate::service::utils::ValidationResult;
 use ic_kit::ic::{caller, id};
 use ic_kit::interfaces::Method;
@@ -11,6 +11,8 @@ use crate::service::store::error::ErrorKind;
 /// Adds a new validation request to registry
 pub fn add_validation_request(req: NewValidationRequest) -> ValidationResult<()> {
     let caller = caller();
+
+    check_called_by_owner(&caller, &req.canister_id);
 
     get_validation_registry_mut()
         .add_request(
@@ -29,7 +31,7 @@ pub fn fresh_validation_requests() -> Vec<CanisterId> {
 }
 
 /// Return list of all requests
-pub fn all_validation_requests(caller: Option<&CallerId>) -> Vec<ValidationRequest> {
+pub fn list_requests(caller: Option<&CallerId>) -> Vec<ValidationRequest> {
     let reg = get_validation_registry();
     reg.list_all_requests(caller)
 }
@@ -43,6 +45,11 @@ pub fn fetch_next_request() -> ValidationResult<ValidationRequest> {
         Err(msg) => ValidationResult::fail(Error::request_not_found()),
         Ok(val) => ValidationResult::data(val)
     }
+}
+
+pub fn get_request(request_id: RequestId) -> ValidationResult<ValidationRequest> {
+    let req = get_validation_registry().get_request(request_id).unwrap();
+    ValidationResult::data(req.clone())
 }
 
 /// Fetch request from fresh list, mark it as fetched
@@ -61,14 +68,14 @@ pub fn get_validation_request(request_id: RequestId) -> ValidationResult<Validat
 }
 
 /// Adds a new validation request to registry
-pub fn update_request(req: NewValidationRequest) -> ValidationResult<()> {
-    let caller = caller();
+pub fn add_response(res: &ValidationResponse) -> ValidationResult<()> {
+    check_caller_whitelisted();
 
+    let caller = caller();
     get_validation_registry_mut()
-        .add_request(
+        .add_response(
             &caller,
-            &req.canister_id,
-            &req.build_settings,
+            &res,
         )
         .map(|_| ValidationResult::success(Ok::validation_request_added()))
         .unwrap_or_else(|_| ValidationResult::fail(Error::validation_requested()))
@@ -77,5 +84,10 @@ pub fn update_request(req: NewValidationRequest) -> ValidationResult<()> {
 
 /// Check if caller is allowed to call the ValidateAPI endpoints
 fn check_caller_whitelisted() {
+    // TODO finish implementation
+}
+
+// only canister owner should be allowed to request validations
+fn check_called_by_owner(caller: &CallerId, canister_id: &CanisterId) {
     // TODO finish implementation
 }
