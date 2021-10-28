@@ -14,4 +14,5 @@ impl Error {
 pub enum ErrorKind {
   RequestNotFound,
   FetchRequestNotFound,
+    AddValidationError,
 }

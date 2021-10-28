@@ -1,23 +1,68 @@
 type BuildParams = record {
   git_ref: text;
-  git_shat: text;
+  git_tag: text;
 };
 
 type ValidationRequest = record {
-  validation_id: opt nat32;
+  request_id: opt nat32;
   caller_id: principal;
   canister_id: principal;
   fetched: bool;
 };
 
+type ValidationResponse = record {
+  request_id: nat32;
+  canister_id: opt principal;
+  validator_id: opt principal;
+  validation_started_at: text;
+  validation_completed_at: text;
+  git_checksum: text;
+  canister_checksum: text;
+  wasm_checksum: text;
+  build_log_url: text;
+  source_snapshot_url: text;
+  status: text;
+};
+
+type NewValidationRequest = record {
+  canister_id: principal;
+  validator_id: opt principal;
+  build_settings: BuildParams;
+};
+
+
 type ValidationResult = record {
-  git_ref: text;
-  git_shat: text;
+  data: opt record {
+    canister_id: principal
+  };
+  is_error: bool;
+  message: opt text;
+  code: opt text;
 };
 
 service: {
-    whoami: () -> (principal);
-    my_validations: () -> (vec ValidationRequest);
-    // Builder API
-    fresh_validations: () -> (vec principal);
+    whoami              : () -> (principal);
+
+    // Developer API
+    add_request         : (NewValidationRequest) -> (ValidationResult);
+    add_request_json    : (text) -> (ValidationResult);
+    get_request         : (nat32) -> (ValidationResult);
+    get_request_json    : (nat32) -> (text);
+    my_requests         : () -> (vec ValidationRequest);
+    all_requests        : () -> (vec ValidationRequest);
+
+    get_validation      : (nat32) -> (ValidationResult);
+    get_validation_json : (nat32) -> (text);
+    all_validations     : () -> (vec ValidationResponse);
+
+    // Validator API
+    fetch_request_json  : () -> (text); // json data format
+    fetch_request       : () -> (ValidationResult);
+    add_response_json   : (text) -> (ValidationResult); // json data format
+    add_response        : (ValidationResponse) -> (ValidationResult);
+
+    // Admin API
+    add_validator       : (principal) -> (ValidationResult);
+    remove_validator    : (principal) -> (ValidationResult);
+    list_validators     : () -> (vec principal);
 }
