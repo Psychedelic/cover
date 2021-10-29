@@ -1,0 +1,61 @@
+name: PR Test runner (Client)
+
+on:
+  pull_request:
+    branches: [ develop ]
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    env:
+      FA_NPM_TOKEN: ${{secrets.FA_NPM_TOKEN}}
+      PSYCHEDELIC_NPM_TOKEN: ${{secrets.PSYCHEDELIC_NPM_TOKEN}}
+      PAT: ${{ secrets.PAT }}
+
+    strategy:
+      matrix:
+        node-version: [14.x]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: NPM Registry token setup
+        run: ./.scripts/npm-registry-token-setup.sh
+        env:
+          PAT: ${{ secrets.PAT }}
+
+      - name: DFX Tooling
+        run: ./.scripts/dfx-tooling.sh
+        env:
+          DFX_VERSION: 0.8.0
+          DFX_CANDID_RELEASE: 2021-08-20
+
+      - name: DFX `.dfx` placeholders
+        run: ./.scripts/generate-dfx-stubs.sh
+        env:
+          DFX_NETWORK: local
+          CANISTERIUM_CANISTER_ID: 'xxxx-yyyy-zzzz'
+
+      - name: Cache node modules
+        id: node-modules-cache
+        uses: actions/cache@v2
+        with:
+          path: node_modules
+          key: cache-${{ runner.os }}-node_modules-${{ hashFiles('yarn.lock') }}
+
+      - name: installing dependencies
+        if: steps.node-modules-cache.outputs.cache-hit != 'true'
+        run: yarn install
+
+      - name: UI builder
+        run: yarn build:ui
+
+      - name: Test dashboard
+        run: yarn test:dashboard

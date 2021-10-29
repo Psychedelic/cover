@@ -1,0 +1,47 @@
+name: Lint
+
+on:
+  pull_request:
+    branches:
+      - develop
+    paths:
+      - packages/UI/**
+      - packages/dashboard/**
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    env:
+      FA_NPM_TOKEN: ${{secrets.FA_NPM_TOKEN}}
+      PSYCHEDELIC_NPM_TOKEN: ${{secrets.PSYCHEDELIC_NPM_TOKEN}}
+      PAT: ${{ secrets.PAT }}
+
+    strategy:
+      matrix:
+        node-version: [14.x]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: NPM Psychdelic token setup
+        run: |
+          echo "//npm.pkg.github.com/:_authToken=$PAT" >> .npmrc
+        env:
+          PAT: ${{ secrets.PAT }}
+
+      - name: installing dependencies
+        run: yarn install
+
+      - name: run UI lint
+        run: yarn lint:ui
+
+      - name: run UI build
+        run: yarn build:ui
+
+      - name: run dashboard lint
+        run: yarn lint:dashboard
