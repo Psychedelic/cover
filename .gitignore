@@ -9,7 +9,7 @@
 /build
 /.dfx
 /.idea
-/target/**/**
+**/target
 
 # misc
 .DS_Store
@@ -23,9 +23,9 @@ yarn-debug.log*
 yarn-error.log*
 storybook-static
 
-services/**/target/
-
 **/coverage
 
 *.log
 /tmp/**/**
+
+**/.vim/
