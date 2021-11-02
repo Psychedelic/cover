@@ -26,7 +26,6 @@ type ValidationResponse = record {
 
 type NewValidationRequest = record {
   canister_id: principal;
-  validator_id: opt principal;
   build_settings: BuildParams;
 };
 
