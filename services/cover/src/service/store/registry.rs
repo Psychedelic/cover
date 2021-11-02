@@ -1,7 +1,8 @@
 use std::collections::{BTreeMap, VecDeque};
 
 use crate::common::types::{CallerId, CanisterId, ReqId};
-use crate::service::types::{BuildSettings, ValidationResponse};
+use crate::service::types::BuildSettings;
+use crate::service::store::error::ErrorKind;
 
 /// Batch request buffer
 const MAX_BATCH_REQ: ReqId = 10;
@@ -11,16 +12,14 @@ pub struct ValidationsRegistry {
     /// Validation request counter <=> last request id
     pub last_request_id: ReqId,
 
-    /// Result history of validation by canisters
-    pub history_canisters: BTreeMap<CanisterId, ValidationResponse>,
+    // consume history from - to by request id
+    // allow arbitrary range from history
+    pub consume_history: BTreeMap<(ReqId, ReqId), ConsumeRegistry>,
 
     /// Pending batch request queue
     /// FIFO -> [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     ///         [11, 12, 13, 14, 15, None, None, None, None, None] <- LILO
     pub pending_request: VecDeque<[Option<ValidationRequest>; MAX_BATCH_REQ as usize]>,
-
-    /// On going validation
-    pub in_progress: VecDeque<ReqId>,
 
     /// Last consumed request index
     pub last_consumed_request_index: ReqId,
@@ -32,15 +31,25 @@ pub struct ValidationRequest {
     pub caller_id: CallerId,
     pub canister_id: CanisterId,
     pub build_settings: BuildSettings,
+    // pub created_at: chrono::DateTime<chrono::Utc>,
 }
+
+#[derive(Debug, PartialEq)]
+pub struct ConsumeRegistry {
+    pub provider: ProviderInfo,
+    pub batch: Vec<Option<ValidationRequest>>,
+    // pub consumed_at: chrono::DateTime<chrono::Utc>,
+}
+
+#[derive(Debug, PartialEq)]
+pub struct ProviderInfo {}
 
 impl Default for ValidationsRegistry {
     fn default() -> Self {
         Self {
             last_request_id: 0,
-            history_canisters: BTreeMap::default(),
+            consume_history: BTreeMap::default(),
             pending_request: VecDeque::default(),
-            in_progress: VecDeque::default(),
             last_consumed_request_index: 0,
         }
     }
@@ -86,6 +95,7 @@ impl ValidationsRegistry {
             caller_id,
             canister_id,
             build_settings,
+            // created_at: chrono::Utc::now(),
         });
     }
 
@@ -106,7 +116,7 @@ impl ValidationsRegistry {
             .as_ref()
     }
 
-    pub fn get_pending_request(&self) -> Vec<&ValidationRequest> {
+    pub fn get_all_pending_request(&self) -> Vec<&ValidationRequest> {
         self.pending_request
             .iter()
             .flat_map(|b| {
@@ -118,101 +128,16 @@ impl ValidationsRegistry {
             .collect::<Vec<&ValidationRequest>>()
     }
 
-    //   pub fn fetch_request(&mut self, canister_id: &CanisterId) -> Result<ValidationRequest, Error> {
-    //     let index = self
-    //       .fresh_requests
-    //       .iter()
-    //       .position(|(c_id, _vid)| c_id == canister_id)
-    //       .unwrap();
-    //     let (_cid, request_id) = self.fresh_requests.swap_remove(index); // use faster swap_remove
-    //     self.pull_request(request_id)
-    //   }
-    //
-    //   pub fn fetch_next_request(&mut self) -> Result<ValidationRequest, Error> {
-    //     if self.fresh_requests.is_empty() {
-    //       return Result::Err(Error::new(ErrorKind::RequestNotFound, None));
+    // pub fn consume_request(&mut self) -> Result<Vec<&ValidationRequest>, ErrorKind> {
+    //     let from = self.last_consumed_request_index;
+    //     let to = self.last_request_id;
+    //     if from >= to {
+    //       return Err(ErrorKind::PendingRequestNotFound("Pending request not found.".into()))
     //     }
     //
-    //     match self.fresh_requests.remove(0) {
-    //       (_canister_id, request_id) => self.pull_request(request_id),
-    //       _ => Result::Err(Error::new(ErrorKind::RequestNotFound, None)),
-    //     }
-    //   }
-    //
-    //   /// pull requests from fresh list (mark fetched)
-    //   fn pull_request(&mut self, request_id: ReqCnter) -> Result<ValidationRequest, Error> {
-    //     self.requests
-    //       .get_mut(&request_id)
-    //       .map(|v| {
-    //         v.mark_fetched();
-    //         ValidationRequest {
-    //           request_id: Some(request_id), // populate request_id
-    //           ..v.clone()
-    //         }
-    //       })
-    //       .ok_or_else(|| Error::new(ErrorKind::FetchRequestNotFound, None))
-    //   }
-    //
-    //   /// Get all stored validation requests
-    //   /// If caller is provided return caller's validations
-    //   /// Otherwise return all requests
-    //   /// Note: Used for debugging purpose
-    //   pub fn list_all_requests(&self, caller: Option<&CallerId>) -> Vec<ValidationRequest> {
-    //     self.requests
-    //       .iter()
-    //       .filter(|(key, val)| match caller {
-    //         Some(caller_id) => &val.caller_id == caller_id,
-    //         _ => true, // include all if no filter provided
-    //       })
-    //       .map(|(val_id, val)| ValidationRequest {
-    //         request_id: Some(val_id.clone()),
-    //         ..val.clone()
-    //       })
-    //       .collect()
-    //   }
-    //
-    //   /// Return list of fresh canister ids
-    //   pub fn list_fresh_requests(&self) -> Vec<&(CanisterId, ReqCnter)> {
-    //     self.fresh_requests.iter().map(|entry| entry).collect()
-    //   }
-    //
-    //   pub fn list_all_responses(&self, caller: Option<&CallerId>) -> Vec<ValidationResponse> {
-    //     self.responses
-    //       .iter()
-    //       .filter(|(key, val)| match caller {
-    //         Some(caller_id) => &val.validator_id.unwrap() == caller_id,
-    //         _ => true, // include all if no filter provided
-    //       })
-    //       .map(|(val_id, val)| val.clone())
-    //       .collect()
-    //   }
-    //
-    //   pub fn add_response(
-    //     &mut self,
-    //     caller_id: &CallerId,
-    //     resp: &ValidationResponse,
-    //   ) -> Result<(), Error> {
-    //     let mut data = resp.clone();
-    //     data.validator_id = Some(caller_id.clone());
-    //     self.contains_validation(&data.request_id)
-    //       .not()
-    //       .then(|| {
-    //         self.responses.insert(data.request_id, data);
-    //       })
-    //       .ok_or_else(|| Error::new(ErrorKind::AddValidationError, None))
-    //   }
-    //
-    //   pub fn get_response(&self, request_id: ReqCnter) -> Result<&ValidationResponse, Error> {
-    //     Ok(self.responses.get(&request_id).unwrap())
-    //   }
-    //
-    //   pub fn contains_request(&self, canister_id: &CanisterId) -> bool {
-    //     self.request_by_canister_id.contains_key(canister_id)
-    //   }
-    //
-    //   pub fn contains_validation(&self, request_id: &ReqCnter) -> bool {
-    //     self.responses.contains_key(request_id)
-    //   }
+    //   self.pending_request.pop_front()
+    //     .ok_or_else(||Err(ErrorKind::PendingRequestNotFound("Failed to get pending request.".into())))?.to_vec()
+    // }
 }
 
 #[cfg(test)]
@@ -225,13 +150,11 @@ mod test {
     fn initial_state_ok() {
         let store = ValidationsRegistry::default();
         assert_eq!(store.last_request_id, 0);
-        assert_eq!(store.history_canisters, BTreeMap::default());
+        assert_eq!(store.consume_history, BTreeMap::default());
         assert_eq!(store.pending_request, VecDeque::default());
-        assert_eq!(store.in_progress, VecDeque::default());
         assert_eq!(store.last_consumed_request_index, 0);
-
         assert_eq!(
-            store.get_pending_request(),
+            store.get_all_pending_request(),
             Vec::<&ValidationRequest>::default()
         );
     }
@@ -240,7 +163,7 @@ mod test {
     fn add_request_ok() {
         let store = test_data::fake_store_with_pending(0, 11);
         assert_eq!(store.last_request_id, 11);
-        assert_eq!(store.history_canisters, BTreeMap::default());
+        assert_eq!(store.consume_history, BTreeMap::default());
         assert_eq!(
             store.pending_request,
             VecDeque::from(vec![
@@ -250,60 +173,70 @@ mod test {
                         caller_id: mock_principals::bob(),
                         canister_id: test_data::fake_canister1(),
                         build_settings: test_data::fake_build_settings1(),
+                        // created_at: chrono::Utc::now()
                     }),
                     Some(ValidationRequest {
                         request_id: 2,
                         caller_id: mock_principals::alice(),
                         canister_id: test_data::fake_canister2(),
                         build_settings: test_data::fake_build_settings2(),
+                        // created_at: chrono::Utc::now()
                     }),
                     Some(ValidationRequest {
                         request_id: 3,
                         caller_id: mock_principals::bob(),
                         canister_id: test_data::fake_canister1(),
                         build_settings: test_data::fake_build_settings1(),
+                        // created_at: chrono::Utc::now()
                     }),
                     Some(ValidationRequest {
                         request_id: 4,
                         caller_id: mock_principals::alice(),
                         canister_id: test_data::fake_canister2(),
                         build_settings: test_data::fake_build_settings2(),
+                        // created_at: chrono::Utc::now()
                     }),
                     Some(ValidationRequest {
                         request_id: 5,
                         caller_id: mock_principals::bob(),
                         canister_id: test_data::fake_canister1(),
                         build_settings: test_data::fake_build_settings1(),
+                        // created_at: chrono::Utc::now()
                     }),
                     Some(ValidationRequest {
                         request_id: 6,
                         caller_id: mock_principals::alice(),
                         canister_id: test_data::fake_canister2(),
                         build_settings: test_data::fake_build_settings2(),
+                        // created_at: chrono::Utc::now()
                     }),
                     Some(ValidationRequest {
                         request_id: 7,
                         caller_id: mock_principals::bob(),
                         canister_id: test_data::fake_canister1(),
                         build_settings: test_data::fake_build_settings1(),
+                        // created_at: chrono::Utc::now()
                     }),
                     Some(ValidationRequest {
                         request_id: 8,
                         caller_id: mock_principals::alice(),
                         canister_id: test_data::fake_canister2(),
                         build_settings: test_data::fake_build_settings2(),
+                        // created_at: chrono::Utc::now()
                     }),
                     Some(ValidationRequest {
                         request_id: 9,
                         caller_id: mock_principals::bob(),
                         canister_id: test_data::fake_canister1(),
                         build_settings: test_data::fake_build_settings1(),
+                        // created_at: chrono::Utc::now()
                     }),
                     Some(ValidationRequest {
                         request_id: 10,
                         caller_id: mock_principals::alice(),
                         canister_id: test_data::fake_canister2(),
                         build_settings: test_data::fake_build_settings2(),
+                        // created_at: chrono::Utc::now()
                     }),
                 ],
                 [
@@ -312,6 +245,7 @@ mod test {
                         caller_id: mock_principals::bob(),
                         canister_id: test_data::fake_canister1(),
                         build_settings: test_data::fake_build_settings1(),
+                        // created_at: chrono::Utc::now()
                     }),
                     None,
                     None,
@@ -325,7 +259,6 @@ mod test {
                 ]
             ])
         );
-        assert_eq!(store.in_progress, VecDeque::default());
         assert_eq!(store.last_consumed_request_index, 0);
     }
 
