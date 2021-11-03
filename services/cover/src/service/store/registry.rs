@@ -8,37 +8,37 @@ use crate::service::types::BuildSettings;
 const MAX_BATCH_REQ: ReqId = 10;
 
 #[derive(Debug, PartialEq)]
-pub struct ValidationsRegistry {
+struct ValidationsRegistry {
     /// Validation request counter <=> last request id
-    pub last_request_id: ReqId,
+    last_request_id: ReqId,
 
     // consume history from - to by request id
     // allow arbitrary range from history
-    pub consume_history: BTreeMap<(ReqId, ReqId), ConsumeRegistry>,
+    consume_history: BTreeMap<(ReqId, ReqId), ConsumeRegistry>,
 
     /// Pending batch request queue
     /// FIFO -> [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     ///         [11, 12, 13, 14, 15, None, None, None, None, None] <- LILO
-    pub pending_request: VecDeque<[Option<ValidationRequest>; MAX_BATCH_REQ as usize]>,
+    pending_request: VecDeque<[Option<ValidationRequest>; MAX_BATCH_REQ as usize]>,
 
     /// Last consumed request id
-    pub last_consumed_request_id: ReqId,
+    last_consumed_request_id: ReqId,
 }
 
 #[derive(Debug, PartialEq, Clone)]
-pub struct ValidationRequest {
-    pub request_id: ReqId,
-    pub caller_id: CallerId,
-    pub canister_id: CanisterId,
-    pub build_settings: BuildSettings,
-    // pub created_at: chrono::DateTime<chrono::Utc>,
+struct ValidationRequest {
+    request_id: ReqId,
+    caller_id: CallerId,
+    canister_id: CanisterId,
+    build_settings: BuildSettings,
+    //  created_at: chrono::DateTime<chrono::Utc>,
 }
 
 #[derive(Debug, PartialEq)]
-pub struct ConsumeRegistry {
-    pub provider_info: ProviderInfo,
-    pub batch: Vec<Option<ValidationRequest>>,
-    // pub consumed_at: chrono::DateTime<chrono::Utc>,
+struct ConsumeRegistry {
+    provider_info: ProviderInfo,
+    batch: Vec<Option<ValidationRequest>>,
+    // consumed_at: chrono::DateTime<chrono::Utc>,
 }
 
 #[derive(Debug, PartialEq)]
@@ -56,6 +56,28 @@ impl Default for ValidationsRegistry {
 }
 
 impl ValidationsRegistry {
+    fn filter_non_empty_pending_request(
+        batch: &[Option<ValidationRequest>],
+    ) -> Vec<&ValidationRequest> {
+        batch
+            .iter()
+            .filter(|p| p.is_some())
+            .map(|p| p.as_ref().unwrap())
+            .collect::<Vec<&ValidationRequest>>()
+    }
+
+    // Calculate next consume request id
+    fn next_consume_request_id(
+        &self,
+        last_consumed_request_id: ReqId,
+        last_request_id: ReqId,
+    ) -> ReqId {
+        std::cmp::min(
+            last_consumed_request_id + MAX_BATCH_REQ - (last_consumed_request_id % MAX_BATCH_REQ),
+            last_request_id,
+        )
+    }
+
     /// Current last request index in its batch
     fn current_pending_request_index(&self) -> ReqId {
         self.last_request_id % MAX_BATCH_REQ
@@ -113,12 +135,7 @@ impl ValidationsRegistry {
     pub fn get_all_pending_request(&self) -> Vec<&ValidationRequest> {
         self.pending_request
             .iter()
-            .flat_map(|b| {
-                b.iter()
-                    .filter(|p| p.is_some())
-                    .map(|p| p.as_ref().unwrap())
-                    .collect::<Vec<&ValidationRequest>>()
-            })
+            .flat_map(|b| ValidationsRegistry::filter_non_empty_pending_request(b))
             .collect::<Vec<&ValidationRequest>>()
     }
 
@@ -127,21 +144,14 @@ impl ValidationsRegistry {
         provider_info: ProviderInfo,
     ) -> Result<Vec<&ValidationRequest>, ErrorKind> {
         let from = self.last_consumed_request_id;
-        let to = self.last_request_id;
-        if from >= to {
-            return Err(ErrorKind::PendingRequestNotFound(
-                "Pending request not found.".into(),
-            ));
+        if from >= self.last_request_id {
+            return Err(ErrorKind::pending_request_not_found());
         }
-        if self.pending_request.len() > 1 {
-            self.last_consumed_request_id = (self.last_consumed_request_id + MAX_BATCH_REQ)
-                - (self.last_consumed_request_id % MAX_BATCH_REQ);
-        } else {
-            self.last_consumed_request_id = self.last_request_id;
-        }
+        self.last_consumed_request_id =
+            self.next_consume_request_id(self.last_consumed_request_id, self.last_request_id);
         let batch = self.pending_request.pop_front().unwrap().to_vec();
         self.consume_history.insert(
-            (from, to),
+            (from, self.last_consumed_request_id),
             ConsumeRegistry {
                 provider_info,
                 batch,
@@ -149,7 +159,7 @@ impl ValidationsRegistry {
         );
         Ok(self
             .consume_history
-            .get(&(from, to))
+            .get(&(from, self.last_consumed_request_id))
             .unwrap()
             .batch
             .iter()
@@ -187,6 +197,38 @@ mod test {
                         test_data::fake_build_settings2()
                     },
                 );
+            }
+        }
+
+        fn assert_pending_request_utils(&self, offset: ReqId, len: ReqId) {
+            // outbound left most check
+            let result = self.get_pending_request_by_id(offset);
+            assert_eq!(result, None);
+
+            // outbound right most check
+            let result = self.get_pending_request_by_id(len + offset + 1);
+            assert_eq!(result, None);
+
+            // inbound check
+            for request_id in (offset + 1)..(len + offset + 1) {
+                let result = self.get_pending_request_by_id(request_id);
+                // consumed check
+                if request_id <= self.last_consumed_request_id {
+                    assert_eq!(result, None);
+                } else {
+                    // actual data check
+                    let result = result.unwrap();
+                    assert_eq!(result.request_id, request_id);
+                    if (request_id - offset - 1) % 2 == 0 {
+                        assert_eq!(result.caller_id, mock_principals::bob());
+                        assert_eq!(result.canister_id, test_data::fake_canister1());
+                        assert_eq!(result.build_settings, test_data::fake_build_settings1());
+                    } else {
+                        assert_eq!(result.caller_id, mock_principals::alice());
+                        assert_eq!(result.canister_id, test_data::fake_canister2());
+                        assert_eq!(result.build_settings, test_data::fake_build_settings2());
+                    }
+                }
             }
         }
     }
@@ -311,45 +353,88 @@ mod test {
             let mut store = ValidationsRegistry::default();
             store.fake_store_with_pending_offset(offset, len as usize);
             assert_eq!(store.last_request_id, len + offset);
-
-            // outbound
-            let result = store.get_pending_request_by_id(offset);
-            assert_eq!(result, None);
-
-            // outbound
-            let result = store.get_pending_request_by_id(len + offset + 1);
-            assert_eq!(result, None);
-
-            // inbound
-            for request_id in (offset + 1)..(len + offset + 1) {
-                let result = store.get_pending_request_by_id(request_id);
-                assert_eq!(result.unwrap().request_id, request_id);
-            }
+            assert_eq!(store.consume_history, BTreeMap::default());
+            assert_eq!(store.last_consumed_request_id, offset);
+            store.assert_pending_request_utils(offset, len);
         }
     }
 
     #[test]
-    fn consume_request() {
+    fn get_all_pending_request_ok() {
         let len = 15;
         for offset in 0..len {
             let mut store = ValidationsRegistry::default();
+
+            // empty pending request
+            let result = store.get_all_pending_request();
+            assert_eq!(result, Vec::<&ValidationRequest>::default());
+
             store.fake_store_with_pending_offset(offset, len as usize);
 
-            let result = store.consume_request(test_data::fake_provider_info1());
+            // all pending requests
+            let result = store.get_all_pending_request();
             assert_eq!(
-                result.unwrap().len(),
-                (MAX_BATCH_REQ - (offset % MAX_BATCH_REQ)) as usize
+                result,
+                store
+                    .pending_request
+                    .iter()
+                    .flat_map(|b| ValidationsRegistry::filter_non_empty_pending_request(b))
+                    .collect::<Vec<&ValidationRequest>>()
             );
+        }
+    }
 
-            for request_id in (offset + 1)..(len + offset + 1) {
-                let result = store.get_pending_request_by_id(request_id);
+    #[test]
+    fn consume_request_ok() {
+        let len = 15;
+        for offset in 0..len {
+            let mut store = ValidationsRegistry::default();
 
-                if request_id <= store.last_consumed_request_id {
-                    assert_eq!(result, None); // consumed
-                } else {
-                    assert_eq!(result.unwrap().request_id, request_id); // remain
+            // error consume when no pending
+            let result = store.consume_request(test_data::fake_provider_info1());
+            assert_eq!(result, Err(ErrorKind::pending_request_not_found()));
+
+            store.fake_store_with_pending_offset(offset, len as usize);
+
+            // previous state
+            let mut from = store.last_consumed_request_id;
+            let mut first_batch = store.pending_request.front().unwrap().to_vec();
+
+            while let Ok(result) = store.consume_request(test_data::fake_provider_info1()) {
+                // check valid consume result
+                assert_eq!(
+                    result,
+                    ValidationsRegistry::filter_non_empty_pending_request(&first_batch)
+                );
+
+                // check valid state
+                assert_eq!(store.last_request_id, len + offset);
+                assert_eq!(
+                    store.last_consumed_request_id,
+                    store.next_consume_request_id(from, len + offset)
+                );
+
+                // check valid history
+                let history = store
+                    .consume_history
+                    .get(&(from, store.last_consumed_request_id))
+                    .unwrap();
+                assert_eq!(history.provider_info, test_data::fake_provider_info1());
+                assert_eq!(history.batch, first_batch);
+
+                // check valid pending request
+                store.assert_pending_request_utils(offset, len);
+
+                // update new state
+                from = store.last_consumed_request_id;
+                if let Some(batch) = store.pending_request.front() {
+                    first_batch = batch.to_vec();
                 }
             }
+
+            // back to empty state when
+            let pending_request = store.get_all_pending_request();
+            assert_eq!(pending_request.len(), 0);
         }
     }
 }

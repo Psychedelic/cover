@@ -1,14 +1,12 @@
 use crate::common::types::{CallerId, ReqId};
-use ic_cdk::export::candid::CandidType;
-use serde::{Deserialize, Serialize};
 
-#[derive(CandidType, Serialize, Deserialize, Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct BuildSettings {
     pub git_ref: String,
     pub git_tag: String,
 }
 
-#[derive(CandidType, Serialize, Deserialize, Debug, PartialEq)]
+#[derive(Debug, PartialEq)]
 pub struct ValidationResponse {
     pub request_id: ReqId,
     pub validator_id: Option<CallerId>,
