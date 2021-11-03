@@ -2,7 +2,7 @@ use crate::common::types::{CallerId, ReqId};
 use ic_cdk::export::candid::CandidType;
 use serde::{Deserialize, Serialize};
 
-#[derive(CandidType, Serialize, Deserialize, Debug, PartialEq)]
+#[derive(CandidType, Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub struct BuildSettings {
     pub git_ref: String,
     pub git_tag: String,
