@@ -14,7 +14,7 @@ fn whoami() -> CallerId {
 
 #[update]
 fn add_request(request: NewValidationRequest) -> Result<(), Error> {
-    cover_service::add_validation_request(request)
+    cover_service::add_request(request)
 }
 
 #[query]

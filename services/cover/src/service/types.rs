@@ -51,7 +51,7 @@ impl From<ErrorKind> for Error {
     fn from(kind: ErrorKind) -> Self {
         match kind {
             ErrorKind::PendingRequestNotFound => Self {
-                code: "ERR_001",
+                code: "ERR_001_001",
                 message: "Pending request not found",
                 debug_log: None,
             },

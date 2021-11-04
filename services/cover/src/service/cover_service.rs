@@ -3,7 +3,7 @@ use crate::common::types::ReqId;
 use crate::service::types::{Error, NewValidationRequest, ProviderInfo, ValidationRequest};
 use ic_kit::ic::caller;
 
-pub fn add_validation_request(req: NewValidationRequest) -> Result<(), Error> {
+pub fn add_request(req: NewValidationRequest) -> Result<(), Error> {
     get_validation_registry_mut().add_request(caller(), req.canister_id, req.build_settings);
     Ok(())
 }
