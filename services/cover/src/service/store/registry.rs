@@ -2,7 +2,7 @@ use std::collections::{BTreeMap, VecDeque};
 
 use crate::common::types::{CallerId, CanisterId, ReqId};
 use crate::service::store::error::ErrorKind;
-use crate::service::types::{BuildSettings, ValidationRequest, ProviderInfo};
+use crate::service::types::{BuildSettings, ProviderInfo, ValidationRequest};
 
 /// Batch request buffer
 const MAX_BATCH_REQ: ReqId = 10;

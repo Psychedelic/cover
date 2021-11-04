@@ -1,7 +1,7 @@
 use crate::common::types::{CallerId, CanisterId, ReqId};
-use serde::{Deserialize};
-use ic_cdk::export::candid::CandidType;
 use crate::service::store::error::ErrorKind;
+use ic_cdk::export::candid::CandidType;
+use serde::Deserialize;
 
 #[derive(CandidType, Deserialize, Debug, PartialEq, Clone)]
 pub struct BuildSettings {
@@ -48,13 +48,13 @@ pub struct Error {
 }
 
 impl From<ErrorKind> for Error {
-  fn from(kind: ErrorKind) -> Self {
-    match kind {
-      ErrorKind::PendingRequestNotFound => Self {
-        code: "ERR_001",
-        message: "Pending request not found",
-        debug_log: None
-      },
+    fn from(kind: ErrorKind) -> Self {
+        match kind {
+            ErrorKind::PendingRequestNotFound => Self {
+                code: "ERR_001",
+                message: "Pending request not found",
+                debug_log: None,
+            },
+        }
     }
-  }
 }

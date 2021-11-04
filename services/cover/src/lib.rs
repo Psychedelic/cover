@@ -3,7 +3,7 @@ mod service;
 
 use crate::common::types::{CallerId, ReqId};
 use crate::service::cover_service;
-use crate::service::types::{ProviderInfo,Error, NewValidationRequest, ValidationRequest};
+use crate::service::types::{Error, NewValidationRequest, ProviderInfo, ValidationRequest};
 use ic_kit::ic::caller;
 use ic_kit::macros::{query, update};
 
