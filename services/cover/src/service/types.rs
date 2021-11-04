@@ -1,7 +1,8 @@
-use crate::common::types::{CallerId, CanisterId, ReqId};
-use crate::service::store::error::ErrorKind;
 use ic_cdk::export::candid::CandidType;
 use serde::Deserialize;
+
+use crate::common::types::{CallerId, CanisterId, ReqId};
+use crate::service::store::error::ErrorKind;
 
 #[derive(CandidType, Deserialize, Debug, PartialEq, Clone)]
 pub struct BuildSettings {

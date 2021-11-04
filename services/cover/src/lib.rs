@@ -1,11 +1,12 @@
-mod common;
-mod service;
+use ic_kit::ic::caller;
+use ic_kit::macros::{query, update};
 
 use crate::common::types::{CallerId, ReqId};
 use crate::service::cover_service;
 use crate::service::types::{Error, NewValidationRequest, ProviderInfo, ValidationRequest};
-use ic_kit::ic::caller;
-use ic_kit::macros::{query, update};
+
+mod common;
+mod service;
 
 //TODO: validation status
 
@@ -15,13 +16,13 @@ fn whoami() -> CallerId {
 }
 
 #[update]
-fn add_request(request: NewValidationRequest) -> Result<(), Error> {
-    cover_service::add_request(request)
+fn add_request(new_validation_request: NewValidationRequest) -> Result<(), Error> {
+    cover_service::add_request(new_validation_request)
 }
 
 #[query]
-fn get_pending_request_by_id(id: ReqId) -> Option<&'static ValidationRequest> {
-    cover_service::get_pending_request_by_id(id)
+fn get_pending_request_by_id(request_id: ReqId) -> Option<&'static ValidationRequest> {
+    cover_service::get_pending_request_by_id(request_id)
 }
 
 #[query]

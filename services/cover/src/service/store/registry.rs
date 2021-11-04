@@ -168,9 +168,11 @@ impl ValidationsRegistry {
 
 #[cfg(test)]
 mod test {
-    use super::*;
-    use crate::service::store::test_data;
     use ic_kit::*;
+
+    use crate::service::store::test_data;
+
+    use super::*;
 
     impl ValidationsRegistry {
         fn fake_store_with_pending_offset(&mut self, offset: ReqId, size: usize) {
@@ -337,7 +339,7 @@ mod test {
                     None,
                     None,
                     None,
-                ]
+                ],
             ])
         );
         assert_eq!(store.last_consumed_request_id, 0);
