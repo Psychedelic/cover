@@ -2,13 +2,13 @@ use std::collections::{BTreeMap, VecDeque};
 
 use crate::common::types::{CallerId, CanisterId, ReqId};
 use crate::service::store::error::ErrorKind;
-use crate::service::types::BuildSettings;
+use crate::service::types::{BuildSettings, ValidationRequest, ProviderInfo};
 
 /// Batch request buffer
 const MAX_BATCH_REQ: ReqId = 10;
 
 #[derive(Debug, PartialEq)]
-struct ValidationsRegistry {
+pub struct ValidationsRegistry {
     /// Validation request counter <=> last request id
     last_request_id: ReqId,
 
@@ -25,24 +25,12 @@ struct ValidationsRegistry {
     last_consumed_request_id: ReqId,
 }
 
-#[derive(Debug, PartialEq, Clone)]
-struct ValidationRequest {
-    request_id: ReqId,
-    caller_id: CallerId,
-    canister_id: CanisterId,
-    build_settings: BuildSettings,
-    //  created_at: chrono::DateTime<chrono::Utc>,
-}
-
 #[derive(Debug, PartialEq)]
 struct ConsumeRegistry {
     provider_info: ProviderInfo,
     batch: Vec<Option<ValidationRequest>>,
     // consumed_at: chrono::DateTime<chrono::Utc>,
 }
-
-#[derive(Debug, PartialEq)]
-pub struct ProviderInfo {}
 
 impl Default for ValidationsRegistry {
     fn default() -> Self {
@@ -153,7 +141,7 @@ impl ValidationsRegistry {
     ) -> Result<Vec<&ValidationRequest>, ErrorKind> {
         let from = self.last_consumed_request_id;
         if from >= self.last_request_id {
-            return Err(ErrorKind::pending_request_not_found());
+            return Err(ErrorKind::PendingRequestNotFound);
         }
         self.last_consumed_request_id =
             self.next_consume_request_id(self.last_consumed_request_id, self.last_request_id);
@@ -400,7 +388,7 @@ mod test {
 
             // error consume when no pending
             let result = store.consume_request(test_data::fake_provider_info1());
-            assert_eq!(result, Err(ErrorKind::pending_request_not_found()));
+            assert_eq!(result, Err(ErrorKind::PendingRequestNotFound));
 
             store.fake_store_with_pending_offset(offset, len as usize);
 

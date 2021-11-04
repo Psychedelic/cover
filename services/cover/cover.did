@@ -1,67 +1,38 @@
+type Error = record {
+    code: text;
+    message: text;
+    debug_log: opt text;
+};
+
 type BuildParams = record {
-  git_ref: text;
-  git_tag: text;
-};
-
-type ValidationRequest = record {
-  request_id: opt nat32;
-  caller_id: principal;
-  canister_id: principal;
-  fetched: bool;
-};
-
-type ValidationResponse = record {
-  request_id: nat32;
-  canister_id: opt principal;
-  validator_id: opt principal;
-  validation_started_at: text;
-  validation_completed_at: text;
-  git_checksum: text;
-  canister_checksum: text;
-  wasm_checksum: text;
-  build_log_url: text;
-  source_snapshot_url: text;
-  status: text;
+    git_ref: text;
+    git_tag: text;
 };
 
 type NewValidationRequest = record {
-  canister_id: principal;
-  build_settings: BuildParams;
+    canister_id: principal;
+    validator_id: opt principal;
+    build_settings: BuildParams;
 };
 
-
-type ValidationResult = record {
-  data: opt record {
-    canister_id: principal
-  };
-  is_error: bool;
-  message: opt text;
-  code: opt text;
+type ValidationRequest = record {
+    request_id: nat64;
+    caller_id: principal;
+    canister_id: principal;
+    build_settings: BuildParams;
 };
+
+type ProviderInfo = record {};
 
 service: {
-    whoami              : () -> (principal);
+    // General API
+    whoami: () -> (principal);
+    get_pending_request_by_id: (request_id: nat64) -> (opt ValidationRequest);
+    get_all_pending_request: () -> (vec ValidationRequest);
 
-    // Developer API
-    add_request         : (NewValidationRequest) -> (ValidationResult);
-    add_request_json    : (text) -> (ValidationResult);
-    get_request         : (nat32) -> (ValidationResult);
-    get_request_json    : (nat32) -> (text);
-    my_requests         : () -> (vec ValidationRequest);
-    all_requests        : () -> (vec ValidationRequest);
+    // Provider API
+    consume_request: (ProviderInfo) -> (variant { Ok: vec ValidationRequest; Err: Error });
 
-    get_validation      : (nat32) -> (ValidationResult);
-    get_validation_json : (nat32) -> (text);
-    all_validations     : () -> (vec ValidationResponse);
-
-    // Validator API
-    fetch_request_json  : () -> (text); // json data format
-    fetch_request       : () -> (ValidationResult);
-    add_response_json   : (text) -> (ValidationResult); // json data format
-    add_response        : (ValidationResponse) -> (ValidationResult);
-
-    // Admin API
-    add_validator       : (principal) -> (ValidationResult);
-    remove_validator    : (principal) -> (ValidationResult);
-    list_validators     : () -> (vec principal);
+    // User API
+    add_request: (NewValidationRequest) -> (variant { Ok: null; Err: Error });
 }
