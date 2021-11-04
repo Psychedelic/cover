@@ -23,15 +23,58 @@ type ValidationRequest = record {
 
 type ProviderInfo = record {};
 
+type ValidationResponse = record {
+    request_validation_id: nat64;
+    validation_started_at: text;
+    validation_completed_at: opt text;
+    git_checksum: opt text;
+    canister_checksum: opt text;
+    wasm_checksum: opt text;
+    build_log_url: opt text;
+    source_snapshot_url: opt text;
+    percentage: opt float32;
+    status: variant { Init; InProgress; Finished; Error };
+};
+
+type UpdateOnGoingProgressStatus = record {
+    git_checksum: opt text;
+    canister_checksum: opt text;
+    wasm_checksum: opt text;
+    build_log_url: opt text;
+    source_snapshot_url: opt text;
+    percentage: opt float32;
+    status: variant { Init; InProgress; Finished; Error };
+};
+
 service: {
+    //====================================================================================================
     // General API
+    // Mainly use for general purpose:
     whoami: () -> (principal);
+
+    // - Requested users see/verify their actual pending requests are in waiting-list
+    // - Providers see what they are about to consume
+    // - Normal users see ... pending requests
     get_pending_request_by_id: (request_id: nat64) -> (opt ValidationRequest);
     get_all_pending_request: () -> (vec ValidationRequest);
 
+    // You tell me 🤷
+    get_on_going_progress_by_request_id: (request_id: nat64) -> (opt ValidationResponse);
+    get_on_going_progress_by_canister_id: (canister_id: principal) -> (vec ValidationResponse);
+
+    // TODO: history api
+    //====================================================================================================
+
+
+    //====================================================================================================
     // Provider API
     consume_request: (ProviderInfo) -> (variant { Ok: vec ValidationRequest; Err: Error });
+    update_on_going_progress_status: (UpdateOnGoingProgressStatus) -> (variant { Ok: null; Err: Error });
+    //====================================================================================================
 
+
+    //====================================================================================================
     // User API
     add_request: (NewValidationRequest) -> (variant { Ok: null; Err: Error });
+    //====================================================================================================
 }
