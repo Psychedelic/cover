@@ -12,8 +12,8 @@ struct ValidationsRegistry {
     /// Validation request counter <=> last request id
     last_request_id: ReqId,
 
-    // consume history from - to by request id
-    // allow arbitrary range from history
+    /// Consume history from - to by request id
+    /// Allow arbitrary range from history
     consume_history: BTreeMap<(ReqId, ReqId), ConsumeRegistry>,
 
     /// Pending batch request queue
@@ -56,6 +56,7 @@ impl Default for ValidationsRegistry {
 }
 
 impl ValidationsRegistry {
+    /// Output a list of non-empty pending request
     fn filter_non_empty_pending_request(
         batch: &[Option<ValidationRequest>],
     ) -> Vec<&ValidationRequest> {
@@ -66,7 +67,7 @@ impl ValidationsRegistry {
             .collect::<Vec<&ValidationRequest>>()
     }
 
-    // Calculate next consume request id
+    /// Calculate next consume request id
     fn next_consume_request_id(
         &self,
         last_consumed_request_id: ReqId,
@@ -83,6 +84,7 @@ impl ValidationsRegistry {
         self.last_request_id % MAX_BATCH_REQ
     }
 
+    /// Check if allocate batch for new batch is needed
     fn should_create_new_batch(&self) -> bool {
         if let Some(p) = self.pending_request.back() {
             return self.current_pending_request_index() == 0
@@ -92,12 +94,14 @@ impl ValidationsRegistry {
         true
     }
 
+    /// Allocate new batch to the queue
     fn create_new_batch(&mut self) {
         // workaround https://github.com/rust-lang/rust/issues/44796
         let new_batch: [Option<ValidationRequest>; MAX_BATCH_REQ as usize] = Default::default();
         self.pending_request.push_back(new_batch);
     }
 
+    /// Add new pending request
     pub fn add_request(
         &mut self,
         caller_id: CallerId,
@@ -119,6 +123,7 @@ impl ValidationsRegistry {
         });
     }
 
+    /// Get pending request by id
     pub fn get_pending_request_by_id(&self, request_id: ReqId) -> Option<&ValidationRequest> {
         if request_id <= self.last_consumed_request_id || request_id > self.last_request_id {
             return None;
@@ -132,6 +137,8 @@ impl ValidationsRegistry {
             .as_ref()
     }
 
+    /// Get all pending request
+    /// TODO: support pagination
     pub fn get_all_pending_request(&self) -> Vec<&ValidationRequest> {
         self.pending_request
             .iter()
@@ -139,6 +146,7 @@ impl ValidationsRegistry {
             .collect::<Vec<&ValidationRequest>>()
     }
 
+    /// consume a batch of request by provider
     pub fn consume_request(
         &mut self,
         provider_info: ProviderInfo,
