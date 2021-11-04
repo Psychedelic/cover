@@ -7,6 +7,8 @@ use crate::service::types::{Error, NewValidationRequest, ProviderInfo, Validatio
 use ic_kit::ic::caller;
 use ic_kit::macros::{query, update};
 
+//TODO: validation status
+
 #[query]
 fn whoami() -> CallerId {
     caller()

@@ -28,6 +28,7 @@ pub struct NewValidationRequest {
     pub build_settings: BuildSettings,
 }
 
+// TODO: enable audit timestamp
 #[derive(CandidType, Debug, PartialEq, Clone)]
 pub struct ValidationRequest {
     pub request_id: ReqId,
@@ -37,6 +38,7 @@ pub struct ValidationRequest {
     //  created_at: chrono::DateTime<chrono::Utc>,
 }
 
+// TODO: define details
 #[derive(CandidType, Deserialize, Debug, PartialEq)]
 pub struct ProviderInfo {}
 

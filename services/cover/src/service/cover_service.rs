@@ -4,6 +4,7 @@ use crate::service::types::{Error, NewValidationRequest, ProviderInfo, Validatio
 use ic_kit::ic::caller;
 
 pub fn add_request(req: NewValidationRequest) -> Result<(), Error> {
+    // TODO: handle canister's owner properly
     get_validation_registry_mut().add_request(caller(), req.canister_id, req.build_settings);
     Ok(())
 }
