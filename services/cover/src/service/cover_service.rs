@@ -1,11 +1,16 @@
 use ic_kit::ic::caller;
 
-use crate::common::types::ReqId;
-use crate::service::types::{Error, NewValidationRequest, ProviderInfo, ValidationRequest};
+use crate::common::types::{CanisterId, ReqId};
+use crate::service::types::{
+    Error, ProviderInfo, RequestValidation, UpdateProgress, ValidationProgress, ValidationRequest,
+};
 
-use super::{get_validation_registry, get_validation_registry_mut};
+use super::{
+    get_progress_tracker, get_progress_tracker_mut, get_validation_registry,
+    get_validation_registry_mut,
+};
 
-pub fn add_request(new_validation_request: NewValidationRequest) -> Result<(), Error> {
+pub fn add_request(new_validation_request: RequestValidation) -> Result<(), Error> {
     // TODO: handle canister's owner properly
     get_validation_registry_mut().add_request(
         caller(),
@@ -26,7 +31,37 @@ pub fn get_all_pending_request() -> Vec<&'static ValidationRequest> {
 pub fn consume_request(
     provider_info: ProviderInfo,
 ) -> Result<Vec<&'static ValidationRequest>, Error> {
+    //TODO: check allow list
     get_validation_registry_mut()
         .consume_request(provider_info)
+        .and_then(|a| {
+            for v in a.iter() {
+                get_progress_tracker_mut().init_progress(v.request_id, v.canister_id)?;
+            }
+            Ok(a)
+        })
+        .map_err(|e| e.into())
+}
+
+pub fn get_progress_by_request_id(request_id: ReqId) -> Option<&'static ValidationProgress> {
+    get_progress_tracker().get_progress_by_request_id(request_id)
+}
+
+pub fn get_progress_by_canister_id(canister_id: CanisterId) -> Vec<&'static ValidationProgress> {
+    get_progress_tracker().get_progress_by_canister_id(canister_id)
+}
+
+pub fn get_all_progress() -> Vec<&'static ValidationProgress> {
+    get_progress_tracker().get_all_progress()
+}
+
+pub fn update_progress(
+    request_validation_id: ReqId,
+    canister_id: CanisterId,
+    status: UpdateProgress,
+) -> Result<(), Error> {
+    // TODO: check progress owner
+    get_progress_tracker_mut()
+        .update_progress(request_validation_id, canister_id, status)
         .map_err(|e| e.into())
 }
