@@ -9,7 +9,7 @@ type BuildParams = record {
     git_tag: text;
 };
 
-type NewValidationRequest = record {
+type RequestValidation = record {
     canister_id: principal;
     build_settings: BuildParams;
 };
@@ -23,15 +23,58 @@ type ValidationRequest = record {
 
 type ProviderInfo = record {};
 
+type ValidationProgress = record {
+    request_id: nat64;
+    validation_started_at: text;
+    validation_updated_at: opt text;
+    validation_completed_at: opt text;
+    git_checksum: opt text;
+    canister_checksum: opt text;
+    wasm_checksum: opt text;
+    build_log_url: opt text;
+    source_snapshot_url: opt text;
+    percentage: opt float32;
+    status: variant { Init; InProgress; Finished; Error };
+};
+
+type UpdateProgress = record {
+    git_checksum: opt text;
+    canister_checksum: opt text;
+    wasm_checksum: opt text;
+    build_log_url: opt text;
+    source_snapshot_url: opt text;
+    percentage: opt float32;
+    status: variant { Init; InProgress; Finished; Error };
+};
+
 service: {
+    //====================================================================================================
     // General API
-    whoami: () -> (principal);
+    // Mainly use for general purpose:
+    // - Requested users see/verify their actual pending requests are in waiting-list
+    // - Providers see what they are about to consume
+    // - Normal users see ... pending requests
     get_pending_request_by_id: (request_id: nat64) -> (opt ValidationRequest);
     get_all_pending_request: () -> (vec ValidationRequest);
 
+    // You tell me 🤷
+    get_progress_by_request_id: (request_id: nat64) -> (opt ValidationProgress);
+    get_progress_by_canister_id: (canister_id: principal) -> (vec ValidationProgress);
+    get_all_progress: () -> (vec ValidationProgress);
+
+    // TODO: history api
+    //====================================================================================================
+
+
+    //====================================================================================================
     // Provider API
     consume_request: (ProviderInfo) -> (variant { Ok: vec ValidationRequest; Err: Error });
+    update_progress: (UpdateProgress) -> (variant { Ok: null; Err: Error });
+    //====================================================================================================
 
+
+    //====================================================================================================
     // User API
-    add_request: (NewValidationRequest) -> (variant { Ok: null; Err: Error });
+    add_request: (RequestValidation) -> (variant { Ok: null; Err: Error });
+    //====================================================================================================
 }
