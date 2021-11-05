@@ -136,7 +136,6 @@ mod test {
                     let request_id = index + 1;
                     assert_eq!(p.request_id, request_id as ReqId);
                     assert_eq!(p.validation_started_at.is_empty(), false);
-                    println!("{:?}", p);
                     if request_id % 4 == 0 {
                         assert_eq!(p.validation_updated_at.is_some(), false);
                         assert_eq!(p.validation_completed_at.is_some(), false);
@@ -216,7 +215,6 @@ mod test {
             } else {
                 test_data::fake_update_progress_error()
             };
-            println!("{:?}", update_progress);
             let result = store.update_progress(i, test_data::fake_canister1(), update_progress);
             assert_eq!(
                 result,
