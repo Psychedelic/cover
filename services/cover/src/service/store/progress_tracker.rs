@@ -22,24 +22,18 @@ impl Default for ProgressTracker {
 }
 
 impl ProgressTracker {
-    pub fn get_progress_by_request_id(
-        &self,
-        request_validation_id: ReqId,
-    ) -> Option<&ValidationProgress> {
-        let start = (request_validation_id, CanisterId::management_canister()); // [0; 29],
-        let end = (request_validation_id, CanisterId::from_slice(&[255; 29]));
+    pub fn get_progress_by_request_id(&self, request_id: ReqId) -> Option<&ValidationProgress> {
+        let start = (request_id, CanisterId::management_canister()); // [0; 29],
+        let end = (request_id, CanisterId::from_slice(&[255; 29]));
         self.progress
             .range((Included(start), Included(end)))
             .map(|(_, v)| v)
             .next()
     }
 
-    pub fn get_progress_by_canister_id(
-        &self,
-        request_validation_id: CanisterId,
-    ) -> Vec<&ValidationProgress> {
-        let start = (ReqId::min_value(), request_validation_id);
-        let end = (ReqId::max_value(), request_validation_id);
+    pub fn get_progress_by_canister_id(&self, canister_id: CanisterId) -> Vec<&ValidationProgress> {
+        let start = (ReqId::min_value(), canister_id);
+        let end = (ReqId::max_value(), canister_id);
         self.progress
             .range((Included(start), Included(end)))
             .map(|(_, v)| v)
@@ -52,20 +46,20 @@ impl ProgressTracker {
 
     pub fn init_progress(
         &mut self,
-        request_validation_id: ReqId,
+        request_id: ReqId,
         canister_id: CanisterId,
     ) -> Result<(), ErrorKind> {
         self.progress
-            .get(&(request_validation_id, canister_id))
+            .get(&(request_id, canister_id))
             .map(|_| Err(ErrorKind::InitExistedProgress))
             .unwrap_or(Ok(()))?;
         self.progress.insert(
-            (request_validation_id, canister_id),
+            (request_id, canister_id),
             ValidationProgress {
-                request_id: request_validation_id,
-                validation_started_at: Utc::now().to_rfc3339_opts(SecondsFormat::Millis, false),
-                validation_updated_at: None,
-                validation_completed_at: None,
+                request_id,
+                started_at: Utc::now().to_rfc3339_opts(SecondsFormat::Millis, false),
+                updated_at: None,
+                completed_at: None,
                 git_checksum: None,
                 canister_checksum: None,
                 wasm_checksum: None,
@@ -80,31 +74,29 @@ impl ProgressTracker {
 
     pub fn update_progress(
         &mut self,
-        request_validation_id: ReqId,
+        request_id: ReqId,
         canister_id: CanisterId,
-        status: UpdateProgress,
+        update_progress: UpdateProgress,
     ) -> Result<(), ErrorKind> {
-        let validation_response = self
+        let progress = self
             .progress
-            .get_mut(&(request_validation_id, canister_id))
+            .get_mut(&(request_id, canister_id))
             .ok_or(ErrorKind::ProgressNotFound)?
             .borrow_mut();
-        if status.status == ProgressStatus::Init {
+        if update_progress.status == ProgressStatus::Init {
             return Err(ErrorKind::InvalidProgressStatus);
         }
         let now = Utc::now().to_rfc3339_opts(SecondsFormat::Millis, false);
-        validation_response.validation_updated_at = Some(now.clone());
-        validation_response.git_checksum = status.git_checksum;
-        validation_response.canister_checksum = status.canister_checksum;
-        validation_response.wasm_checksum = status.wasm_checksum;
-        validation_response.build_log_url = status.build_log_url;
-        validation_response.source_snapshot_url = status.source_snapshot_url;
-        validation_response.percentage = status.percentage;
-        validation_response.status = status.status;
-        if validation_response.status == ProgressStatus::Finished
-            || validation_response.status == ProgressStatus::Error
-        {
-            validation_response.validation_completed_at = Some(now)
+        progress.updated_at = Some(now.clone());
+        progress.git_checksum = update_progress.git_checksum;
+        progress.canister_checksum = update_progress.canister_checksum;
+        progress.wasm_checksum = update_progress.wasm_checksum;
+        progress.build_log_url = update_progress.build_log_url;
+        progress.source_snapshot_url = update_progress.source_snapshot_url;
+        progress.percentage = update_progress.percentage;
+        progress.status = update_progress.status;
+        if progress.status == ProgressStatus::Finished || progress.status == ProgressStatus::Error {
+            progress.completed_at = Some(now)
             // TODO: remove entry and push to history
         }
         Ok(())
@@ -135,22 +127,22 @@ mod test {
                 .for_each(|(index, (_, p))| {
                     let request_id = index + 1;
                     assert_eq!(p.request_id, request_id as ReqId);
-                    assert_eq!(p.validation_started_at.is_empty(), false);
+                    assert_eq!(p.started_at.is_empty(), false);
                     if request_id % 4 == 0 {
-                        assert_eq!(p.validation_updated_at.is_some(), false);
-                        assert_eq!(p.validation_completed_at.is_some(), false);
+                        assert_eq!(p.updated_at.is_some(), false);
+                        assert_eq!(p.completed_at.is_some(), false);
                         assert_progress_utils(p, &test_data::fake_update_progress_default());
                     } else if request_id % 4 == 1 {
-                        assert_eq!(p.validation_updated_at.is_some(), true);
-                        assert_eq!(p.validation_completed_at.is_some(), false);
+                        assert_eq!(p.updated_at.is_some(), true);
+                        assert_eq!(p.completed_at.is_some(), false);
                         assert_progress_utils(p, &test_data::fake_update_progress_in_progress());
                     } else if request_id % 4 == 2 {
-                        assert_eq!(p.validation_updated_at.is_some(), true);
-                        assert_eq!(p.validation_completed_at.is_some(), true);
+                        assert_eq!(p.updated_at.is_some(), true);
+                        assert_eq!(p.completed_at.is_some(), true);
                         assert_progress_utils(p, &test_data::fake_update_progress_finished());
                     } else {
-                        assert_eq!(p.validation_updated_at.is_some(), true);
-                        assert_eq!(p.validation_completed_at.is_some(), true);
+                        assert_eq!(p.updated_at.is_some(), true);
+                        assert_eq!(p.completed_at.is_some(), true);
                         assert_progress_utils(p, &test_data::fake_update_progress_error());
                     }
                 });
@@ -170,9 +162,9 @@ mod test {
                 .enumerate()
                 .for_each(|(index, (_, p))| {
                     assert_eq!(p.request_id, (index + 1) as ReqId);
-                    assert_eq!(p.validation_started_at.is_empty(), false);
-                    assert_eq!(p.validation_updated_at, None);
-                    assert_eq!(p.validation_completed_at, None);
+                    assert_eq!(p.started_at.is_empty(), false);
+                    assert_eq!(p.updated_at, None);
+                    assert_eq!(p.completed_at, None);
                     assert_eq!(p.git_checksum, None);
                     assert_eq!(p.canister_checksum, None);
                     assert_eq!(p.wasm_checksum, None);
