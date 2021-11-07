@@ -48,9 +48,9 @@ fn get_all_progress() -> Vec<&'static ValidationProgress> {
 
 #[update]
 fn update_progress(
-    request_validation_id: ReqId,
+    request_id: ReqId,
     canister_id: CanisterId,
-    status: UpdateProgress,
+    _update_progress: UpdateProgress, // TODO: cdk bug????? param can not same with fn!!!!!
 ) -> Result<(), Error> {
-    cover_service::update_progress(request_validation_id, canister_id, status)
+    cover_service::update_progress(request_id, canister_id, _update_progress)
 }
