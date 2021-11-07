@@ -79,7 +79,7 @@ dfx deploy canister_name
 Find the canister names in the root `dfx.json` file. As an example, here's how to deploy the `canisterium` canister:
 
 ```sh
-dfx deploy cover
+dfx deploy poll-cover
 ```
 
 ##### Quick check-up by using the whoami endpoint
@@ -89,7 +89,7 @@ The **whoami** is an endpoint that is declared in the Candid file available in t
 If you were successfull in the steps mentioend above 👆, you can then make a call to the canister by its name and a method name as defined in the candid. Here's an example:
 
 ```sh
-dfx canister call cover whoami
+dfx canister call poll-cover whoami
 ```
 
 To learn more (e.g. setup canister control, identity, troubleshooting), read the [services doc](docs/services.md).

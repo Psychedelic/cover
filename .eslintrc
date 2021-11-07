@@ -4,10 +4,7 @@
     "es2021": true,
     "node": true
   },
-  "extends": [
-    "plugin:react/recommended",
-    "airbnb"
-  ],
+  "extends": [],
   "parserOptions": {
     "ecmaFeatures": {
       "jsx": true
@@ -16,14 +13,9 @@
     "sourceType": "module"
   },
   "plugins": [
-    "react"
   ],
   "rules": {
     "import/no-unresolved": [2, { "ignore": ["^@dfx\/(.*)"] }],
-    "react/react-in-jsx-scope": "off",
     "import/no-extraneous-dependencies": "off",
-    "react/jsx-one-expression-per-line": "off",
-    "react/jsx-filename-extension": [1, { "extensions": [".js"] }],
-    "react/jsx-props-no-spreading": "off"
   }
 }

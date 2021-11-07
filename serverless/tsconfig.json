@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "baseUrl": "src",
+    "target": "es2016"
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "typeRoots": [
+    "./node_modules/@types"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}
