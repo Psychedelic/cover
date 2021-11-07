@@ -34,11 +34,12 @@ pub fn consume_request(
     //TODO: check allow list
     get_validation_registry_mut()
         .consume_request(provider_info)
-        .and_then(|a| {
-            for v in a.iter() {
-                get_progress_tracker_mut().init_progress(v.request_id, v.canister_id)?;
+        .and_then(|requests| {
+            for request in requests.iter() {
+                get_progress_tracker_mut()
+                    .init_progress(request.request_id, request.canister_id)?;
             }
-            Ok(a)
+            Ok(requests)
         })
         .map_err(|e| e.into())
 }
@@ -56,12 +57,12 @@ pub fn get_all_progress() -> Vec<&'static ValidationProgress> {
 }
 
 pub fn update_progress(
-    request_validation_id: ReqId,
+    request_id: ReqId,
     canister_id: CanisterId,
-    status: UpdateProgress,
+    update_progress: UpdateProgress,
 ) -> Result<(), Error> {
     // TODO: check progress owner
     get_progress_tracker_mut()
-        .update_progress(request_validation_id, canister_id, status)
+        .update_progress(request_id, canister_id, update_progress)
         .map_err(|e| e.into())
 }
