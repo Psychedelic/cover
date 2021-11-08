@@ -15,7 +15,7 @@ type UpdateProgress = record {
     status: ProgressStatus;
 };
 
-type ValidationProgress = record {
+type Progress = record {
     request_id: nat64;
     canister_id: principal;
     // started_at: text;
@@ -30,7 +30,7 @@ type ValidationProgress = record {
     status: ProgressStatus;
 };
 
-type ValidationRequest = record {
+type Request = record {
     request_id: nat64;
     caller_id: principal;
     canister_id: principal;
@@ -52,13 +52,13 @@ service: {
     // - Requested users see/verify their actual requests are in waiting-list
     // - Providers see what they are about to consume
     // - Normal users see ... requests
-    get_request_by_id: (request_id: nat64) -> (opt ValidationRequest);
-    get_all_request: () -> (vec ValidationRequest);
+    get_request_by_id: (request_id: nat64) -> (opt Request);
+    get_all_request: () -> (vec Request);
 
     // You tell me 🤷
-    get_progress_by_request_id: (request_id: nat64) -> (opt ValidationProgress);
-    get_progress_by_canister_id: (canister_id: principal) -> (vec ValidationProgress);
-    get_all_progress: () -> (vec ValidationProgress);
+    get_progress_by_request_id: (request_id: nat64) -> (opt Progress);
+    get_progress_by_canister_id: (canister_id: principal) -> (vec Progress);
+    get_all_progress: () -> (vec Progress);
 
     // TODO: history api
     //====================================================================================================
@@ -66,7 +66,7 @@ service: {
 
     //====================================================================================================
     // Provider API
-    consume_request: (ProviderInfo) -> (variant { Ok: vec ValidationRequest; Err: Error });
+    consume_request: (ProviderInfo) -> (variant { Ok: vec Request; Err: Error });
     update_progress: (request_id: nat64, canister_id: principal, UpdateProgress) -> (variant { Ok: null; Err: Error });
     //====================================================================================================
 

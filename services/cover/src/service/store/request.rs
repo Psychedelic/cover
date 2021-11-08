@@ -9,7 +9,7 @@ const MAX_BATCH_REQ: ReqId = 10;
 
 #[derive(Debug, PartialEq)]
 pub struct RequestStore {
-    /// Validation request counter <=> last request id
+    /// Request counter <=> last request id
     last_request_id: ReqId,
 
     /// Consume history from - to by request id
