@@ -2,8 +2,6 @@ use std::borrow::BorrowMut;
 use std::collections::BTreeMap;
 use std::ops::Bound::Included;
 
-use chrono::{SecondsFormat, Utc};
-
 use crate::common::types::{CanisterId, ReqId};
 use crate::service::store::error::ErrorKind;
 use crate::service::types::{ProgressStatus, UpdateProgress, ValidationProgress};
@@ -57,9 +55,10 @@ impl ProgressTracker {
             (request_id, canister_id),
             ValidationProgress {
                 request_id,
-                started_at: Utc::now().to_rfc3339_opts(SecondsFormat::Millis, false),
-                updated_at: None,
-                completed_at: None,
+                canister_id,
+                // started_at: Utc::now().to_rfc3339_opts(SecondsFormat::Millis, false),
+                // updated_at: None,
+                // completed_at: None,
                 git_checksum: None,
                 canister_checksum: None,
                 wasm_checksum: None,
@@ -86,8 +85,8 @@ impl ProgressTracker {
         if update_progress.status == ProgressStatus::Init {
             return Err(ErrorKind::InvalidProgressStatus);
         }
-        let now = Utc::now().to_rfc3339_opts(SecondsFormat::Millis, false);
-        progress.updated_at = Some(now.clone());
+        // let now = Utc::now().to_rfc3339_opts(SecondsFormat::Millis, false);
+        // progress.updated_at = Some(now.clone());
         progress.git_checksum = update_progress.git_checksum;
         progress.canister_checksum = update_progress.canister_checksum;
         progress.wasm_checksum = update_progress.wasm_checksum;
@@ -96,7 +95,7 @@ impl ProgressTracker {
         progress.percentage = update_progress.percentage;
         progress.status = update_progress.status;
         if progress.status == ProgressStatus::Finished || progress.status == ProgressStatus::Error {
-            progress.completed_at = Some(now)
+            // progress.completed_at = Some(now)
             // TODO: remove entry and push to history
         }
         Ok(())
@@ -127,22 +126,22 @@ mod test {
                 .for_each(|(index, (_, p))| {
                     let request_id = index + 1;
                     assert_eq!(p.request_id, request_id as ReqId);
-                    assert_eq!(p.started_at.is_empty(), false);
+                    // assert_eq!(p.started_at.is_empty(), false);
                     if request_id % 4 == 0 {
-                        assert_eq!(p.updated_at.is_some(), false);
-                        assert_eq!(p.completed_at.is_some(), false);
+                        // assert_eq!(p.updated_at.is_some(), false);
+                        // assert_eq!(p.completed_at.is_some(), false);
                         assert_progress_utils(p, &test_data::fake_update_progress_default());
                     } else if request_id % 4 == 1 {
-                        assert_eq!(p.updated_at.is_some(), true);
-                        assert_eq!(p.completed_at.is_some(), false);
+                        // assert_eq!(p.updated_at.is_some(), true);
+                        // assert_eq!(p.completed_at.is_some(), false);
                         assert_progress_utils(p, &test_data::fake_update_progress_in_progress());
                     } else if request_id % 4 == 2 {
-                        assert_eq!(p.updated_at.is_some(), true);
-                        assert_eq!(p.completed_at.is_some(), true);
+                        // assert_eq!(p.updated_at.is_some(), true);
+                        // assert_eq!(p.completed_at.is_some(), true);
                         assert_progress_utils(p, &test_data::fake_update_progress_finished());
                     } else {
-                        assert_eq!(p.updated_at.is_some(), true);
-                        assert_eq!(p.completed_at.is_some(), true);
+                        // assert_eq!(p.updated_at.is_some(), true);
+                        // assert_eq!(p.completed_at.is_some(), true);
                         assert_progress_utils(p, &test_data::fake_update_progress_error());
                     }
                 });
@@ -162,9 +161,10 @@ mod test {
                 .enumerate()
                 .for_each(|(index, (_, p))| {
                     assert_eq!(p.request_id, (index + 1) as ReqId);
-                    assert_eq!(p.started_at.is_empty(), false);
-                    assert_eq!(p.updated_at, None);
-                    assert_eq!(p.completed_at, None);
+                    assert_eq!(p.canister_id, test_data::fake_canister1());
+                    // assert_eq!(p.started_at.is_empty(), false);
+                    // assert_eq!(p.updated_at, None);
+                    // assert_eq!(p.completed_at, None);
                     assert_eq!(p.git_checksum, None);
                     assert_eq!(p.canister_checksum, None);
                     assert_eq!(p.wasm_checksum, None);
