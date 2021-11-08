@@ -4,6 +4,7 @@ use std::ops::Bound::Included;
 
 use crate::common::types::{CanisterId, ReqId};
 use crate::service::store::error::ErrorKind;
+use crate::service::time_utils;
 use crate::service::types::{Progress, ProgressStatus, UpdateProgress};
 
 pub struct ProgressStore {
@@ -21,7 +22,7 @@ impl Default for ProgressStore {
 
 impl ProgressStore {
     pub fn get_progress_by_request_id(&self, request_id: ReqId) -> Option<&Progress> {
-        // little bit verbose but it's okay
+        // a bit verbose but it's okay
         let start = (request_id, CanisterId::management_canister()); // [0; 29],
         let end = (request_id, CanisterId::from_slice(&[255; 29]));
         self.progress
@@ -57,9 +58,8 @@ impl ProgressStore {
             Progress {
                 request_id,
                 canister_id,
-                // started_at: Utc::now().to_rfc3339_opts(SecondsFormat::Millis, false),
-                // updated_at: None,
-                // completed_at: None,
+                started_at: time_utils::now_to_str(),
+                updated_at: None,
                 git_checksum: None,
                 canister_checksum: None,
                 wasm_checksum: None,
@@ -81,8 +81,7 @@ impl ProgressStore {
         if update_progress.status == ProgressStatus::Init {
             return Err(ErrorKind::InvalidProgressStatus);
         }
-        // let now = Utc::now().to_rfc3339_opts(SecondsFormat::Millis, false);
-        // progress.updated_at = Some(now.clone());
+        progress.updated_at = Some(time_utils::now_to_str());
         progress.git_checksum = update_progress.git_checksum;
         progress.canister_checksum = update_progress.canister_checksum;
         progress.wasm_checksum = update_progress.wasm_checksum;
@@ -91,7 +90,6 @@ impl ProgressStore {
         progress.percentage = update_progress.percentage;
         progress.status = update_progress.status;
         if progress.status == ProgressStatus::Finished || progress.status == ProgressStatus::Error {
-            // progress.completed_at = Some(now)
             // TODO: remove entry and push to history
         }
         Ok(())
@@ -130,9 +128,8 @@ mod test {
                 .for_each(|(index, (_, p))| {
                     assert_eq!(p.request_id, (index + 1) as ReqId);
                     assert_eq!(p.canister_id, test_data::fake_canister1());
-                    // assert_eq!(p.started_at.is_empty(), false);
-                    // assert_eq!(p.updated_at, None);
-                    // assert_eq!(p.completed_at, None);
+                    assert_eq!(p.started_at.is_empty(), false);
+                    assert_eq!(p.updated_at, None);
                     assert_eq!(p.git_checksum, None);
                     assert_eq!(p.canister_checksum, None);
                     assert_eq!(p.wasm_checksum, None);
@@ -190,10 +187,9 @@ mod test {
             .enumerate()
             .for_each(|(index, (_, p))| {
                 let request_id = index + 1;
-                // assert_eq!(p.started_at.is_empty(), false);
+                assert_eq!(p.started_at.is_empty(), false);
                 if request_id % 4 == 0 {
-                    // assert_eq!(p.updated_at.is_some(), false);
-                    // assert_eq!(p.completed_at.is_some(), false);
+                    assert_eq!(p.updated_at.is_some(), false);
                     assert_progress_utils(
                         p,
                         &test_data::fake_update_progress_default(
@@ -202,8 +198,7 @@ mod test {
                         ),
                     );
                 } else if request_id % 4 == 1 {
-                    // assert_eq!(p.updated_at.is_some(), true);
-                    // assert_eq!(p.completed_at.is_some(), false);
+                    assert_eq!(p.updated_at.is_some(), true);
                     assert_progress_utils(
                         p,
                         &test_data::fake_update_progress_in_progress(
@@ -212,8 +207,7 @@ mod test {
                         ),
                     );
                 } else if request_id % 4 == 2 {
-                    // assert_eq!(p.updated_at.is_some(), true);
-                    // assert_eq!(p.completed_at.is_some(), true);
+                    assert_eq!(p.updated_at.is_some(), true);
                     assert_progress_utils(
                         p,
                         &test_data::fake_update_progress_finished(
@@ -222,8 +216,7 @@ mod test {
                         ),
                     );
                 } else {
-                    // assert_eq!(p.updated_at.is_some(), true);
-                    // assert_eq!(p.completed_at.is_some(), true);
+                    assert_eq!(p.updated_at.is_some(), true);
                     assert_progress_utils(
                         p,
                         &test_data::fake_update_progress_error(
