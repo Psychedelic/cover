@@ -32,9 +32,10 @@ pub struct UpdateProgress {
 #[derive(CandidType, Deserialize, Debug)]
 pub struct ValidationProgress {
     pub request_id: ReqId,
-    pub started_at: String,
-    pub updated_at: Option<String>,
-    pub completed_at: Option<String>,
+    pub canister_id: CanisterId,
+    // pub started_at: String,
+    // pub updated_at: Option<String>,
+    // pub completed_at: Option<String>,
     pub git_checksum: Option<String>,
     pub canister_checksum: Option<String>,
     pub wasm_checksum: Option<String>,
@@ -42,12 +43,6 @@ pub struct ValidationProgress {
     pub source_snapshot_url: Option<String>,
     pub percentage: Option<f32>,
     pub status: ProgressStatus,
-}
-
-#[derive(CandidType, Deserialize)]
-pub struct RequestValidation {
-    pub canister_id: CanisterId,
-    pub build_settings: BuildSettings,
 }
 
 // TODO: enable audit timestamp
