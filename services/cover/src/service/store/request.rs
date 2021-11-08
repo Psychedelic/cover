@@ -2,12 +2,12 @@ use std::collections::{BTreeMap, VecDeque};
 
 use crate::common::types::{CallerId, ReqId};
 use crate::service::store::error::ErrorKind;
+use crate::service::time_utils;
 use crate::service::types::{CreateRequest, ProviderInfo, Request};
 
 /// Batch request buffer
 const MAX_BATCH_REQ: ReqId = 10;
 
-#[derive(Debug, PartialEq)]
 pub struct RequestStore {
     /// Request counter <=> last request id
     last_request_id: ReqId,
@@ -29,7 +29,7 @@ pub struct RequestStore {
 struct ConsumeRegistry {
     provider_info: ProviderInfo,
     batch: Vec<Option<Request>>,
-    // consumed_at: chrono::DateTime<chrono::Utc>,
+    consumed_at: String,
 }
 
 impl Default for RequestStore {
@@ -100,7 +100,7 @@ impl RequestStore {
             caller_id,
             canister_id: create_request.canister_id,
             build_settings: create_request.build_settings,
-            // created_at: chrono::Utc::now(),
+            created_at: time_utils::now_to_str(),
         });
     }
 
@@ -144,6 +144,7 @@ impl RequestStore {
             ConsumeRegistry {
                 provider_info,
                 batch,
+                consumed_at: time_utils::now_to_str(),
             },
         );
         Ok(self
@@ -249,70 +250,70 @@ mod test {
                         caller_id: mock_principals::bob(),
                         canister_id: test_data::fake_canister1(),
                         build_settings: test_data::fake_build_settings1(),
-                        // created_at: get_timer()
+                        created_at: time_utils::now_to_str(),
                     }),
                     Some(Request {
                         request_id: 2,
                         caller_id: mock_principals::alice(),
                         canister_id: test_data::fake_canister2(),
                         build_settings: test_data::fake_build_settings2(),
-                        // created_at: get_timer()
+                        created_at: time_utils::now_to_str(),
                     }),
                     Some(Request {
                         request_id: 3,
                         caller_id: mock_principals::bob(),
                         canister_id: test_data::fake_canister1(),
                         build_settings: test_data::fake_build_settings1(),
-                        // created_at: get_timer()
+                        created_at: time_utils::now_to_str(),
                     }),
                     Some(Request {
                         request_id: 4,
                         caller_id: mock_principals::alice(),
                         canister_id: test_data::fake_canister2(),
                         build_settings: test_data::fake_build_settings2(),
-                        // created_at: get_timer()
+                        created_at: time_utils::now_to_str(),
                     }),
                     Some(Request {
                         request_id: 5,
                         caller_id: mock_principals::bob(),
                         canister_id: test_data::fake_canister1(),
                         build_settings: test_data::fake_build_settings1(),
-                        // created_at: get_timer()
+                        created_at: time_utils::now_to_str(),
                     }),
                     Some(Request {
                         request_id: 6,
                         caller_id: mock_principals::alice(),
                         canister_id: test_data::fake_canister2(),
                         build_settings: test_data::fake_build_settings2(),
-                        // created_at: get_timer()
+                        created_at: time_utils::now_to_str(),
                     }),
                     Some(Request {
                         request_id: 7,
                         caller_id: mock_principals::bob(),
                         canister_id: test_data::fake_canister1(),
                         build_settings: test_data::fake_build_settings1(),
-                        // created_at: get_timer()
+                        created_at: time_utils::now_to_str(),
                     }),
                     Some(Request {
                         request_id: 8,
                         caller_id: mock_principals::alice(),
                         canister_id: test_data::fake_canister2(),
                         build_settings: test_data::fake_build_settings2(),
-                        // created_at: get_timer()
+                        created_at: time_utils::now_to_str(),
                     }),
                     Some(Request {
                         request_id: 9,
                         caller_id: mock_principals::bob(),
                         canister_id: test_data::fake_canister1(),
                         build_settings: test_data::fake_build_settings1(),
-                        // created_at: get_timer()
+                        created_at: time_utils::now_to_str(),
                     }),
                     Some(Request {
                         request_id: 10,
                         caller_id: mock_principals::alice(),
                         canister_id: test_data::fake_canister2(),
                         build_settings: test_data::fake_build_settings2(),
-                        // created_at: get_timer()
+                        created_at: time_utils::now_to_str(),
                     }),
                 ],
                 [
@@ -321,7 +322,7 @@ mod test {
                         caller_id: mock_principals::bob(),
                         canister_id: test_data::fake_canister1(),
                         build_settings: test_data::fake_build_settings1(),
-                        // created_at: get_timer()
+                        created_at: time_utils::now_to_str(),
                     }),
                     None,
                     None,
