@@ -20,9 +20,8 @@ type UpdateProgress = record {
 type Progress = record {
     request_id: nat64;
     canister_id: principal;
-    // started_at: text;
-    // updated_at: opt text;
-    // completed_at: opt text;
+    started_at: text;
+    updated_at: opt text;
     git_checksum: opt text;
     canister_checksum: opt text;
     wasm_checksum: opt text;
@@ -37,6 +36,7 @@ type Request = record {
     caller_id: principal;
     canister_id: principal;
     build_settings: BuildSettings;
+    created_at: text;
 };
 
 type ProviderInfo = record {};
