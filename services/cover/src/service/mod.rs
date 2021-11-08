@@ -1,7 +1,7 @@
 use ic_kit::ic::{get, get_mut};
 
 use crate::service::store::progress::ProgressTracker;
-use crate::service::store::registry::ValidationsRegistry;
+use crate::service::store::request::ValidationsRegistry;
 
 pub mod cover_service;
 pub mod types;
