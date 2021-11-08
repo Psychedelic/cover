@@ -73,6 +73,6 @@ service: {
 
     //====================================================================================================
     // User API
-    add_request: (canister_id: principal, BuildSettings) -> (variant { Ok: null; Err: Error });
+    create_request: (canister_id: principal, BuildSettings) -> (variant { Ok: null; Err: Error });
     //====================================================================================================
 }

@@ -13,8 +13,8 @@ mod service;
 //TODO: history api
 
 #[update]
-fn add_request(canister_id: CanisterId, build_settings: BuildSettings) -> Result<(), Error> {
-    cover_service::add_request(caller(), canister_id, build_settings)
+fn create_request(canister_id: CanisterId, build_settings: BuildSettings) -> Result<(), Error> {
+    cover_service::create_request(caller(), canister_id, build_settings)
 }
 
 #[query]

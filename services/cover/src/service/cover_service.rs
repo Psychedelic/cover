@@ -7,13 +7,13 @@ use super::{
     get_progress_store, get_progress_store_mut, get_request_store_mut, get_request_store_registry,
 };
 
-pub fn add_request(
+pub fn create_request(
     caller_id: CallerId,
     canister_id: CanisterId,
     build_settings: BuildSettings,
 ) -> Result<(), Error> {
     // TODO: handle canister's owner properly
-    get_request_store_mut().add_request(caller_id, canister_id, build_settings);
+    get_request_store_mut().create_request(caller_id, canister_id, build_settings);
     Ok(())
 }
 

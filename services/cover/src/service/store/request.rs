@@ -87,8 +87,8 @@ impl RequestStore {
         self.request.push_back(new_batch);
     }
 
-    /// Add new request
-    pub fn add_request(
+    /// Create new request
+    pub fn create_request(
         &mut self,
         caller_id: CallerId,
         canister_id: CanisterId,
@@ -176,7 +176,7 @@ mod test {
             self.last_request_id += offset;
             self.last_consumed_request_id += offset;
             for i in 0..size {
-                self.add_request(
+                self.create_request(
                     if i % 2 == 0 {
                         mock_principals::bob()
                     } else {
@@ -239,7 +239,7 @@ mod test {
     }
 
     #[test]
-    fn add_request_ok() {
+    fn create_request_ok() {
         let mut store = RequestStore::default();
         store.fake_store_with_offset(0, 11);
         assert_eq!(store.last_request_id, 11);
