@@ -72,15 +72,10 @@ impl ProgressStore {
         Ok(())
     }
 
-    pub fn update_progress(
-        &mut self,
-        request_id: ReqId,
-        canister_id: CanisterId,
-        update_progress: UpdateProgress,
-    ) -> Result<(), ErrorKind> {
+    pub fn update_progress(&mut self, update_progress: UpdateProgress) -> Result<(), ErrorKind> {
         let progress = self
             .progress
-            .get_mut(&(request_id, canister_id))
+            .get_mut(&(update_progress.request_id, update_progress.canister_id))
             .ok_or(ErrorKind::ProgressNotFound)?
             .borrow_mut();
         if update_progress.status == ProgressStatus::Init {
@@ -110,6 +105,8 @@ mod test {
     use super::*;
 
     fn assert_progress_utils(left: &Progress, right: &UpdateProgress) {
+        assert_eq!(left.request_id, right.request_id);
+        assert_eq!(left.canister_id, right.canister_id);
         assert_eq!(left.git_checksum, right.git_checksum);
         assert_eq!(left.canister_checksum, right.canister_checksum);
         assert_eq!(left.wasm_checksum, right.wasm_checksum);
@@ -117,36 +114,6 @@ mod test {
         assert_eq!(left.source_snapshot_url, right.source_snapshot_url);
         assert_eq!(left.percentage, right.percentage);
         assert_eq!(left.status, right.status);
-    }
-
-    impl ProgressStore {
-        fn assert_progress(&self) {
-            self.progress
-                .iter()
-                .enumerate()
-                .for_each(|(index, (_, p))| {
-                    let request_id = index + 1;
-                    assert_eq!(p.request_id, request_id as ReqId);
-                    // assert_eq!(p.started_at.is_empty(), false);
-                    if request_id % 4 == 0 {
-                        // assert_eq!(p.updated_at.is_some(), false);
-                        // assert_eq!(p.completed_at.is_some(), false);
-                        assert_progress_utils(p, &test_data::fake_update_progress_default());
-                    } else if request_id % 4 == 1 {
-                        // assert_eq!(p.updated_at.is_some(), true);
-                        // assert_eq!(p.completed_at.is_some(), false);
-                        assert_progress_utils(p, &test_data::fake_update_progress_in_progress());
-                    } else if request_id % 4 == 2 {
-                        // assert_eq!(p.updated_at.is_some(), true);
-                        // assert_eq!(p.completed_at.is_some(), true);
-                        assert_progress_utils(p, &test_data::fake_update_progress_finished());
-                    } else {
-                        // assert_eq!(p.updated_at.is_some(), true);
-                        // assert_eq!(p.completed_at.is_some(), true);
-                        assert_progress_utils(p, &test_data::fake_update_progress_error());
-                    }
-                });
-        }
     }
 
     #[test]
@@ -193,22 +160,21 @@ mod test {
         }
         assert_eq!(store.progress.len(), len as usize);
         for i in 1..len + 1 {
-            let result = store.update_progress(
+            let result = store.update_progress(test_data::fake_update_progress_default(
                 i,
                 test_data::fake_canister2(),
-                test_data::fake_update_progress_default(),
-            );
+            ));
             assert_eq!(result, Err(ErrorKind::ProgressNotFound));
             let update_progress = if i % 4 == 0 {
-                test_data::fake_update_progress_init()
+                test_data::fake_update_progress_init(i, test_data::fake_canister1())
             } else if i % 4 == 1 {
-                test_data::fake_update_progress_in_progress()
+                test_data::fake_update_progress_in_progress(i, test_data::fake_canister1())
             } else if i % 4 == 2 {
-                test_data::fake_update_progress_finished()
+                test_data::fake_update_progress_finished(i, test_data::fake_canister1())
             } else {
-                test_data::fake_update_progress_error()
+                test_data::fake_update_progress_error(i, test_data::fake_canister1())
             };
-            let result = store.update_progress(i, test_data::fake_canister1(), update_progress);
+            let result = store.update_progress(update_progress);
             assert_eq!(
                 result,
                 if i % 4 == 0 {
@@ -218,7 +184,55 @@ mod test {
                 }
             );
         }
-        store.assert_progress();
+        store
+            .progress
+            .iter()
+            .enumerate()
+            .for_each(|(index, (_, p))| {
+                let request_id = index + 1;
+                // assert_eq!(p.started_at.is_empty(), false);
+                if request_id % 4 == 0 {
+                    // assert_eq!(p.updated_at.is_some(), false);
+                    // assert_eq!(p.completed_at.is_some(), false);
+                    assert_progress_utils(
+                        p,
+                        &test_data::fake_update_progress_default(
+                            request_id as ReqId,
+                            test_data::fake_canister1(),
+                        ),
+                    );
+                } else if request_id % 4 == 1 {
+                    // assert_eq!(p.updated_at.is_some(), true);
+                    // assert_eq!(p.completed_at.is_some(), false);
+                    assert_progress_utils(
+                        p,
+                        &test_data::fake_update_progress_in_progress(
+                            request_id as ReqId,
+                            test_data::fake_canister1(),
+                        ),
+                    );
+                } else if request_id % 4 == 2 {
+                    // assert_eq!(p.updated_at.is_some(), true);
+                    // assert_eq!(p.completed_at.is_some(), true);
+                    assert_progress_utils(
+                        p,
+                        &test_data::fake_update_progress_finished(
+                            request_id as ReqId,
+                            test_data::fake_canister1(),
+                        ),
+                    );
+                } else {
+                    // assert_eq!(p.updated_at.is_some(), true);
+                    // assert_eq!(p.completed_at.is_some(), true);
+                    assert_progress_utils(
+                        p,
+                        &test_data::fake_update_progress_error(
+                            request_id as ReqId,
+                            test_data::fake_canister1(),
+                        ),
+                    );
+                }
+            });
         assert_eq!(store.progress.len(), len as usize);
     }
 }
