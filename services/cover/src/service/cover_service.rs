@@ -1,14 +1,17 @@
-use crate::common::types::{CanisterId, ReqId, CallerId};
+use crate::common::types::{CallerId, CanisterId, ReqId};
 use crate::service::types::{
-  BuildSettings, Error, ProviderInfo, UpdateProgress, Progress, Request,
+    BuildSettings, Error, Progress, ProviderInfo, Request, UpdateProgress,
 };
 
 use super::{
-  get_progress_store, get_progress_store_mut, get_request_store_registry,
-  get_request_store_mut,
+    get_progress_store, get_progress_store_mut, get_request_store_mut, get_request_store_registry,
 };
 
-pub fn add_request(caller_id: CallerId, canister_id: CanisterId, build_settings: BuildSettings) -> Result<(), Error> {
+pub fn add_request(
+    caller_id: CallerId,
+    canister_id: CanisterId,
+    build_settings: BuildSettings,
+) -> Result<(), Error> {
     // TODO: handle canister's owner properly
     get_request_store_mut().add_request(caller_id, canister_id, build_settings);
     Ok(())
@@ -22,16 +25,13 @@ pub fn get_all_request() -> Vec<&'static Request> {
     get_request_store_registry().get_all_request()
 }
 
-pub fn consume_request(
-    provider_info: ProviderInfo,
-) -> Result<Vec<&'static Request>, Error> {
+pub fn consume_request(provider_info: ProviderInfo) -> Result<Vec<&'static Request>, Error> {
     //TODO: check allow list
     get_request_store_mut()
         .consume_request(provider_info)
         .and_then(|requests| {
             for request in requests.iter() {
-                get_progress_store_mut()
-                    .init_progress(request.request_id, request.canister_id)?;
+                get_progress_store_mut().init_progress(request.request_id, request.canister_id)?;
             }
             Ok(requests)
         })

@@ -46,9 +46,7 @@ impl Default for RequestStore {
 // TODO: history api
 impl RequestStore {
     /// Output a list of non-empty request
-    fn filter_non_empty_request(
-      batch: &[Option<Request>],
-    ) -> Vec<&Request> {
+    fn filter_non_empty_request(batch: &[Option<Request>]) -> Vec<&Request> {
         batch
             .iter()
             .filter(|p| p.is_some())
@@ -77,8 +75,7 @@ impl RequestStore {
     fn should_create_new_batch(&self) -> bool {
         if let Some(p) = self.request.back() {
             return self.current_request_index() == 0
-                && p.get(self.current_request_index() as usize)
-                    .is_some();
+                && p.get(self.current_request_index() as usize).is_some();
         }
         true
     }
@@ -401,10 +398,7 @@ mod test {
 
             while let Ok(result) = store.consume_request(test_data::fake_provider_info1()) {
                 // check valid consume result
-                assert_eq!(
-                  result,
-                  RequestStore::filter_non_empty_request(&first_batch)
-                );
+                assert_eq!(result, RequestStore::filter_non_empty_request(&first_batch));
 
                 // check valid state
                 assert_eq!(store.last_request_id, len + offset);

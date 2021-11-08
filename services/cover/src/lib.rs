@@ -1,11 +1,10 @@
 use ic_kit::ic::caller;
-
 use ic_kit::macros::{query, update};
 
 use crate::common::types::{CanisterId, ReqId};
 use crate::service::cover_service;
 use crate::service::types::{
-  Error, ProviderInfo, BuildSettings, UpdateProgress, Progress, Request,
+    BuildSettings, Error, Progress, ProviderInfo, Request, UpdateProgress,
 };
 
 mod common;

@@ -4,7 +4,7 @@ use std::ops::Bound::Included;
 
 use crate::common::types::{CanisterId, ReqId};
 use crate::service::store::error::ErrorKind;
-use crate::service::types::{ProgressStatus, UpdateProgress, Progress};
+use crate::service::types::{Progress, ProgressStatus, UpdateProgress};
 
 pub struct ProgressStore {
     /// Request id is unique => single entry
@@ -21,7 +21,7 @@ impl Default for ProgressStore {
 
 impl ProgressStore {
     pub fn get_progress_by_request_id(&self, request_id: ReqId) -> Option<&Progress> {
-      // little bit verbose but it's okay
+        // little bit verbose but it's okay
         let start = (request_id, CanisterId::management_canister()); // [0; 29],
         let end = (request_id, CanisterId::from_slice(&[255; 29]));
         self.progress
@@ -53,8 +53,8 @@ impl ProgressStore {
             .map(|_| Err(ErrorKind::InitExistedProgress))
             .unwrap_or(Ok(()))?;
         self.progress.insert(
-          (request_id, canister_id),
-          Progress {
+            (request_id, canister_id),
+            Progress {
                 request_id,
                 canister_id,
                 // started_at: Utc::now().to_rfc3339_opts(SecondsFormat::Millis, false),
