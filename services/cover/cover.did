@@ -6,6 +6,8 @@ type BuildSettings = record {
 type ProgressStatus = variant { Init; InProgress; Finished; Error };
 
 type UpdateProgress = record {
+    request_id: nat64;
+    canister_id: principal;
     git_checksum: opt text;
     canister_checksum: opt text;
     wasm_checksum: opt text;
@@ -39,6 +41,11 @@ type Request = record {
 
 type ProviderInfo = record {};
 
+type CreateRequest = record {
+    canister_id: principal;
+    build_settings: BuildSettings;
+};
+
 type Error = record {
     code: text;
     message: text;
@@ -67,12 +74,12 @@ service: {
     //====================================================================================================
     // Provider API
     consume_request: (ProviderInfo) -> (variant { Ok: vec Request; Err: Error });
-    update_progress: (request_id: nat64, canister_id: principal, UpdateProgress) -> (variant { Ok: null; Err: Error });
+    update_progress: (UpdateProgress) -> (variant { Ok: null; Err: Error });
     //====================================================================================================
 
 
     //====================================================================================================
     // User API
-    create_request: (canister_id: principal, BuildSettings) -> (variant { Ok: null; Err: Error });
+    create_request: (CreateRequest) -> (variant { Ok: null; Err: Error });
     //====================================================================================================
 }
