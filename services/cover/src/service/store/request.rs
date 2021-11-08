@@ -1,8 +1,8 @@
 use std::collections::{BTreeMap, VecDeque};
 
-use crate::common::types::{CallerId, CanisterId, ReqId};
+use crate::common::types::{CallerId, ReqId};
 use crate::service::store::error::ErrorKind;
-use crate::service::types::{BuildSettings, ProviderInfo, Request};
+use crate::service::types::{CreateRequest, ProviderInfo, Request};
 
 /// Batch request buffer
 const MAX_BATCH_REQ: ReqId = 10;
@@ -88,12 +88,7 @@ impl RequestStore {
     }
 
     /// Create new request
-    pub fn create_request(
-        &mut self,
-        caller_id: CallerId,
-        canister_id: CanisterId,
-        build_settings: BuildSettings,
-    ) {
+    pub fn create_request(&mut self, caller_id: CallerId, create_request: CreateRequest) {
         let index = self.current_request_index();
         if self.should_create_new_batch() {
             self.create_new_batch();
@@ -103,8 +98,8 @@ impl RequestStore {
         last_batch[index as usize] = Some(Request {
             request_id: self.last_request_id,
             caller_id,
-            canister_id,
-            build_settings,
+            canister_id: create_request.canister_id,
+            build_settings: create_request.build_settings,
             // created_at: chrono::Utc::now(),
         });
     }
@@ -183,14 +178,15 @@ mod test {
                         mock_principals::alice()
                     },
                     if i % 2 == 0 {
-                        test_data::fake_canister1()
+                        test_data::fake_create_request(
+                            test_data::fake_canister1(),
+                            test_data::fake_build_settings1(),
+                        )
                     } else {
-                        test_data::fake_canister2()
-                    },
-                    if i % 2 == 0 {
-                        test_data::fake_build_settings1()
-                    } else {
-                        test_data::fake_build_settings2()
+                        test_data::fake_create_request(
+                            test_data::fake_canister2(),
+                            test_data::fake_build_settings2(),
+                        )
                     },
                 );
             }
