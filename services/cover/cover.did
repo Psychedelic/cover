@@ -1,41 +1,9 @@
-type Error = record {
-    code: text;
-    message: text;
-    debug_log: opt text;
-};
-
-type BuildParams = record {
+type BuildSettings = record {
     git_ref: text;
     git_tag: text;
 };
 
-type RequestValidation = record {
-    canister_id: principal;
-    build_settings: BuildParams;
-};
-
-type ValidationRequest = record {
-    request_id: nat64;
-    caller_id: principal;
-    canister_id: principal;
-    build_settings: BuildParams;
-};
-
-type ProviderInfo = record {};
-
-type ValidationProgress = record {
-    request_id: nat64;
-    validation_started_at: text;
-    validation_updated_at: opt text;
-    validation_completed_at: opt text;
-    git_checksum: opt text;
-    canister_checksum: opt text;
-    wasm_checksum: opt text;
-    build_log_url: opt text;
-    source_snapshot_url: opt text;
-    percentage: opt float32;
-    status: variant { Init; InProgress; Finished; Error };
-};
+type ProgressStatus = variant { Init; InProgress; Finished; Error };
 
 type UpdateProgress = record {
     git_checksum: opt text;
@@ -44,7 +12,37 @@ type UpdateProgress = record {
     build_log_url: opt text;
     source_snapshot_url: opt text;
     percentage: opt float32;
-    status: variant { Init; InProgress; Finished; Error };
+    status: ProgressStatus;
+};
+
+type ValidationProgress = record {
+    request_id: nat64;
+    canister_id: principal;
+    // started_at: text;
+    // updated_at: opt text;
+    // completed_at: opt text;
+    git_checksum: opt text;
+    canister_checksum: opt text;
+    wasm_checksum: opt text;
+    build_log_url: opt text;
+    source_snapshot_url: opt text;
+    percentage: opt float32;
+    status: ProgressStatus;
+};
+
+type ValidationRequest = record {
+    request_id: nat64;
+    caller_id: principal;
+    canister_id: principal;
+    build_settings: BuildSettings;
+};
+
+type ProviderInfo = record {};
+
+type Error = record {
+    code: text;
+    message: text;
+    debug_log: opt text;
 };
 
 service: {
@@ -69,12 +67,12 @@ service: {
     //====================================================================================================
     // Provider API
     consume_request: (ProviderInfo) -> (variant { Ok: vec ValidationRequest; Err: Error });
-    update_progress: (UpdateProgress) -> (variant { Ok: null; Err: Error });
+    update_progress: (request_id: nat64, canister_id: principal, UpdateProgress) -> (variant { Ok: null; Err: Error });
     //====================================================================================================
 
 
     //====================================================================================================
     // User API
-    add_request: (RequestValidation) -> (variant { Ok: null; Err: Error });
+    add_request: (canister_id: principal, BuildSettings) -> (variant { Ok: null; Err: Error });
     //====================================================================================================
 }
