@@ -1,10 +1,9 @@
-use ic_kit::ic::caller;
 use ic_kit::macros::{query, update};
 
 use crate::common::types::{CanisterId, ReqId};
 use crate::service::cover_service;
 use crate::service::types::{
-    BuildSettings, Error, Progress, ProviderInfo, Request, UpdateProgress,
+    CreateRequest, Error, Progress, ProviderInfo, Request, UpdateProgress,
 };
 
 mod common;
@@ -13,8 +12,8 @@ mod service;
 //TODO: history api
 
 #[update]
-fn create_request(canister_id: CanisterId, build_settings: BuildSettings) -> Result<(), Error> {
-    cover_service::create_request(caller(), canister_id, build_settings)
+fn create_request(_create_request: CreateRequest) -> Result<(), Error> {
+    cover_service::create_request(_create_request)
 }
 
 #[query]
@@ -49,9 +48,7 @@ fn get_all_progress() -> Vec<&'static Progress> {
 
 #[update]
 fn update_progress(
-    request_id: ReqId,
-    canister_id: CanisterId,
-    _update_progress: UpdateProgress, // TODO: cdk bug????? param can not same with fn!!!!!
+    _update_progress: UpdateProgress, // TODO: cdk bug????? param can not be same with fn!!!!!
 ) -> Result<(), Error> {
-    cover_service::update_progress(request_id, canister_id, _update_progress)
+    cover_service::update_progress(_update_progress)
 }
