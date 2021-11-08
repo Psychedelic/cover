@@ -5,7 +5,7 @@ use ic_kit::macros::{query, update};
 use crate::common::types::{CanisterId, ReqId};
 use crate::service::cover_service;
 use crate::service::types::{
-    Error, ProviderInfo, BuildSettings, UpdateProgress, ValidationProgress, ValidationRequest,
+  Error, ProviderInfo, BuildSettings, UpdateProgress, Progress, Request,
 };
 
 mod common;
@@ -19,32 +19,32 @@ fn add_request(canister_id: CanisterId, build_settings: BuildSettings) -> Result
 }
 
 #[query]
-fn get_request_by_id(request_id: ReqId) -> Option<&'static ValidationRequest> {
+fn get_request_by_id(request_id: ReqId) -> Option<&'static Request> {
     cover_service::get_request_by_id(request_id)
 }
 
 #[query]
-fn get_all_request() -> Vec<&'static ValidationRequest> {
+fn get_all_request() -> Vec<&'static Request> {
     cover_service::get_all_request()
 }
 
 #[update]
-fn consume_request(provider_info: ProviderInfo) -> Result<Vec<&'static ValidationRequest>, Error> {
+fn consume_request(provider_info: ProviderInfo) -> Result<Vec<&'static Request>, Error> {
     cover_service::consume_request(provider_info)
 }
 
 #[query]
-fn get_progress_by_request_id(request_id: ReqId) -> Option<&'static ValidationProgress> {
+fn get_progress_by_request_id(request_id: ReqId) -> Option<&'static Progress> {
     cover_service::get_progress_by_request_id(request_id)
 }
 
 #[query]
-fn get_progress_by_canister_id(canister_id: CanisterId) -> Vec<&'static ValidationProgress> {
+fn get_progress_by_canister_id(canister_id: CanisterId) -> Vec<&'static Progress> {
     cover_service::get_progress_by_canister_id(canister_id)
 }
 
 #[query]
-fn get_all_progress() -> Vec<&'static ValidationProgress> {
+fn get_all_progress() -> Vec<&'static Progress> {
     cover_service::get_all_progress()
 }
 

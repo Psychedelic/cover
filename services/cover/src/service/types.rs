@@ -30,7 +30,7 @@ pub struct UpdateProgress {
 }
 
 #[derive(CandidType, Deserialize, Debug)]
-pub struct ValidationProgress {
+pub struct Progress {
     pub request_id: ReqId,
     pub canister_id: CanisterId,
     // pub started_at: String,
@@ -47,7 +47,7 @@ pub struct ValidationProgress {
 
 // TODO: enable audit timestamp
 #[derive(CandidType, Debug, PartialEq, Clone)]
-pub struct ValidationRequest {
+pub struct Request {
     pub request_id: ReqId,
     pub caller_id: CallerId,
     pub canister_id: CanisterId,

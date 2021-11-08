@@ -4,11 +4,11 @@ use std::ops::Bound::Included;
 
 use crate::common::types::{CanisterId, ReqId};
 use crate::service::store::error::ErrorKind;
-use crate::service::types::{ProgressStatus, UpdateProgress, ValidationProgress};
+use crate::service::types::{ProgressStatus, UpdateProgress, Progress};
 
 pub struct ProgressStore {
     /// Request id is unique => single entry
-    progress: BTreeMap<(ReqId, CanisterId), ValidationProgress>,
+    progress: BTreeMap<(ReqId, CanisterId), Progress>,
 }
 
 impl Default for ProgressStore {
@@ -20,7 +20,7 @@ impl Default for ProgressStore {
 }
 
 impl ProgressStore {
-    pub fn get_progress_by_request_id(&self, request_id: ReqId) -> Option<&ValidationProgress> {
+    pub fn get_progress_by_request_id(&self, request_id: ReqId) -> Option<&Progress> {
       // little bit verbose but it's okay
         let start = (request_id, CanisterId::management_canister()); // [0; 29],
         let end = (request_id, CanisterId::from_slice(&[255; 29]));
@@ -30,7 +30,7 @@ impl ProgressStore {
             .next()
     }
 
-    pub fn get_progress_by_canister_id(&self, canister_id: CanisterId) -> Vec<&ValidationProgress> {
+    pub fn get_progress_by_canister_id(&self, canister_id: CanisterId) -> Vec<&Progress> {
         let start = (ReqId::min_value(), canister_id);
         let end = (ReqId::max_value(), canister_id);
         self.progress
@@ -39,7 +39,7 @@ impl ProgressStore {
             .collect()
     }
 
-    pub fn get_all_progress(&self) -> Vec<&ValidationProgress> {
+    pub fn get_all_progress(&self) -> Vec<&Progress> {
         self.progress.iter().map(|(_, v)| v).collect()
     }
 
@@ -53,8 +53,8 @@ impl ProgressStore {
             .map(|_| Err(ErrorKind::InitExistedProgress))
             .unwrap_or(Ok(()))?;
         self.progress.insert(
-            (request_id, canister_id),
-            ValidationProgress {
+          (request_id, canister_id),
+          Progress {
                 request_id,
                 canister_id,
                 // started_at: Utc::now().to_rfc3339_opts(SecondsFormat::Millis, false),
@@ -109,7 +109,7 @@ mod test {
 
     use super::*;
 
-    fn assert_progress_utils(left: &ValidationProgress, right: &UpdateProgress) {
+    fn assert_progress_utils(left: &Progress, right: &UpdateProgress) {
         assert_eq!(left.git_checksum, right.git_checksum);
         assert_eq!(left.canister_checksum, right.canister_checksum);
         assert_eq!(left.wasm_checksum, right.wasm_checksum);
