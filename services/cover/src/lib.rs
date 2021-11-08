@@ -1,9 +1,11 @@
+use ic_kit::ic::caller;
+
 use ic_kit::macros::{query, update};
 
 use crate::common::types::{CanisterId, ReqId};
 use crate::service::cover_service;
 use crate::service::types::{
-    Error, ProviderInfo, RequestValidation, UpdateProgress, ValidationProgress, ValidationRequest,
+    Error, ProviderInfo, BuildSettings, UpdateProgress, ValidationProgress, ValidationRequest,
 };
 
 mod common;
@@ -12,8 +14,8 @@ mod service;
 //TODO: history api
 
 #[update]
-fn add_request(new_validation_request: RequestValidation) -> Result<(), Error> {
-    cover_service::add_request(new_validation_request)
+fn add_request(canister_id: CanisterId, build_settings: BuildSettings) -> Result<(), Error> {
+    cover_service::add_request(caller(), canister_id, build_settings)
 }
 
 #[query]
