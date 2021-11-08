@@ -1,8 +1,6 @@
-use ic_kit::ic::caller;
-
-use crate::common::types::{CanisterId, ReqId};
+use crate::common::types::{CanisterId, ReqId, CallerId};
 use crate::service::types::{
-    Error, ProviderInfo, RequestValidation, UpdateProgress, ValidationProgress, ValidationRequest,
+    BuildSettings, Error, ProviderInfo, UpdateProgress, ValidationProgress, ValidationRequest,
 };
 
 use super::{
@@ -10,13 +8,9 @@ use super::{
     get_validation_registry_mut,
 };
 
-pub fn add_request(new_validation_request: RequestValidation) -> Result<(), Error> {
+pub fn add_request(caller_id: CallerId, canister_id: CanisterId, build_settings: BuildSettings) -> Result<(), Error> {
     // TODO: handle canister's owner properly
-    get_validation_registry_mut().add_request(
-        caller(),
-        new_validation_request.canister_id,
-        new_validation_request.build_settings,
-    );
+    get_validation_registry_mut().add_request(caller_id, canister_id, build_settings);
     Ok(())
 }
 
