@@ -6,12 +6,12 @@ use crate::common::types::{CanisterId, ReqId};
 use crate::service::store::error::ErrorKind;
 use crate::service::types::{ProgressStatus, UpdateProgress, ValidationProgress};
 
-pub struct ProgressTracker {
+pub struct ProgressStore {
     /// Request id is unique => single entry
     progress: BTreeMap<(ReqId, CanisterId), ValidationProgress>,
 }
 
-impl Default for ProgressTracker {
+impl Default for ProgressStore {
     fn default() -> Self {
         Self {
             progress: BTreeMap::default(),
@@ -19,8 +19,9 @@ impl Default for ProgressTracker {
     }
 }
 
-impl ProgressTracker {
+impl ProgressStore {
     pub fn get_progress_by_request_id(&self, request_id: ReqId) -> Option<&ValidationProgress> {
+      // little bit verbose but it's okay
         let start = (request_id, CanisterId::management_canister()); // [0; 29],
         let end = (request_id, CanisterId::from_slice(&[255; 29]));
         self.progress
@@ -118,7 +119,7 @@ mod test {
         assert_eq!(left.status, right.status);
     }
 
-    impl ProgressTracker {
+    impl ProgressStore {
         fn assert_progress(&self) {
             self.progress
                 .iter()
@@ -151,7 +152,7 @@ mod test {
     #[test]
     fn init_progress_ok() {
         let len = 15;
-        let mut store = ProgressTracker::default();
+        let mut store = ProgressStore::default();
         for i in 1..len + 1 {
             let result = store.init_progress(i, test_data::fake_canister1());
             assert_eq!(result, Ok(()));
@@ -185,7 +186,7 @@ mod test {
     #[test]
     fn update_progress_ok() {
         let len = 15;
-        let mut store = ProgressTracker::default();
+        let mut store = ProgressStore::default();
         for i in 1..len + 1 {
             let result = store.init_progress(i, test_data::fake_canister1());
             assert_eq!(result, Ok(()));

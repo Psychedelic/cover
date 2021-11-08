@@ -8,7 +8,7 @@ use crate::service::types::{BuildSettings, ProviderInfo, ValidationRequest};
 const MAX_BATCH_REQ: ReqId = 10;
 
 #[derive(Debug, PartialEq)]
-pub struct ValidationsRegistry {
+pub struct RequestStore {
     /// Validation request counter <=> last request id
     last_request_id: ReqId,
 
@@ -32,7 +32,7 @@ struct ConsumeRegistry {
     // consumed_at: chrono::DateTime<chrono::Utc>,
 }
 
-impl Default for ValidationsRegistry {
+impl Default for RequestStore {
     fn default() -> Self {
         Self {
             last_request_id: 0,
@@ -44,7 +44,7 @@ impl Default for ValidationsRegistry {
 }
 
 // TODO: history api
-impl ValidationsRegistry {
+impl RequestStore {
     /// Output a list of non-empty request
     fn filter_non_empty_request(
         batch: &[Option<ValidationRequest>],
@@ -131,7 +131,7 @@ impl ValidationsRegistry {
     pub fn get_all_request(&self) -> Vec<&ValidationRequest> {
         self.request
             .iter()
-            .flat_map(|b| ValidationsRegistry::filter_non_empty_request(b))
+            .flat_map(|b| RequestStore::filter_non_empty_request(b))
             .collect::<Vec<&ValidationRequest>>()
     }
 
@@ -174,7 +174,7 @@ mod test {
 
     use super::*;
 
-    impl ValidationsRegistry {
+    impl RequestStore {
         fn fake_store_with_offset(&mut self, offset: ReqId, size: usize) {
             self.last_request_id += offset;
             self.last_consumed_request_id += offset;
@@ -234,7 +234,7 @@ mod test {
 
     #[test]
     fn initial_state_ok() {
-        let store = ValidationsRegistry::default();
+        let store = RequestStore::default();
         assert_eq!(store.last_request_id, 0);
         assert_eq!(store.consume_history, BTreeMap::default());
         assert_eq!(store.request, VecDeque::default());
@@ -243,7 +243,7 @@ mod test {
 
     #[test]
     fn add_request_ok() {
-        let mut store = ValidationsRegistry::default();
+        let mut store = RequestStore::default();
         store.fake_store_with_offset(0, 11);
         assert_eq!(store.last_request_id, 11);
         assert_eq!(store.consume_history, BTreeMap::default());
@@ -349,7 +349,7 @@ mod test {
     fn get_request_by_id_ok() {
         let len = 15;
         for offset in 0..len {
-            let mut store = ValidationsRegistry::default();
+            let mut store = RequestStore::default();
             store.fake_store_with_offset(offset, len as usize);
             assert_eq!(store.last_request_id, len + offset);
             assert_eq!(store.consume_history, BTreeMap::default());
@@ -362,7 +362,7 @@ mod test {
     fn get_all_request_ok() {
         let len = 15;
         for offset in 0..len {
-            let mut store = ValidationsRegistry::default();
+            let mut store = RequestStore::default();
 
             // empty request
             let result = store.get_all_request();
@@ -377,7 +377,7 @@ mod test {
                 store
                     .request
                     .iter()
-                    .flat_map(|b| ValidationsRegistry::filter_non_empty_request(b))
+                    .flat_map(|b| RequestStore::filter_non_empty_request(b))
                     .collect::<Vec<&ValidationRequest>>()
             );
         }
@@ -387,7 +387,7 @@ mod test {
     fn consume_request_ok() {
         let len = 15;
         for offset in 0..len {
-            let mut store = ValidationsRegistry::default();
+            let mut store = RequestStore::default();
 
             // error consume when no request
             let result = store.consume_request(test_data::fake_provider_info1());
@@ -402,8 +402,8 @@ mod test {
             while let Ok(result) = store.consume_request(test_data::fake_provider_info1()) {
                 // check valid consume result
                 assert_eq!(
-                    result,
-                    ValidationsRegistry::filter_non_empty_request(&first_batch)
+                  result,
+                  RequestStore::filter_non_empty_request(&first_batch)
                 );
 
                 // check valid state
