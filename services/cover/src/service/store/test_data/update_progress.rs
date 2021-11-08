@@ -1,7 +1,10 @@
+use crate::common::types::{CanisterId, ReqId};
 use crate::service::types::{ProgressStatus, UpdateProgress};
 
-pub fn fake_update_progress_default() -> UpdateProgress {
+pub fn fake_update_progress_default(request_id: ReqId, canister_id: CanisterId) -> UpdateProgress {
     UpdateProgress {
+        request_id,
+        canister_id,
         git_checksum: None,
         canister_checksum: None,
         wasm_checksum: None,
@@ -12,8 +15,10 @@ pub fn fake_update_progress_default() -> UpdateProgress {
     }
 }
 
-pub fn fake_update_progress_init() -> UpdateProgress {
+pub fn fake_update_progress_init(request_id: ReqId, canister_id: CanisterId) -> UpdateProgress {
     UpdateProgress {
+        request_id,
+        canister_id,
         git_checksum: Some("git_checksum0".into()),
         canister_checksum: Some("canister_checksum0".into()),
         wasm_checksum: Some("wasm_checksum0".into()),
@@ -24,8 +29,13 @@ pub fn fake_update_progress_init() -> UpdateProgress {
     }
 }
 
-pub fn fake_update_progress_in_progress() -> UpdateProgress {
+pub fn fake_update_progress_in_progress(
+    request_id: ReqId,
+    canister_id: CanisterId,
+) -> UpdateProgress {
     UpdateProgress {
+        request_id,
+        canister_id,
         git_checksum: Some("git_checksum1".into()),
         canister_checksum: Some("canister_checksum1".into()),
         wasm_checksum: Some("wasm_checksum1".into()),
@@ -36,8 +46,10 @@ pub fn fake_update_progress_in_progress() -> UpdateProgress {
     }
 }
 
-pub fn fake_update_progress_finished() -> UpdateProgress {
+pub fn fake_update_progress_finished(request_id: ReqId, canister_id: CanisterId) -> UpdateProgress {
     UpdateProgress {
+        request_id,
+        canister_id,
         git_checksum: Some("git_checksum2".into()),
         canister_checksum: Some("canister_checksum2".into()),
         wasm_checksum: Some("wasm_checksum2".into()),
@@ -48,8 +60,10 @@ pub fn fake_update_progress_finished() -> UpdateProgress {
     }
 }
 
-pub fn fake_update_progress_error() -> UpdateProgress {
+pub fn fake_update_progress_error(request_id: ReqId, canister_id: CanisterId) -> UpdateProgress {
     UpdateProgress {
+        request_id,
+        canister_id,
         git_checksum: Some("git_checksum3".into()),
         canister_checksum: Some("canister_checksum3".into()),
         wasm_checksum: Some("wasm_checksum3".into()),
