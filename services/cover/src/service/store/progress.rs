@@ -31,8 +31,8 @@ impl ProgressStore {
     }
 
     pub fn get_progress_by_canister_id(&self, canister_id: CanisterId) -> Vec<&Progress> {
-        let start = (ReqId::min_value(), canister_id);
-        let end = (ReqId::max_value(), canister_id);
+        let start = (ReqId::MIN, canister_id);
+        let end = (ReqId::MAX, canister_id);
         self.progress
             .range((Included(start), Included(end)))
             .map(|(_, v)| v)
