@@ -14,12 +14,12 @@ pub fn add_request(caller_id: CallerId, canister_id: CanisterId, build_settings:
     Ok(())
 }
 
-pub fn get_pending_request_by_id(request_id: ReqId) -> Option<&'static ValidationRequest> {
-    get_validation_registry().get_pending_request_by_id(request_id)
+pub fn get_request_by_id(request_id: ReqId) -> Option<&'static ValidationRequest> {
+    get_validation_registry().get_request_by_id(request_id)
 }
 
-pub fn get_all_pending_request() -> Vec<&'static ValidationRequest> {
-    get_validation_registry().get_all_pending_request()
+pub fn get_all_request() -> Vec<&'static ValidationRequest> {
+    get_validation_registry().get_all_request()
 }
 
 pub fn consume_request(

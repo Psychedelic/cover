@@ -19,13 +19,13 @@ fn add_request(canister_id: CanisterId, build_settings: BuildSettings) -> Result
 }
 
 #[query]
-fn get_pending_request_by_id(request_id: ReqId) -> Option<&'static ValidationRequest> {
-    cover_service::get_pending_request_by_id(request_id)
+fn get_request_by_id(request_id: ReqId) -> Option<&'static ValidationRequest> {
+    cover_service::get_request_by_id(request_id)
 }
 
 #[query]
-fn get_all_pending_request() -> Vec<&'static ValidationRequest> {
-    cover_service::get_all_pending_request()
+fn get_all_request() -> Vec<&'static ValidationRequest> {
+    cover_service::get_all_request()
 }
 
 #[update]

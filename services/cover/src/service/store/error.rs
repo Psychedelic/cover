@@ -1,6 +1,6 @@
 #[derive(Debug, PartialEq)]
 pub enum ErrorKind {
-    PendingRequestNotFound,
+    RequestNotFound,
     InitExistedProgress,
     ProgressNotFound,
     InvalidProgressStatus,

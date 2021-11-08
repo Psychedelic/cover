@@ -16,10 +16,10 @@ pub struct ValidationsRegistry {
     /// Allow arbitrary range from history
     consume_history: BTreeMap<(ReqId, ReqId), ConsumeRegistry>,
 
-    /// Pending batch request queue
+    /// Batch request queue
     /// FIFO -> [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     ///         [11, 12, 13, 14, 15, None, None, None, None, None] <- LILO
-    pending_request: VecDeque<[Option<ValidationRequest>; MAX_BATCH_REQ as usize]>,
+    request: VecDeque<[Option<ValidationRequest>; MAX_BATCH_REQ as usize]>,
 
     /// Last consumed request id
     last_consumed_request_id: ReqId,
@@ -37,7 +37,7 @@ impl Default for ValidationsRegistry {
         Self {
             last_request_id: 0,
             consume_history: BTreeMap::default(),
-            pending_request: VecDeque::default(),
+            request: VecDeque::default(),
             last_consumed_request_id: 0,
         }
     }
@@ -45,8 +45,8 @@ impl Default for ValidationsRegistry {
 
 // TODO: history api
 impl ValidationsRegistry {
-    /// Output a list of non-empty pending request
-    fn filter_non_empty_pending_request(
+    /// Output a list of non-empty request
+    fn filter_non_empty_request(
         batch: &[Option<ValidationRequest>],
     ) -> Vec<&ValidationRequest> {
         batch
@@ -69,15 +69,15 @@ impl ValidationsRegistry {
     }
 
     /// Current last request index in its batch
-    fn current_pending_request_index(&self) -> ReqId {
+    fn current_request_index(&self) -> ReqId {
         self.last_request_id % MAX_BATCH_REQ
     }
 
     /// Check if allocate batch for new batch is needed
     fn should_create_new_batch(&self) -> bool {
-        if let Some(p) = self.pending_request.back() {
-            return self.current_pending_request_index() == 0
-                && p.get(self.current_pending_request_index() as usize)
+        if let Some(p) = self.request.back() {
+            return self.current_request_index() == 0
+                && p.get(self.current_request_index() as usize)
                     .is_some();
         }
         true
@@ -87,21 +87,21 @@ impl ValidationsRegistry {
     fn create_new_batch(&mut self) {
         // workaround https://github.com/rust-lang/rust/issues/44796
         let new_batch: [Option<ValidationRequest>; MAX_BATCH_REQ as usize] = Default::default();
-        self.pending_request.push_back(new_batch);
+        self.request.push_back(new_batch);
     }
 
-    /// Add new pending request
+    /// Add new request
     pub fn add_request(
         &mut self,
         caller_id: CallerId,
         canister_id: CanisterId,
         build_settings: BuildSettings,
     ) {
-        let index = self.current_pending_request_index();
+        let index = self.current_request_index();
         if self.should_create_new_batch() {
             self.create_new_batch();
         }
-        let last_batch = self.pending_request.back_mut().unwrap();
+        let last_batch = self.request.back_mut().unwrap();
         self.last_request_id += 1;
         last_batch[index as usize] = Some(ValidationRequest {
             request_id: self.last_request_id,
@@ -112,41 +112,41 @@ impl ValidationsRegistry {
         });
     }
 
-    /// Get pending request by id
-    pub fn get_pending_request_by_id(&self, request_id: ReqId) -> Option<&ValidationRequest> {
+    /// Get request by id
+    pub fn get_request_by_id(&self, request_id: ReqId) -> Option<&ValidationRequest> {
         if request_id <= self.last_consumed_request_id || request_id > self.last_request_id {
             return None;
         }
         let offset_batch = self.last_consumed_request_id / MAX_BATCH_REQ;
         let target_batch = (request_id - 1) / MAX_BATCH_REQ - offset_batch;
         let target_index = (request_id - 1) % MAX_BATCH_REQ;
-        self.pending_request
+        self.request
             .get(target_batch as usize)?
             .get(target_index as usize)?
             .as_ref()
     }
 
-    /// Get all pending request
+    /// Get all request
     /// TODO: support pagination
-    pub fn get_all_pending_request(&self) -> Vec<&ValidationRequest> {
-        self.pending_request
+    pub fn get_all_request(&self) -> Vec<&ValidationRequest> {
+        self.request
             .iter()
-            .flat_map(|b| ValidationsRegistry::filter_non_empty_pending_request(b))
+            .flat_map(|b| ValidationsRegistry::filter_non_empty_request(b))
             .collect::<Vec<&ValidationRequest>>()
     }
 
-    /// consume a batch of request by provider
+    /// Consume a batch of request by provider
     pub fn consume_request(
         &mut self,
         provider_info: ProviderInfo,
     ) -> Result<Vec<&ValidationRequest>, ErrorKind> {
         let from = self.last_consumed_request_id;
         if from >= self.last_request_id {
-            return Err(ErrorKind::PendingRequestNotFound);
+            return Err(ErrorKind::RequestNotFound);
         }
         self.last_consumed_request_id =
             self.next_consume_request_id(self.last_consumed_request_id, self.last_request_id);
-        let batch = self.pending_request.pop_front().unwrap().to_vec();
+        let batch = self.request.pop_front().unwrap().to_vec();
         self.consume_history.insert(
             (from, self.last_consumed_request_id),
             ConsumeRegistry {
@@ -175,7 +175,7 @@ mod test {
     use super::*;
 
     impl ValidationsRegistry {
-        fn fake_store_with_pending_offset(&mut self, offset: ReqId, size: usize) {
+        fn fake_store_with_offset(&mut self, offset: ReqId, size: usize) {
             self.last_request_id += offset;
             self.last_consumed_request_id += offset;
             for i in 0..size {
@@ -199,18 +199,18 @@ mod test {
             }
         }
 
-        fn assert_pending_request_utils(&self, offset: ReqId, len: ReqId) {
+        fn assert_request_utils(&self, offset: ReqId, len: ReqId) {
             // outbound left most check
-            let result = self.get_pending_request_by_id(offset);
+            let result = self.get_request_by_id(offset);
             assert_eq!(result, None);
 
             // outbound right most check
-            let result = self.get_pending_request_by_id(len + offset + 1);
+            let result = self.get_request_by_id(len + offset + 1);
             assert_eq!(result, None);
 
             // inbound check
             for request_id in (offset + 1)..(len + offset + 1) {
-                let result = self.get_pending_request_by_id(request_id);
+                let result = self.get_request_by_id(request_id);
                 // consumed check
                 if request_id <= self.last_consumed_request_id {
                     assert_eq!(result, None);
@@ -237,18 +237,18 @@ mod test {
         let store = ValidationsRegistry::default();
         assert_eq!(store.last_request_id, 0);
         assert_eq!(store.consume_history, BTreeMap::default());
-        assert_eq!(store.pending_request, VecDeque::default());
+        assert_eq!(store.request, VecDeque::default());
         assert_eq!(store.last_consumed_request_id, 0);
     }
 
     #[test]
     fn add_request_ok() {
         let mut store = ValidationsRegistry::default();
-        store.fake_store_with_pending_offset(0, 11);
+        store.fake_store_with_offset(0, 11);
         assert_eq!(store.last_request_id, 11);
         assert_eq!(store.consume_history, BTreeMap::default());
         assert_eq!(
-            store.pending_request,
+            store.request,
             VecDeque::from(vec![
                 [
                     Some(ValidationRequest {
@@ -346,38 +346,38 @@ mod test {
     }
 
     #[test]
-    fn get_pending_request_by_id_ok() {
+    fn get_request_by_id_ok() {
         let len = 15;
         for offset in 0..len {
             let mut store = ValidationsRegistry::default();
-            store.fake_store_with_pending_offset(offset, len as usize);
+            store.fake_store_with_offset(offset, len as usize);
             assert_eq!(store.last_request_id, len + offset);
             assert_eq!(store.consume_history, BTreeMap::default());
             assert_eq!(store.last_consumed_request_id, offset);
-            store.assert_pending_request_utils(offset, len);
+            store.assert_request_utils(offset, len);
         }
     }
 
     #[test]
-    fn get_all_pending_request_ok() {
+    fn get_all_request_ok() {
         let len = 15;
         for offset in 0..len {
             let mut store = ValidationsRegistry::default();
 
-            // empty pending request
-            let result = store.get_all_pending_request();
+            // empty request
+            let result = store.get_all_request();
             assert_eq!(result, Vec::<&ValidationRequest>::default());
 
-            store.fake_store_with_pending_offset(offset, len as usize);
+            store.fake_store_with_offset(offset, len as usize);
 
-            // all pending requests
-            let result = store.get_all_pending_request();
+            // all requests
+            let result = store.get_all_request();
             assert_eq!(
                 result,
                 store
-                    .pending_request
+                    .request
                     .iter()
-                    .flat_map(|b| ValidationsRegistry::filter_non_empty_pending_request(b))
+                    .flat_map(|b| ValidationsRegistry::filter_non_empty_request(b))
                     .collect::<Vec<&ValidationRequest>>()
             );
         }
@@ -389,21 +389,21 @@ mod test {
         for offset in 0..len {
             let mut store = ValidationsRegistry::default();
 
-            // error consume when no pending
+            // error consume when no request
             let result = store.consume_request(test_data::fake_provider_info1());
-            assert_eq!(result, Err(ErrorKind::PendingRequestNotFound));
+            assert_eq!(result, Err(ErrorKind::RequestNotFound));
 
-            store.fake_store_with_pending_offset(offset, len as usize);
+            store.fake_store_with_offset(offset, len as usize);
 
             // previous state
             let mut from = store.last_consumed_request_id;
-            let mut first_batch = store.pending_request.front().unwrap().to_vec();
+            let mut first_batch = store.request.front().unwrap().to_vec();
 
             while let Ok(result) = store.consume_request(test_data::fake_provider_info1()) {
                 // check valid consume result
                 assert_eq!(
                     result,
-                    ValidationsRegistry::filter_non_empty_pending_request(&first_batch)
+                    ValidationsRegistry::filter_non_empty_request(&first_batch)
                 );
 
                 // check valid state
@@ -421,19 +421,19 @@ mod test {
                 assert_eq!(history.provider_info, test_data::fake_provider_info1());
                 assert_eq!(history.batch, first_batch);
 
-                // check valid pending request
-                store.assert_pending_request_utils(offset, len);
+                // check valid request
+                store.assert_request_utils(offset, len);
 
                 // update new state
                 from = store.last_consumed_request_id;
-                if let Some(batch) = store.pending_request.front() {
+                if let Some(batch) = store.request.front() {
                     first_batch = batch.to_vec();
                 }
             }
 
             // back to empty state when
-            let pending_request = store.get_all_pending_request();
-            assert_eq!(pending_request.len(), 0);
+            let request = store.get_all_request();
+            assert_eq!(request.len(), 0);
         }
     }
 }

@@ -49,11 +49,11 @@ service: {
     //====================================================================================================
     // General API
     // Mainly use for general purpose:
-    // - Requested users see/verify their actual pending requests are in waiting-list
+    // - Requested users see/verify their actual requests are in waiting-list
     // - Providers see what they are about to consume
-    // - Normal users see ... pending requests
-    get_pending_request_by_id: (request_id: nat64) -> (opt ValidationRequest);
-    get_all_pending_request: () -> (vec ValidationRequest);
+    // - Normal users see ... requests
+    get_request_by_id: (request_id: nat64) -> (opt ValidationRequest);
+    get_all_request: () -> (vec ValidationRequest);
 
     // You tell me 🤷
     get_progress_by_request_id: (request_id: nat64) -> (opt ValidationProgress);
