@@ -1,7 +1,7 @@
 use ic_kit::ic::{get, get_mut};
 
-use crate::service::store::progress_tracker::ProgressTracker;
-use crate::service::store::registry::ValidationsRegistry;
+use crate::service::store::progress::ProgressStore;
+use crate::service::store::request::RequestStore;
 
 pub mod cover_service;
 pub mod types;
@@ -9,21 +9,21 @@ pub mod types;
 mod store;
 
 #[inline]
-fn get_validation_registry_mut() -> &'static mut ValidationsRegistry {
+fn get_request_store_mut() -> &'static mut RequestStore {
     get_mut()
 }
 
 #[inline]
-fn get_validation_registry() -> &'static ValidationsRegistry {
+fn get_request_store_registry() -> &'static RequestStore {
     get()
 }
 
 #[inline]
-fn get_progress_tracker_mut() -> &'static mut ProgressTracker {
+fn get_progress_store_mut() -> &'static mut ProgressStore {
     get_mut()
 }
 
 #[inline]
-fn get_progress_tracker() -> &'static ProgressTracker {
+fn get_progress_store() -> &'static ProgressStore {
     get()
 }

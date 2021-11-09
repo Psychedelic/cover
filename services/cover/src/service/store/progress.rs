@@ -4,14 +4,14 @@ use std::ops::Bound::Included;
 
 use crate::common::types::{CanisterId, ReqId};
 use crate::service::store::error::ErrorKind;
-use crate::service::types::{ProgressStatus, UpdateProgress, ValidationProgress};
+use crate::service::types::{Progress, ProgressStatus, UpdateProgress};
 
-pub struct ProgressTracker {
+pub struct ProgressStore {
     /// Request id is unique => single entry
-    progress: BTreeMap<(ReqId, CanisterId), ValidationProgress>,
+    progress: BTreeMap<(ReqId, CanisterId), Progress>,
 }
 
-impl Default for ProgressTracker {
+impl Default for ProgressStore {
     fn default() -> Self {
         Self {
             progress: BTreeMap::default(),
@@ -19,8 +19,9 @@ impl Default for ProgressTracker {
     }
 }
 
-impl ProgressTracker {
-    pub fn get_progress_by_request_id(&self, request_id: ReqId) -> Option<&ValidationProgress> {
+impl ProgressStore {
+    pub fn get_progress_by_request_id(&self, request_id: ReqId) -> Option<&Progress> {
+        // little bit verbose but it's okay
         let start = (request_id, CanisterId::management_canister()); // [0; 29],
         let end = (request_id, CanisterId::from_slice(&[255; 29]));
         self.progress
@@ -29,16 +30,16 @@ impl ProgressTracker {
             .next()
     }
 
-    pub fn get_progress_by_canister_id(&self, canister_id: CanisterId) -> Vec<&ValidationProgress> {
-        let start = (ReqId::min_value(), canister_id);
-        let end = (ReqId::max_value(), canister_id);
+    pub fn get_progress_by_canister_id(&self, canister_id: CanisterId) -> Vec<&Progress> {
+        let start = (ReqId::MIN, canister_id);
+        let end = (ReqId::MAX, canister_id);
         self.progress
             .range((Included(start), Included(end)))
             .map(|(_, v)| v)
             .collect()
     }
 
-    pub fn get_all_progress(&self) -> Vec<&ValidationProgress> {
+    pub fn get_all_progress(&self) -> Vec<&Progress> {
         self.progress.iter().map(|(_, v)| v).collect()
     }
 
@@ -53,7 +54,7 @@ impl ProgressTracker {
             .unwrap_or(Ok(()))?;
         self.progress.insert(
             (request_id, canister_id),
-            ValidationProgress {
+            Progress {
                 request_id,
                 canister_id,
                 // started_at: Utc::now().to_rfc3339_opts(SecondsFormat::Millis, false),
@@ -71,15 +72,10 @@ impl ProgressTracker {
         Ok(())
     }
 
-    pub fn update_progress(
-        &mut self,
-        request_id: ReqId,
-        canister_id: CanisterId,
-        update_progress: UpdateProgress,
-    ) -> Result<(), ErrorKind> {
+    pub fn update_progress(&mut self, update_progress: UpdateProgress) -> Result<(), ErrorKind> {
         let progress = self
             .progress
-            .get_mut(&(request_id, canister_id))
+            .get_mut(&(update_progress.request_id, update_progress.canister_id))
             .ok_or(ErrorKind::ProgressNotFound)?
             .borrow_mut();
         if update_progress.status == ProgressStatus::Init {
@@ -108,7 +104,9 @@ mod test {
 
     use super::*;
 
-    fn assert_progress_utils(left: &ValidationProgress, right: &UpdateProgress) {
+    fn assert_progress_utils(left: &Progress, right: &UpdateProgress) {
+        assert_eq!(left.request_id, right.request_id);
+        assert_eq!(left.canister_id, right.canister_id);
         assert_eq!(left.git_checksum, right.git_checksum);
         assert_eq!(left.canister_checksum, right.canister_checksum);
         assert_eq!(left.wasm_checksum, right.wasm_checksum);
@@ -118,40 +116,10 @@ mod test {
         assert_eq!(left.status, right.status);
     }
 
-    impl ProgressTracker {
-        fn assert_progress(&self) {
-            self.progress
-                .iter()
-                .enumerate()
-                .for_each(|(index, (_, p))| {
-                    let request_id = index + 1;
-                    assert_eq!(p.request_id, request_id as ReqId);
-                    // assert_eq!(p.started_at.is_empty(), false);
-                    if request_id % 4 == 0 {
-                        // assert_eq!(p.updated_at.is_some(), false);
-                        // assert_eq!(p.completed_at.is_some(), false);
-                        assert_progress_utils(p, &test_data::fake_update_progress_default());
-                    } else if request_id % 4 == 1 {
-                        // assert_eq!(p.updated_at.is_some(), true);
-                        // assert_eq!(p.completed_at.is_some(), false);
-                        assert_progress_utils(p, &test_data::fake_update_progress_in_progress());
-                    } else if request_id % 4 == 2 {
-                        // assert_eq!(p.updated_at.is_some(), true);
-                        // assert_eq!(p.completed_at.is_some(), true);
-                        assert_progress_utils(p, &test_data::fake_update_progress_finished());
-                    } else {
-                        // assert_eq!(p.updated_at.is_some(), true);
-                        // assert_eq!(p.completed_at.is_some(), true);
-                        assert_progress_utils(p, &test_data::fake_update_progress_error());
-                    }
-                });
-        }
-    }
-
     #[test]
     fn init_progress_ok() {
         let len = 15;
-        let mut store = ProgressTracker::default();
+        let mut store = ProgressStore::default();
         for i in 1..len + 1 {
             let result = store.init_progress(i, test_data::fake_canister1());
             assert_eq!(result, Ok(()));
@@ -185,29 +153,28 @@ mod test {
     #[test]
     fn update_progress_ok() {
         let len = 15;
-        let mut store = ProgressTracker::default();
+        let mut store = ProgressStore::default();
         for i in 1..len + 1 {
             let result = store.init_progress(i, test_data::fake_canister1());
             assert_eq!(result, Ok(()));
         }
         assert_eq!(store.progress.len(), len as usize);
         for i in 1..len + 1 {
-            let result = store.update_progress(
+            let result = store.update_progress(test_data::fake_update_progress_default(
                 i,
                 test_data::fake_canister2(),
-                test_data::fake_update_progress_default(),
-            );
+            ));
             assert_eq!(result, Err(ErrorKind::ProgressNotFound));
             let update_progress = if i % 4 == 0 {
-                test_data::fake_update_progress_init()
+                test_data::fake_update_progress_init(i, test_data::fake_canister1())
             } else if i % 4 == 1 {
-                test_data::fake_update_progress_in_progress()
+                test_data::fake_update_progress_in_progress(i, test_data::fake_canister1())
             } else if i % 4 == 2 {
-                test_data::fake_update_progress_finished()
+                test_data::fake_update_progress_finished(i, test_data::fake_canister1())
             } else {
-                test_data::fake_update_progress_error()
+                test_data::fake_update_progress_error(i, test_data::fake_canister1())
             };
-            let result = store.update_progress(i, test_data::fake_canister1(), update_progress);
+            let result = store.update_progress(update_progress);
             assert_eq!(
                 result,
                 if i % 4 == 0 {
@@ -217,7 +184,55 @@ mod test {
                 }
             );
         }
-        store.assert_progress();
+        store
+            .progress
+            .iter()
+            .enumerate()
+            .for_each(|(index, (_, p))| {
+                let request_id = index + 1;
+                // assert_eq!(p.started_at.is_empty(), false);
+                if request_id % 4 == 0 {
+                    // assert_eq!(p.updated_at.is_some(), false);
+                    // assert_eq!(p.completed_at.is_some(), false);
+                    assert_progress_utils(
+                        p,
+                        &test_data::fake_update_progress_default(
+                            request_id as ReqId,
+                            test_data::fake_canister1(),
+                        ),
+                    );
+                } else if request_id % 4 == 1 {
+                    // assert_eq!(p.updated_at.is_some(), true);
+                    // assert_eq!(p.completed_at.is_some(), false);
+                    assert_progress_utils(
+                        p,
+                        &test_data::fake_update_progress_in_progress(
+                            request_id as ReqId,
+                            test_data::fake_canister1(),
+                        ),
+                    );
+                } else if request_id % 4 == 2 {
+                    // assert_eq!(p.updated_at.is_some(), true);
+                    // assert_eq!(p.completed_at.is_some(), true);
+                    assert_progress_utils(
+                        p,
+                        &test_data::fake_update_progress_finished(
+                            request_id as ReqId,
+                            test_data::fake_canister1(),
+                        ),
+                    );
+                } else {
+                    // assert_eq!(p.updated_at.is_some(), true);
+                    // assert_eq!(p.completed_at.is_some(), true);
+                    assert_progress_utils(
+                        p,
+                        &test_data::fake_update_progress_error(
+                            request_id as ReqId,
+                            test_data::fake_canister1(),
+                        ),
+                    );
+                }
+            });
         assert_eq!(store.progress.len(), len as usize);
     }
 }
