@@ -3,7 +3,8 @@ use ic_kit::macros::{query, update};
 use crate::common::types::{CanisterId, ReqId};
 use crate::service::cover_service;
 use crate::service::types::{
-    CreateRequest, Error, Progress, ProviderInfo, Request, UpdateProgress,
+    CreateRequest, Error, Progress, ProviderInfo, Request, UpdateProgress, UpdateVerification,
+    Verification,
 };
 
 mod common;
@@ -51,4 +52,19 @@ fn update_progress(
     _update_progress: UpdateProgress, // TODO: cdk bug????? param can not be same with fn!!!!!
 ) -> Result<(), Error> {
     cover_service::update_progress(_update_progress)
+}
+
+#[query]
+fn get_verification_by_canister_id(canister_id: CanisterId) -> Option<&'static Verification> {
+    cover_service::get_verification_by_canister_id(&canister_id)
+}
+
+#[query]
+fn get_all_verification() -> Vec<&'static Verification> {
+    cover_service::get_all_verification()
+}
+
+#[update]
+fn update_verification(_update_verification: UpdateVerification) {
+    cover_service::update_verification(_update_verification)
 }
