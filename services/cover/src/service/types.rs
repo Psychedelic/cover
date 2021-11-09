@@ -18,6 +18,16 @@ pub enum ProgressStatus {
     Error,
 }
 
+#[derive(CandidType, Deserialize)]
+pub struct UpdateVerification {
+    pub canister_id: CanisterId,
+    pub git_checksum: String,
+    pub canister_checksum: String,
+    pub wasm_checksum: String,
+    pub build_log_url: String,
+    pub source_snapshot_url: String,
+}
+
 #[derive(CandidType, Deserialize, Debug)]
 pub struct UpdateProgress {
     pub request_id: ReqId,
@@ -31,7 +41,27 @@ pub struct UpdateProgress {
     pub status: ProgressStatus,
 }
 
-#[derive(CandidType, Deserialize, Debug)]
+#[derive(CandidType, Deserialize)]
+pub struct CreateRequest {
+    pub canister_id: CanisterId,
+    pub build_settings: BuildSettings,
+}
+
+#[derive(CandidType)]
+pub struct Verification {
+    pub canister_id: CanisterId,
+    pub git_checksum: String,
+    pub canister_checksum: String,
+    pub wasm_checksum: String,
+    pub build_log_url: String,
+    pub source_snapshot_url: String,
+    pub created_by: CallerId,
+    pub created_at: String,
+    pub updated_by: CallerId,
+    pub updated_at: String,
+}
+
+#[derive(CandidType, Debug)]
 pub struct Progress {
     pub request_id: ReqId,
     pub canister_id: CanisterId,
@@ -49,7 +79,7 @@ pub struct Progress {
 #[derive(CandidType, Debug, PartialEq, Clone)]
 pub struct Request {
     pub request_id: ReqId,
-    pub caller_id: CallerId,
+    pub caller_id: CallerId, // TODO: created_by
     pub canister_id: CanisterId,
     pub build_settings: BuildSettings,
     pub created_at: String,
@@ -58,12 +88,6 @@ pub struct Request {
 // TODO: define details
 #[derive(CandidType, Deserialize, Debug, PartialEq)]
 pub struct ProviderInfo {}
-
-#[derive(CandidType, Deserialize)]
-pub struct CreateRequest {
-    pub canister_id: CanisterId,
-    pub build_settings: BuildSettings,
-}
 
 #[derive(CandidType, Deserialize, Debug, PartialEq)]
 pub struct Error {
@@ -87,7 +111,7 @@ impl From<ErrorKind> for Error {
             },
             ErrorKind::InitExistedProgress => Self {
                 code: "ERR_002_002",
-                message: "Init existed Progress",
+                message: "Init existed progress",
                 debug_log: None,
             },
             ErrorKind::InvalidProgressStatus => Self {
