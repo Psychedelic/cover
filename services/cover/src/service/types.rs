@@ -35,9 +35,8 @@ pub struct UpdateProgress {
 pub struct Progress {
     pub request_id: ReqId,
     pub canister_id: CanisterId,
-    // pub started_at: String,
-    // pub updated_at: Option<String>,
-    // pub completed_at: Option<String>,
+    pub started_at: String,
+    pub updated_at: Option<String>,
     pub git_checksum: Option<String>,
     pub canister_checksum: Option<String>,
     pub wasm_checksum: Option<String>,
@@ -47,14 +46,13 @@ pub struct Progress {
     pub status: ProgressStatus,
 }
 
-// TODO: enable audit timestamp
 #[derive(CandidType, Debug, PartialEq, Clone)]
 pub struct Request {
     pub request_id: ReqId,
     pub caller_id: CallerId,
     pub canister_id: CanisterId,
     pub build_settings: BuildSettings,
-    //  created_at: chrono::DateTime<chrono::Utc>,
+    pub created_at: String,
 }
 
 // TODO: define details

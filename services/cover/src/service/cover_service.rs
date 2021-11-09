@@ -24,7 +24,7 @@ pub fn get_all_request() -> Vec<&'static Request> {
 }
 
 pub fn consume_request(provider_info: ProviderInfo) -> Result<Vec<&'static Request>, Error> {
-    //TODO: check allow list
+    // TODO: check allow list
     get_request_store_mut()
         .consume_request(provider_info)
         .and_then(|requests| {

@@ -4,6 +4,7 @@ use crate::service::store::progress::ProgressStore;
 use crate::service::store::request::RequestStore;
 
 pub mod cover_service;
+pub mod time_utils;
 pub mod types;
 
 mod store;
