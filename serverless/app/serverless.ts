@@ -1,6 +1,7 @@
 import type { AWS } from '@serverless/typescript';
 
 import publish from '@functions/publish';
+import consume from '@functions/consume';
 
 const serverlessConfiguration: AWS = {
   service: 'cover',
@@ -26,7 +27,7 @@ const serverlessConfiguration: AWS = {
     lambdaHashingVersion: '20201221',
   },
   // import the function via paths
-  functions: { publish },
+  functions: { publish, consume },
 };
 
 module.exports = serverlessConfiguration;
