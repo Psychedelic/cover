@@ -5,6 +5,15 @@ type BuildSettings = record {
 
 type ProgressStatus = variant { Init; InProgress; Finished; Error };
 
+type UpdateVerification = record {
+    canister_id: principal;
+    git_checksum: text;
+    canister_checksum: text;
+    wasm_checksum: text;
+    build_log_url: text;
+    source_snapshot_url: text;
+}
+
 type UpdateProgress = record {
     request_id: nat64;
     canister_id: principal;
@@ -16,6 +25,24 @@ type UpdateProgress = record {
     percentage: opt float32;
     status: ProgressStatus;
 };
+
+type CreateRequest = record {
+    canister_id: principal;
+    build_settings: BuildSettings;
+};
+
+type Verification = record {
+    canister_id: principal;
+    git_checksum: text;
+    canister_checksum: text;
+    wasm_checksum: text;
+    build_log_url: text;
+    source_snapshot_url: text;
+    created_by: principal;
+    created_at: text;
+    updated_by: principal;
+    updated_at: text;
+}
 
 type Progress = record {
     request_id: nat64;
@@ -41,11 +68,6 @@ type Request = record {
 
 type ProviderInfo = record {};
 
-type CreateRequest = record {
-    canister_id: principal;
-    build_settings: BuildSettings;
-};
-
 type Error = record {
     code: text;
     message: text;
@@ -54,7 +76,7 @@ type Error = record {
 
 service: {
     //====================================================================================================
-    // General API
+    // General - Query API
     // Mainly use for general purpose:
     // - Requested users see/verify their actual requests are in waiting-list
     // - Providers see what they are about to consume
@@ -62,24 +84,36 @@ service: {
     get_request_by_id: (request_id: nat64) -> (opt Request);
     get_all_request: () -> (vec Request);
 
-    // You tell me 🤷
+    // Progress
     get_progress_by_request_id: (request_id: nat64) -> (opt Progress);
     get_progress_by_canister_id: (canister_id: principal) -> (vec Progress);
     get_all_progress: () -> (vec Progress);
 
-    // TODO: history api
+    // Verification
+    get_verification_by_canister_id: (canister_id: principal) -> (opt Verification);
+    get_all_verification: () -> (vec Verification);
+
+    // History
+    // get_request_history_by_id: (request_id: nat64) -> ();
+    // get_all_request_history: () -> ();
+    // get_progress_history_by_request_id: (request_id: nat64) -> ();
+    // get_progress_history_by_canister_id: (canister_id: principal) -> ();
+    // get_all_progress_history: () -> ();
     //====================================================================================================
 
 
     //====================================================================================================
-    // Provider API
+    // Provider API - Update API
     consume_request: (ProviderInfo) -> (variant { Ok: vec Request; Err: Error });
     update_progress: (UpdateProgress) -> (variant { Ok: null; Err: Error });
+
+    // for experiment
+
     //====================================================================================================
 
 
     //====================================================================================================
-    // User API
+    // User API - Update API
     create_request: (CreateRequest) -> (variant { Ok: null; Err: Error });
     //====================================================================================================
 }
