@@ -2,7 +2,7 @@ use std::borrow::BorrowMut;
 use std::collections::BTreeMap;
 use std::ops::Bound::Included;
 
-use chrono::{SecondsFormat, Utc};
+// use chrono::{SecondsFormat, Utc};
 
 use crate::common::types::{CanisterId, ReqId};
 use crate::service::store::error::ErrorKind;
@@ -56,7 +56,7 @@ impl ProgressTracker {
             (request_validation_id, canister_id),
             ValidationResponse {
                 request_validation_id,
-                validation_started_at: Utc::now().to_rfc3339_opts(SecondsFormat::Millis, false),
+                validation_started_at: "Utc::now().to_rfc3339_opts(SecondsFormat::Millis, false)".to_string(),
                 validation_completed_at: None,
                 git_checksum: None,
                 canister_checksum: None,
@@ -90,7 +90,7 @@ impl ProgressTracker {
         validation_response.status = status.status;
         if validation_response.status == ProgressStatus::Finished {
             validation_response.validation_completed_at =
-                Some(Utc::now().to_rfc3339_opts(SecondsFormat::Millis, false))
+                Some("Utc::now().to_rfc3339_opts(SecondsFormat::Millis, false)".to_string())
             // TODO: remove entry and push to history
         }
         Ok(())

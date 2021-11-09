@@ -1,4 +1,4 @@
-import createActor from "./actor";
+import createActor from './actor';
 
 createActor().consume_request({})
     .then(json => {
