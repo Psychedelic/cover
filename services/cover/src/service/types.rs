@@ -119,6 +119,16 @@ impl From<ErrorKind> for Error {
                 message: "Invalid progress status",
                 debug_log: None,
             },
+            ErrorKind::VerificationNotFound => Self {
+                code: "ERR_003_001",
+                message: "Verification not found",
+                debug_log: None,
+            },
+            ErrorKind::ExistedVerification => Self {
+                code: "ERR_003_002",
+                message: "Existed verification",
+                debug_log: None,
+            },
         }
     }
 }
