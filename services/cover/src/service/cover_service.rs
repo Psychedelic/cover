@@ -1,32 +1,56 @@
-use ic_kit::ic::caller;
+use ic_cdk::caller;
 
-use crate::common::types::ReqId;
-use crate::service::types::{Error, NewValidationRequest, ProviderInfo, ValidationRequest};
+use crate::common::types::{CanisterId, ReqId};
+use crate::service::types::{
+    CreateRequest, Error, Progress, ProviderInfo, Request, UpdateProgress,
+};
 
-use super::{get_validation_registry, get_validation_registry_mut};
+use super::{
+    get_progress_store, get_progress_store_mut, get_request_store_mut, get_request_store_registry,
+};
 
-pub fn add_request(new_validation_request: NewValidationRequest) -> Result<(), Error> {
+pub fn create_request(create_request: CreateRequest) -> Result<(), Error> {
     // TODO: handle canister's owner properly
-    get_validation_registry_mut().add_request(
-        caller(),
-        new_validation_request.canister_id,
-        new_validation_request.build_settings,
-    );
+    get_request_store_mut().create_request(caller(), create_request);
     Ok(())
 }
 
-pub fn get_pending_request_by_id(request_id: ReqId) -> Option<&'static ValidationRequest> {
-    get_validation_registry().get_pending_request_by_id(request_id)
+pub fn get_request_by_id(request_id: ReqId) -> Option<&'static Request> {
+    get_request_store_registry().get_request_by_id(request_id)
 }
 
-pub fn get_all_pending_request() -> Vec<&'static ValidationRequest> {
-    get_validation_registry().get_all_pending_request()
+pub fn get_all_request() -> Vec<&'static Request> {
+    get_request_store_registry().get_all_request()
 }
 
-pub fn consume_request(
-    provider_info: ProviderInfo,
-) -> Result<Vec<&'static ValidationRequest>, Error> {
-    get_validation_registry_mut()
+pub fn consume_request(provider_info: ProviderInfo) -> Result<Vec<&'static Request>, Error> {
+    // TODO: check allow list
+    get_request_store_mut()
         .consume_request(provider_info)
+        .and_then(|requests| {
+            for request in requests.iter() {
+                get_progress_store_mut().init_progress(request.request_id, request.canister_id)?;
+            }
+            Ok(requests)
+        })
+        .map_err(|e| e.into())
+}
+
+pub fn get_progress_by_request_id(request_id: ReqId) -> Option<&'static Progress> {
+    get_progress_store().get_progress_by_request_id(request_id)
+}
+
+pub fn get_progress_by_canister_id(canister_id: CanisterId) -> Vec<&'static Progress> {
+    get_progress_store().get_progress_by_canister_id(canister_id)
+}
+
+pub fn get_all_progress() -> Vec<&'static Progress> {
+    get_progress_store().get_all_progress()
+}
+
+pub fn update_progress(update_progress: UpdateProgress) -> Result<(), Error> {
+    // TODO: check progress owner
+    get_progress_store_mut()
+        .update_progress(update_progress)
         .map_err(|e| e.into())
 }

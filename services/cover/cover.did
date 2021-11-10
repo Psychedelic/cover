@@ -1,37 +1,85 @@
+type BuildSettings = record {
+    git_ref: text;
+    git_tag: text;
+};
+
+type ProgressStatus = variant { Init; InProgress; Finished; Error };
+
+type UpdateProgress = record {
+    request_id: nat64;
+    canister_id: principal;
+    git_checksum: opt text;
+    canister_checksum: opt text;
+    wasm_checksum: opt text;
+    build_log_url: opt text;
+    source_snapshot_url: opt text;
+    percentage: opt float32;
+    status: ProgressStatus;
+};
+
+type Progress = record {
+    request_id: nat64;
+    canister_id: principal;
+    started_at: text;
+    updated_at: opt text;
+    git_checksum: opt text;
+    canister_checksum: opt text;
+    wasm_checksum: opt text;
+    build_log_url: opt text;
+    source_snapshot_url: opt text;
+    percentage: opt float32;
+    status: ProgressStatus;
+};
+
+type Request = record {
+    request_id: nat64;
+    caller_id: principal;
+    canister_id: principal;
+    build_settings: BuildSettings;
+    created_at: text;
+};
+
+type ProviderInfo = record {};
+
+type CreateRequest = record {
+    canister_id: principal;
+    build_settings: BuildSettings;
+};
+
 type Error = record {
     code: text;
     message: text;
     debug_log: opt text;
 };
 
-type BuildParams = record {
-    git_ref: text;
-    git_tag: text;
-};
-
-type NewValidationRequest = record {
-    canister_id: principal;
-    build_settings: BuildParams;
-};
-
-type ValidationRequest = record {
-    request_id: nat64;
-    caller_id: principal;
-    canister_id: principal;
-    build_settings: BuildParams;
-};
-
-type ProviderInfo = record {};
-
 service: {
+    //====================================================================================================
     // General API
-    whoami: () -> (principal);
-    get_pending_request_by_id: (request_id: nat64) -> (opt ValidationRequest);
-    get_all_pending_request: () -> (vec ValidationRequest);
+    // Mainly use for general purpose:
+    // - Requested users see/verify their actual requests are in waiting-list
+    // - Providers see what they are about to consume
+    // - Normal users see ... requests
+    get_request_by_id: (request_id: nat64) -> (opt Request);
+    get_all_request: () -> (vec Request);
 
+    // You tell me 🤷
+    get_progress_by_request_id: (request_id: nat64) -> (opt Progress);
+    get_progress_by_canister_id: (canister_id: principal) -> (vec Progress);
+    get_all_progress: () -> (vec Progress);
+
+    // TODO: history api
+    //====================================================================================================
+
+
+    //====================================================================================================
     // Provider API
-    consume_request: (ProviderInfo) -> (variant { Ok: vec ValidationRequest; Err: Error });
+    consume_request: (ProviderInfo) -> (variant { Ok: vec Request; Err: Error });
+    update_progress: (UpdateProgress) -> (variant { Ok: null; Err: Error });
+    //====================================================================================================
 
+
+    //====================================================================================================
     // User API
-    add_request: (NewValidationRequest) -> (variant { Ok: null; Err: Error });
+    create_request: (CreateRequest) -> (variant { Ok: null; Err: Error });
+    //====================================================================================================
 }
