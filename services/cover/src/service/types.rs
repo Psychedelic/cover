@@ -47,7 +47,7 @@ pub struct CreateRequest {
     pub build_settings: BuildSettings,
 }
 
-#[derive(CandidType)]
+#[derive(CandidType, PartialEq)]
 pub struct Verification {
     pub canister_id: CanisterId,
     pub git_checksum: String,
