@@ -23,12 +23,12 @@ fn get_request_by_id(request_id: ReqId) -> Option<&'static Request> {
 }
 
 #[query]
-fn get_all_request() -> Vec<&'static Request> {
+fn get_all_requests() -> Vec<&'static Request> {
     cover_service::get_all_request()
 }
 
 #[update]
-fn consume_request(provider_info: ProviderInfo) -> Result<Vec<&'static Request>, Error> {
+fn consume_requests(provider_info: ProviderInfo) -> Result<Vec<&'static Request>, Error> {
     cover_service::consume_request(provider_info)
 }
 
@@ -38,12 +38,12 @@ fn get_progress_by_request_id(request_id: ReqId) -> Option<&'static Progress> {
 }
 
 #[query]
-fn get_progress_by_canister_id(canister_id: CanisterId) -> Vec<&'static Progress> {
+fn get_progresses_by_canister_id(canister_id: CanisterId) -> Vec<&'static Progress> {
     cover_service::get_progress_by_canister_id(canister_id)
 }
 
 #[query]
-fn get_all_progress() -> Vec<&'static Progress> {
+fn get_all_progresses() -> Vec<&'static Progress> {
     cover_service::get_all_progress()
 }
 
@@ -60,7 +60,7 @@ fn get_verification_by_canister_id(canister_id: CanisterId) -> Option<&'static V
 }
 
 #[query]
-fn get_all_verification() -> Vec<&'static Verification> {
+fn get_all_verifications() -> Vec<&'static Verification> {
     cover_service::get_all_verification()
 }
 
