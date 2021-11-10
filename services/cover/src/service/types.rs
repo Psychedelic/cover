@@ -1,7 +1,7 @@
 use ic_cdk::export::candid::CandidType;
 use serde::Deserialize;
 
-use crate::common::types::{CallerId, CanisterId, ReqId};
+use crate::common::types::{CallerId, CanisterId, ProviderId, ReqId};
 use crate::service::store::error::ErrorKind;
 
 #[derive(CandidType, Deserialize, Debug, PartialEq, Clone)]
@@ -16,6 +16,20 @@ pub enum ProgressStatus {
     InProgress,
     Finished,
     Error,
+}
+
+#[derive(CandidType, Deserialize)]
+pub struct AddProvider {
+    pub id: ProviderId,
+    pub name: String,
+    pub memo: String,
+}
+
+#[derive(CandidType, Deserialize)]
+pub struct UpdateProvider {
+    pub id: ProviderId,
+    pub name: String,
+    pub memo: String,
 }
 
 #[derive(CandidType, Deserialize)]
@@ -55,6 +69,17 @@ pub struct UpdateProgress {
 pub struct CreateRequest {
     pub canister_id: CanisterId,
     pub build_settings: BuildSettings,
+}
+
+#[derive(CandidType, PartialEq)]
+pub struct Provider {
+    pub id: ProviderId,
+    pub name: String,
+    pub memo: String,
+    pub created_by: CallerId,
+    pub created_at: String,
+    pub updated_by: CallerId,
+    pub updated_at: String,
 }
 
 #[derive(CandidType, PartialEq)]
@@ -106,37 +131,57 @@ pub struct Error {
     debug_log: Option<String>,
 }
 
+// ERR_{module}_{level}_{sequence}
+//      Module
+//          Request               001
+//          Progress              002
+//          Verification          003
+//          Provider              004
+//      Level
+//          Api                   001
+//          Service               002
+//          Store                 003
 impl From<ErrorKind> for Error {
     fn from(kind: ErrorKind) -> Self {
         match kind {
             ErrorKind::RequestNotFound => Self {
-                code: "ERR_001_001",
+                code: "ERR_001_001_001",
                 message: "Request not found",
                 debug_log: None,
             },
             ErrorKind::ProgressNotFound => Self {
-                code: "ERR_002_001",
+                code: "ERR_002_001_001",
                 message: "Progress not found",
                 debug_log: None,
             },
             ErrorKind::InitExistedProgress => Self {
-                code: "ERR_002_002",
+                code: "ERR_002_001_002",
                 message: "Init existed progress",
                 debug_log: None,
             },
             ErrorKind::InvalidProgressStatus => Self {
-                code: "ERR_002_003",
+                code: "ERR_002_001_003",
                 message: "Invalid progress status",
                 debug_log: None,
             },
             ErrorKind::VerificationNotFound => Self {
-                code: "ERR_003_001",
+                code: "ERR_003_001_001",
                 message: "Verification not found",
                 debug_log: None,
             },
             ErrorKind::ExistedVerification => Self {
-                code: "ERR_003_002",
+                code: "ERR_003_001_002",
                 message: "Existed verification",
+                debug_log: None,
+            },
+            ErrorKind::ProviderNotFound => Self {
+                code: "ERR_004_001_001",
+                message: "Provider not found",
+                debug_log: None,
+            },
+            ErrorKind::ExistedProvider => Self {
+                code: "ERR_004_001_002",
+                message: "Existed provider",
                 debug_log: None,
             },
         }
