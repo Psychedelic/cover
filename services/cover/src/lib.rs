@@ -3,8 +3,8 @@ use ic_kit::macros::{query, update};
 use crate::common::types::{CanisterId, ReqId};
 use crate::service::cover_service;
 use crate::service::types::{
-    CreateRequest, Error, Progress, ProviderInfo, Request, UpdateProgress, UpdateVerification,
-    Verification,
+    AddVerification, CreateRequest, Error, Progress, ProviderInfo, Request, UpdateProgress,
+    UpdateVerification, Verification,
 };
 
 mod common;
@@ -65,6 +65,11 @@ fn get_all_verifications() -> Vec<&'static Verification> {
 }
 
 #[update]
-fn update_verification(_update_verification: UpdateVerification) {
+fn add_verification(_add_verification: AddVerification) -> Result<(), Error> {
+    cover_service::add_verification(_add_verification)
+}
+
+#[update]
+fn update_verification(_update_verification: UpdateVerification) -> Result<(), Error> {
     cover_service::update_verification(_update_verification)
 }
