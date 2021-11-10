@@ -1,6 +1,7 @@
 use ic_kit::ic::{get, get_mut};
 
 use crate::service::store::progress::ProgressStore;
+use crate::service::store::provider::ProviderStore;
 use crate::service::store::request::RequestStore;
 use crate::service::store::verification::VerificationStore;
 
@@ -37,5 +38,15 @@ fn get_verification_store_mut() -> &'static mut VerificationStore {
 
 #[inline]
 fn get_verification_store() -> &'static VerificationStore {
+    get()
+}
+
+#[inline]
+fn get_provider_store_mut() -> &'static mut ProviderStore {
+    get_mut()
+}
+
+#[inline]
+fn get_provider_store() -> &'static ProviderStore {
     get()
 }
