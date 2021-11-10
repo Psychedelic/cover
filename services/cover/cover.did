@@ -106,6 +106,7 @@ service: {
     // Provider API - Update API
     consume_request: (ProviderInfo) -> (variant { Ok: vec Request; Err: Error });
     update_progress: (UpdateProgress) -> (variant { Ok: null; Err: Error });
+    update_verification: (UpdateVerification) -> ();
     //====================================================================================================
 
 
