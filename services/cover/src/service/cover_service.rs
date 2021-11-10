@@ -2,8 +2,8 @@ use ic_cdk::caller;
 
 use crate::common::types::{CanisterId, ReqId};
 use crate::service::types::{
-    CreateRequest, Error, Progress, ProviderInfo, Request, UpdateProgress, UpdateVerification,
-    Verification,
+    AddVerification, CreateRequest, Error, Progress, ProviderInfo, Request, UpdateProgress,
+    UpdateVerification, Verification,
 };
 
 use super::{
@@ -65,6 +65,14 @@ pub fn get_all_verification() -> Vec<&'static Verification> {
     get_verification_store().get_all_verification()
 }
 
-pub fn update_verification(update_verification: UpdateVerification) {
-    get_verification_store_mut().update_verification(caller(), update_verification)
+pub fn add_verification(add_verification: AddVerification) -> Result<(), Error> {
+    get_verification_store_mut()
+        .add_verification(caller(), add_verification)
+        .map_err(|e| e.into())
+}
+
+pub fn update_verification(update_verification: UpdateVerification) -> Result<(), Error> {
+    get_verification_store_mut()
+        .update_verification(caller(), update_verification)
+        .map_err(|e| e.into())
 }
