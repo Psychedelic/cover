@@ -82,23 +82,23 @@ service: {
     // - Providers see what they are about to consume
     // - Normal users see ... requests
     get_request_by_id: (request_id: nat64) -> (opt Request);
-    get_all_request: () -> (vec Request);
+    get_all_requests: () -> (vec Request);
 
     // Progress
     get_progress_by_request_id: (request_id: nat64) -> (opt Progress);
-    get_progress_by_canister_id: (canister_id: principal) -> (vec Progress);
-    get_all_progress: () -> (vec Progress);
+    get_progresses_by_canister_id: (canister_id: principal) -> (vec Progress);
+    get_all_progresses: () -> (vec Progress);
 
     // Verification
     get_verification_by_canister_id: (canister_id: principal) -> (opt Verification);
-    get_all_verification: () -> (vec Verification);
+    get_all_verifications: () -> (vec Verification);
 
     // History
     // get_request_history_by_id: (request_id: nat64) -> ();
-    // get_all_request_history: () -> ();
+    // get_all_requests_history: () -> ();
     // get_progress_history_by_request_id: (request_id: nat64) -> ();
-    // get_progress_history_by_canister_id: (canister_id: principal) -> ();
-    // get_all_progress_history: () -> ();
+    // get_progresses_history_by_canister_id: (canister_id: principal) -> ();
+    // get_all_progresses_history: () -> ();
     //====================================================================================================
 
 
