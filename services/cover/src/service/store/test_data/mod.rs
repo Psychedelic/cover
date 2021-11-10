@@ -8,9 +8,12 @@ pub use create_request::*;
 pub use provider_info::*;
 #[cfg(test)]
 pub use update_progress::*;
+#[cfg(test)]
+pub use update_verification::*;
 
 mod build_settings;
 mod canister;
 mod create_request;
 mod provider_info;
 mod update_progress;
+mod update_verification;
