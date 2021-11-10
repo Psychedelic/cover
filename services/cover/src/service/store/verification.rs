@@ -1,7 +1,8 @@
+use std::collections::BTreeMap;
+
 use crate::common::types::{CallerId, CanisterId};
 use crate::service::time_utils;
 use crate::service::types::{UpdateVerification, Verification};
-use std::collections::BTreeMap;
 
 pub struct VerificationStore {
     verification: BTreeMap<CanisterId, Verification>,
@@ -65,9 +66,11 @@ impl VerificationStore {
 
 #[cfg(test)]
 mod test {
-    use super::*;
-    use crate::service::store::test_data;
     use ic_kit::*;
+
+    use crate::service::store::test_data;
+
+    use super::*;
 
     fn caller_gen(seed: u8) -> CallerId {
         if seed % 3 == 0 {
