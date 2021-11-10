@@ -1,10 +1,10 @@
 use std::collections::BTreeMap;
+use std::ops::Not;
 
 use crate::common::types::{CallerId, CanisterId};
 use crate::service::store::error::ErrorKind;
 use crate::service::time_utils;
 use crate::service::types::{AddVerification, UpdateVerification, Verification};
-use std::ops::Not;
 
 pub struct VerificationStore {
     verification: BTreeMap<CanisterId, Verification>,
