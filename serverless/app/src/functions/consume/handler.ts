@@ -10,7 +10,7 @@ const executeRequest = (data) => {
 
 const consume = async () => {
     const list = [];
-    createActor().consume_request({})
+    await createActor().consume_request({})
         .then(json => {
             if (json['Ok']) { // returns a list of requests
                 json['Ok'].forEach(data => {
