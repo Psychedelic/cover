@@ -1,10 +1,10 @@
 use ic_kit::macros::{query, update};
 
-use crate::common::types::{CanisterId, ReqId};
+use crate::common::types::{CanisterId, ProviderId, ReqId};
 use crate::service::cover_service;
 use crate::service::types::{
-    AddVerification, CreateRequest, Error, Progress, ProviderInfo, Request, UpdateProgress,
-    UpdateVerification, Verification,
+    AddProvider, AddVerification, CreateRequest, Error, Progress, Provider, ProviderInfo, Request,
+    UpdateProgress, UpdateProvider, UpdateVerification, Verification,
 };
 
 mod common;
@@ -72,4 +72,29 @@ fn add_verification(_add_verification: AddVerification) -> Result<(), Error> {
 #[update]
 fn update_verification(_update_verification: UpdateVerification) -> Result<(), Error> {
     cover_service::update_verification(_update_verification)
+}
+
+#[update]
+fn add_provider(_add_provider: AddProvider) -> Result<(), Error> {
+    cover_service::add_provider(_add_provider)
+}
+
+#[update]
+fn update_provider(_update_provider: UpdateProvider) -> Result<(), Error> {
+    cover_service::update_provider(_update_provider)
+}
+
+#[update]
+fn delete_provider(provider_id: ProviderId) -> Result<(), Error> {
+    cover_service::delete_provider(&provider_id)
+}
+
+#[query]
+fn get_provider_by_id(provider_id: ProviderId) -> Option<&'static Provider> {
+    cover_service::get_provider_by_id(&provider_id)
+}
+
+#[query]
+fn get_all_providers() -> Vec<&'static Provider> {
+    cover_service::get_all_providers()
 }
