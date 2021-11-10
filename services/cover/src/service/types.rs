@@ -19,6 +19,16 @@ pub enum ProgressStatus {
 }
 
 #[derive(CandidType, Deserialize)]
+pub struct AddVerification {
+    pub canister_id: CanisterId,
+    pub git_checksum: String,
+    pub canister_checksum: String,
+    pub wasm_checksum: String,
+    pub build_log_url: String,
+    pub source_snapshot_url: String,
+}
+
+#[derive(CandidType, Deserialize)]
 pub struct UpdateVerification {
     pub canister_id: CanisterId,
     pub git_checksum: String,
