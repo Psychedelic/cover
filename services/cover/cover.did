@@ -60,9 +60,9 @@ type Progress = record {
 
 type Request = record {
     request_id: nat64;
-    caller_id: principal;
     canister_id: principal;
     build_settings: BuildSettings;
+    created_by: principal;
     created_at: text;
 };
 

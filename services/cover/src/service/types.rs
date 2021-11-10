@@ -79,9 +79,9 @@ pub struct Progress {
 #[derive(CandidType, Debug, PartialEq, Clone)]
 pub struct Request {
     pub request_id: ReqId,
-    pub caller_id: CallerId, // TODO: created_by
     pub canister_id: CanisterId,
     pub build_settings: BuildSettings,
+    pub created_by: CallerId,
     pub created_at: String,
 }
 
