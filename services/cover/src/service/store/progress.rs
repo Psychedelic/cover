@@ -6,6 +6,7 @@ use crate::common::types::{CanisterId, ReqId};
 use crate::service::store::error::ErrorKind;
 use crate::service::time_utils;
 use crate::service::types::{Progress, ProgressStatus, UpdateProgress};
+use std::ops::Not;
 
 pub struct ProgressStore {
     /// Request id is unique => single entry
@@ -51,25 +52,27 @@ impl ProgressStore {
     ) -> Result<(), ErrorKind> {
         self.progress
             .get(&(request_id, canister_id))
-            .map(|_| Err(ErrorKind::InitExistedProgress))
-            .unwrap_or(Ok(()))?;
-        self.progress.insert(
-            (request_id, canister_id),
-            Progress {
-                request_id,
-                canister_id,
-                started_at: time_utils::now_to_str(),
-                updated_at: None,
-                git_checksum: None,
-                canister_checksum: None,
-                wasm_checksum: None,
-                build_log_url: None,
-                source_snapshot_url: None,
-                percentage: None,
-                status: ProgressStatus::Init,
-            },
-        );
-        Ok(())
+            .is_some()
+            .not()
+            .then(|| {
+                self.progress.insert(
+                    (request_id, canister_id),
+                    Progress {
+                        request_id,
+                        canister_id,
+                        started_at: time_utils::now_to_str(),
+                        updated_at: None,
+                        git_checksum: None,
+                        canister_checksum: None,
+                        wasm_checksum: None,
+                        build_log_url: None,
+                        source_snapshot_url: None,
+                        percentage: None,
+                        status: ProgressStatus::Init,
+                    },
+                );
+            })
+            .ok_or(ErrorKind::InitExistedProgress)
     }
 
     pub fn update_progress(&mut self, update_progress: UpdateProgress) -> Result<(), ErrorKind> {
