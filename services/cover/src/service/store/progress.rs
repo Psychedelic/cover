@@ -22,20 +22,21 @@ impl Default for ProgressStore {
 
 impl ProgressStore {
     pub fn get_progress_by_request_id(&self, request_id: ReqId) -> Option<&Progress> {
-        // a bit verbose but it's okay
-        let start = (request_id, CanisterId::management_canister()); // [0; 29],
-        let end = (request_id, CanisterId::from_slice(&[255; 29]));
         self.progress
-            .range((Included(start), Included(end)))
+            .range((
+                Included((request_id, CanisterId::management_canister())),
+                Included((request_id, CanisterId::from_slice(&[255; 29]))),
+            ))
             .map(|(_, v)| v)
             .next()
     }
 
     pub fn get_progress_by_canister_id(&self, canister_id: CanisterId) -> Vec<&Progress> {
-        let start = (ReqId::MIN, canister_id);
-        let end = (ReqId::MAX, canister_id);
         self.progress
-            .range((Included(start), Included(end)))
+            .range((
+                Included((ReqId::MIN, canister_id)),
+                Included((ReqId::MAX, canister_id)),
+            ))
             .map(|(_, v)| v)
             .collect()
     }
