@@ -39,12 +39,12 @@ fn get_progress_by_request_id(request_id: ReqId) -> Option<&'static Progress> {
 
 #[query]
 fn get_progresses_by_canister_id(canister_id: CanisterId) -> Vec<&'static Progress> {
-    cover_service::get_progress_by_canister_id(canister_id)
+    cover_service::get_progresses_by_canister_id(canister_id)
 }
 
 #[query]
 fn get_all_progresses() -> Vec<&'static Progress> {
-    cover_service::get_all_progress()
+    cover_service::get_all_progresses()
 }
 
 #[update]

@@ -31,7 +31,7 @@ impl ProgressStore {
             .next()
     }
 
-    pub fn get_progress_by_canister_id(&self, canister_id: CanisterId) -> Vec<&Progress> {
+    pub fn get_progresses_by_canister_id(&self, canister_id: CanisterId) -> Vec<&Progress> {
         self.progress
             .range((
                 Included((ReqId::MIN, canister_id)),
@@ -41,7 +41,7 @@ impl ProgressStore {
             .collect()
     }
 
-    pub fn get_all_progress(&self) -> Vec<&Progress> {
+    pub fn get_all_progresses(&self) -> Vec<&Progress> {
         self.progress.iter().map(|(_, v)| v).collect()
     }
 
