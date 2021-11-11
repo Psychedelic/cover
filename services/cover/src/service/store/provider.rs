@@ -1,10 +1,10 @@
 use std::collections::BTreeMap;
+use std::ops::Not;
 
 use crate::common::types::{CallerId, ProviderId};
 use crate::service::store::error::ErrorKind;
 use crate::service::time_utils;
 use crate::service::types::{AddProvider, Provider, UpdateProvider};
-use std::ops::Not;
 
 pub struct ProviderStore {
     provider: BTreeMap<ProviderId, Provider>,
@@ -82,8 +82,9 @@ impl ProviderStore {
 
 #[cfg(test)]
 mod test {
-    use super::*;
     use crate::service::store::test_data;
+
+    use super::*;
 
     fn update_provider_gen(seed: u8) -> UpdateProvider {
         if seed % 3 == 0 {

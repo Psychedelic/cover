@@ -52,6 +52,7 @@ pub fn consume_requests(provider_info: ProviderInfo) -> Result<Vec<&'static Requ
         })
         .map_err(|e| e.into())
 }
+
 pub fn update_progress(update_progress: UpdateProgress) -> Result<(), Error> {
     // TODO: check progress owner
     get_progress_store_mut()
