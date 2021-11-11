@@ -1,4 +1,3 @@
-use std::borrow::BorrowMut;
 use std::collections::BTreeMap;
 use std::ops::Bound::Included;
 
@@ -76,26 +75,30 @@ impl ProgressStore {
     }
 
     pub fn update_progress(&mut self, update_progress: UpdateProgress) -> Result<(), ErrorKind> {
-        let progress = self
-            .progress
+        self.progress
             .get_mut(&(update_progress.request_id, update_progress.canister_id))
-            .ok_or(ErrorKind::ProgressNotFound)?
-            .borrow_mut();
-        if update_progress.status == ProgressStatus::Init {
-            return Err(ErrorKind::InvalidProgressStatus);
-        }
-        progress.updated_at = Some(time_utils::now_to_str());
-        progress.git_checksum = update_progress.git_checksum;
-        progress.canister_checksum = update_progress.canister_checksum;
-        progress.wasm_checksum = update_progress.wasm_checksum;
-        progress.build_log_url = update_progress.build_log_url;
-        progress.source_snapshot_url = update_progress.source_snapshot_url;
-        progress.percentage = update_progress.percentage;
-        progress.status = update_progress.status;
-        if progress.status == ProgressStatus::Finished || progress.status == ProgressStatus::Error {
-            // TODO: remove entry and push to history
-        }
-        Ok(())
+            .ok_or(ErrorKind::ProgressNotFound)
+            .and_then(|progress| {
+                ProgressStatus::Init
+                    .ne(&update_progress.status)
+                    .then(|| progress)
+                    .ok_or(ErrorKind::InvalidProgressStatus)
+            })
+            .map(|progress| {
+                progress.updated_at = Some(time_utils::now_to_str());
+                progress.git_checksum = update_progress.git_checksum;
+                progress.canister_checksum = update_progress.canister_checksum;
+                progress.wasm_checksum = update_progress.wasm_checksum;
+                progress.build_log_url = update_progress.build_log_url;
+                progress.source_snapshot_url = update_progress.source_snapshot_url;
+                progress.percentage = update_progress.percentage;
+                progress.status = update_progress.status;
+                if progress.status == ProgressStatus::Finished
+                    || progress.status == ProgressStatus::Error
+                {
+                    // TODO: remove entry and push to history
+                }
+            })
     }
 }
 
