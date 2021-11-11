@@ -12,31 +12,12 @@ use super::{
     get_verification_store_mut,
 };
 
-pub fn create_request(create_request: CreateRequest) -> Result<(), Error> {
-    // TODO: handle canister's owner properly
-    get_request_store_mut().create_request(caller(), create_request);
-    Ok(())
-}
-
 pub fn get_request_by_id(request_id: ReqId) -> Option<&'static Request> {
     get_request_store_registry().get_request_by_id(request_id)
 }
 
 pub fn get_all_requests() -> Vec<&'static Request> {
     get_request_store_registry().get_all_requests()
-}
-
-pub fn consume_requests(provider_info: ProviderInfo) -> Result<Vec<&'static Request>, Error> {
-    // TODO: check allow list
-    get_request_store_mut()
-        .consume_requests(provider_info)
-        .and_then(|requests| {
-            for request in requests.iter() {
-                get_progress_store_mut().init_progress(request.request_id, request.canister_id)?;
-            }
-            Ok(requests)
-        })
-        .map_err(|e| e.into())
 }
 
 pub fn get_progress_by_request_id(request_id: ReqId) -> Option<&'static Progress> {
@@ -51,19 +32,31 @@ pub fn get_all_progresses() -> Vec<&'static Progress> {
     get_progress_store().get_all_progresses()
 }
 
-pub fn update_progress(update_progress: UpdateProgress) -> Result<(), Error> {
-    // TODO: check progress owner
-    get_progress_store_mut()
-        .update_progress(update_progress)
-        .map_err(|e| e.into())
-}
-
 pub fn get_verification_by_canister_id(canister_id: &CanisterId) -> Option<&'static Verification> {
     get_verification_store().get_verification_by_canister_id(canister_id)
 }
 
 pub fn get_all_verifications() -> Vec<&'static Verification> {
     get_verification_store().get_all_verifications()
+}
+
+pub fn consume_requests(provider_info: ProviderInfo) -> Result<Vec<&'static Request>, Error> {
+    // TODO: check allow list
+    get_request_store_mut()
+        .consume_requests(provider_info)
+        .and_then(|requests| {
+            for request in requests.iter() {
+                get_progress_store_mut().init_progress(request.request_id, request.canister_id)?;
+            }
+            Ok(requests)
+        })
+        .map_err(|e| e.into())
+}
+pub fn update_progress(update_progress: UpdateProgress) -> Result<(), Error> {
+    // TODO: check progress owner
+    get_progress_store_mut()
+        .update_progress(update_progress)
+        .map_err(|e| e.into())
 }
 
 pub fn add_verification(add_verification: AddVerification) -> Result<(), Error> {
@@ -76,6 +69,12 @@ pub fn update_verification(update_verification: UpdateVerification) -> Result<()
     get_verification_store_mut()
         .update_verification(caller(), update_verification)
         .map_err(|e| e.into())
+}
+
+pub fn create_request(create_request: CreateRequest) -> Result<(), Error> {
+    // TODO: handle canister's owner properly
+    get_request_store_mut().create_request(caller(), create_request);
+    Ok(())
 }
 
 pub fn add_provider(add_provider: AddProvider) -> Result<(), Error> {
