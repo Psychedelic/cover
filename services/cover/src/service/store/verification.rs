@@ -85,21 +85,9 @@ impl VerificationStore {
 
 #[cfg(test)]
 mod test {
-    use ic_kit::*;
-
     use crate::service::store::test_data;
 
     use super::*;
-
-    fn caller_gen(seed: u8) -> CallerId {
-        if seed % 3 == 0 {
-            mock_principals::alice()
-        } else if seed % 3 == 1 {
-            mock_principals::bob()
-        } else {
-            mock_principals::john()
-        }
-    }
 
     fn update_verification_gen(seed: u8) -> UpdateVerification {
         if seed % 3 == 0 {
@@ -124,7 +112,7 @@ mod test {
     fn init_test_data(len: u8) -> VerificationStore {
         let mut store = VerificationStore::default();
         for i in 0..len {
-            let result = store.add_verification(caller_gen(i), add_verification_gen(i));
+            let result = store.add_verification(test_data::caller_gen(i), add_verification_gen(i));
             assert_eq!(result, Ok(()));
         }
         store
@@ -135,7 +123,10 @@ mod test {
         let mut store = init_test_data(3);
         assert_eq!(store.verification.len(), 3);
         for i in 0..store.verification.len() {
-            let result = store.add_verification(caller_gen(i as u8), add_verification_gen(i as u8));
+            let result = store.add_verification(
+                test_data::caller_gen(i as u8),
+                add_verification_gen(i as u8),
+            );
             assert_eq!(result, Err(ErrorKind::ExistedVerification));
         }
     }
@@ -145,14 +136,14 @@ mod test {
         let mut store = VerificationStore::default();
         for i in 0..3 {
             let update_verification = update_verification_gen(i as u8);
-            let caller_id = caller_gen(i as u8);
+            let caller_id = test_data::caller_gen(i as u8);
             let result = store.update_verification(caller_id, update_verification);
             assert_eq!(result, Err(ErrorKind::VerificationNotFound));
         }
         let mut store = init_test_data(3);
         for i in 0..store.verification.len() {
             let update_verification = update_verification_gen(i as u8);
-            let caller_id = caller_gen(i as u8);
+            let caller_id = test_data::caller_gen(i as u8);
             let result = store.update_verification(caller_id, update_verification);
             assert_eq!(result, Ok(()));
         }
@@ -162,7 +153,7 @@ mod test {
                 .verification
                 .get(&update_verification.canister_id)
                 .unwrap();
-            let caller_id = caller_gen(i as u8);
+            let caller_id = test_data::caller_gen(i as u8);
             let now = time_utils::now_to_str();
             assert_eq!(verification.canister_id, update_verification.canister_id);
             assert_eq!(verification.git_checksum, update_verification.git_checksum);
@@ -197,7 +188,7 @@ mod test {
             let verification = store
                 .get_verification_by_canister_id(&update_verification.canister_id)
                 .unwrap();
-            let caller_id = caller_gen(i as u8);
+            let caller_id = test_data::caller_gen(i as u8);
             let now = time_utils::now_to_str();
             assert_eq!(verification.canister_id, update_verification.canister_id);
             assert_eq!(verification.git_checksum, update_verification.git_checksum);
@@ -230,7 +221,7 @@ mod test {
         let verifications = store.get_all_verification();
         for i in 0..verifications.len() {
             let update_verification = add_verification_gen(i as u8);
-            let caller_id = caller_gen(i as u8);
+            let caller_id = test_data::caller_gen(i as u8);
             let now = time_utils::now_to_str();
             assert_eq!(
                 verifications.contains(&&Verification {
