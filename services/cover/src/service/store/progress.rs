@@ -235,4 +235,8 @@ mod test {
             });
         assert_eq!(store.progress.len(), len as usize);
     }
+
+    // TODO: test get_progress_by_request_id
+    // TODO: test get_progresses_by_canister_id
+    // TODO: test get_all_progresses
 }
