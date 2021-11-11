@@ -9,13 +9,13 @@ type AddProvider = record {
     id: principal;
     name: text;
     memo: text;
-}
+};
 
 type UpdateProvider = record {
     id: principal;
     name: text;
     memo: text;
-}
+};
 
 type AddVerification = record {
     canister_id: principal;
@@ -60,7 +60,7 @@ type Provider = record {
     created_at: text;
     updated_by: principal;
     updated_at: text;
-}
+};
 
 type Verification = record {
     canister_id: principal;
@@ -152,8 +152,8 @@ service: {
     // Owner API - Query|Update API
     add_provider: (AddProvider) -> (variant { Ok: null; Err: Error });
     update_provider: (UpdateProvider) -> (variant { Ok: null; Err: Error });
-    delete_provider: (provider_id: principal) -> (variant { Ok: null; Err: Error })
-    get_provider_by_id: (provider_id: principal) -> (opt Provider)
-    get_all_providers: () -> (vec Provider)
+    delete_provider: (provider_id: principal) -> (variant { Ok: null; Err: Error });
+    get_provider_by_id: (provider_id: principal) -> (opt Provider);
+    get_all_providers: () -> (vec Provider);
     //====================================================================================================
 }
