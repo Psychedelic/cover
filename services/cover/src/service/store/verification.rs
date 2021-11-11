@@ -78,7 +78,7 @@ impl VerificationStore {
         self.verification.get(canister_id)
     }
 
-    pub fn get_all_verification(&self) -> Vec<&Verification> {
+    pub fn get_all_verifications(&self) -> Vec<&Verification> {
         self.verification.iter().map(|(_, v)| v).collect()
     }
 }
@@ -218,7 +218,7 @@ mod test {
     #[test]
     fn get_all_verification_ok() {
         let store = init_test_data(3);
-        let verifications = store.get_all_verification();
+        let verifications = store.get_all_verifications();
         for i in 0..verifications.len() {
             let update_verification = add_verification_gen(i as u8);
             let caller_id = test_data::caller_gen(i as u8);

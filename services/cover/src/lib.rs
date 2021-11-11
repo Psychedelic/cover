@@ -61,7 +61,7 @@ fn get_verification_by_canister_id(canister_id: CanisterId) -> Option<&'static V
 
 #[query]
 fn get_all_verifications() -> Vec<&'static Verification> {
-    cover_service::get_all_verification()
+    cover_service::get_all_verifications()
 }
 
 #[update]

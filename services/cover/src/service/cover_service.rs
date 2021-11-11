@@ -62,8 +62,8 @@ pub fn get_verification_by_canister_id(canister_id: &CanisterId) -> Option<&'sta
     get_verification_store().get_verification_by_canister_id(canister_id)
 }
 
-pub fn get_all_verification() -> Vec<&'static Verification> {
-    get_verification_store().get_all_verification()
+pub fn get_all_verifications() -> Vec<&'static Verification> {
+    get_verification_store().get_all_verifications()
 }
 
 pub fn add_verification(add_verification: AddVerification) -> Result<(), Error> {
