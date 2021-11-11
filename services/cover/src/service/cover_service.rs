@@ -22,14 +22,14 @@ pub fn get_request_by_id(request_id: ReqId) -> Option<&'static Request> {
     get_request_store_registry().get_request_by_id(request_id)
 }
 
-pub fn get_all_request() -> Vec<&'static Request> {
-    get_request_store_registry().get_all_request()
+pub fn get_all_requests() -> Vec<&'static Request> {
+    get_request_store_registry().get_all_requests()
 }
 
-pub fn consume_request(provider_info: ProviderInfo) -> Result<Vec<&'static Request>, Error> {
+pub fn consume_requests(provider_info: ProviderInfo) -> Result<Vec<&'static Request>, Error> {
     // TODO: check allow list
     get_request_store_mut()
-        .consume_request(provider_info)
+        .consume_requests(provider_info)
         .and_then(|requests| {
             for request in requests.iter() {
                 get_progress_store_mut().init_progress(request.request_id, request.canister_id)?;

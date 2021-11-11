@@ -114,7 +114,7 @@ impl RequestStore {
 
     /// Get all request
     /// TODO: support pagination
-    pub fn get_all_request(&self) -> Vec<&Request> {
+    pub fn get_all_requests(&self) -> Vec<&Request> {
         self.request
             .iter()
             .flat_map(|b| RequestStore::filter_non_empty_request(b))
@@ -122,7 +122,7 @@ impl RequestStore {
     }
 
     /// Consume a batch of request by provider
-    pub fn consume_request(
+    pub fn consume_requests(
         &mut self,
         provider_info: ProviderInfo,
     ) -> Result<Vec<&Request>, ErrorKind> {
@@ -353,13 +353,13 @@ mod test {
             let mut store = RequestStore::default();
 
             // empty request
-            let result = store.get_all_request();
+            let result = store.get_all_requests();
             assert_eq!(result, Vec::<&Request>::default());
 
             store.fake_store_with_offset(offset, len as usize);
 
             // all requests
-            let result = store.get_all_request();
+            let result = store.get_all_requests();
             assert_eq!(
                 result,
                 store
@@ -378,7 +378,7 @@ mod test {
             let mut store = RequestStore::default();
 
             // error consume when no request
-            let result = store.consume_request(test_data::fake_provider_info1());
+            let result = store.consume_requests(test_data::fake_provider_info1());
             assert_eq!(result, Err(ErrorKind::RequestNotFound));
 
             store.fake_store_with_offset(offset, len as usize);
@@ -387,7 +387,7 @@ mod test {
             let mut from = store.last_consumed_request_id;
             let mut first_batch = store.request.front().unwrap().to_vec();
 
-            while let Ok(result) = store.consume_request(test_data::fake_provider_info1()) {
+            while let Ok(result) = store.consume_requests(test_data::fake_provider_info1()) {
                 // check valid consume result
                 assert_eq!(result, RequestStore::filter_non_empty_request(&first_batch));
 
@@ -417,7 +417,7 @@ mod test {
             }
 
             // back to empty state when
-            let request = store.get_all_request();
+            let request = store.get_all_requests();
             assert_eq!(request.len(), 0);
         }
     }

@@ -24,12 +24,12 @@ fn get_request_by_id(request_id: ReqId) -> Option<&'static Request> {
 
 #[query]
 fn get_all_requests() -> Vec<&'static Request> {
-    cover_service::get_all_request()
+    cover_service::get_all_requests()
 }
 
 #[update]
 fn consume_requests(provider_info: ProviderInfo) -> Result<Vec<&'static Request>, Error> {
-    cover_service::consume_request(provider_info)
+    cover_service::consume_requests(provider_info)
 }
 
 #[query]
