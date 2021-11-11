@@ -51,7 +51,7 @@ impl RequestStore {
             .iter()
             .filter(|p| p.is_some())
             .map(|p| p.as_ref().unwrap())
-            .collect::<Vec<&Request>>()
+            .collect()
     }
 
     /// Calculate next consume request id
@@ -118,7 +118,7 @@ impl RequestStore {
         self.request
             .iter()
             .flat_map(|b| RequestStore::filter_non_empty_request(b))
-            .collect::<Vec<&Request>>()
+            .collect()
     }
 
     /// Consume a batch of request by provider

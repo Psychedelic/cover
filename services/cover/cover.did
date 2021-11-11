@@ -8,13 +8,13 @@ type ProgressStatus = variant { Init; InProgress; Finished; Error };
 type AddProvider = record {
     id: principal;
     name: text;
-    memo: text;
+    memo: opt text;
 };
 
 type UpdateProvider = record {
     id: principal;
     name: text;
-    memo: text;
+    memo: opt text;
 };
 
 type AddVerification = record {
@@ -55,7 +55,7 @@ type CreateRequest = record {
 type Provider = record {
     id: principal;
     name: text;
-    memo: text;
+    memo: opt text;
     created_by: principal;
     created_at: text;
     updated_by: principal;
