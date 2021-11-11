@@ -60,9 +60,8 @@ impl RequestStore {
         last_consumed_request_id: ReqId,
         last_request_id: ReqId,
     ) -> ReqId {
-        std::cmp::min(
+        last_request_id.min(
             last_consumed_request_id + MAX_BATCH_REQ - (last_consumed_request_id % MAX_BATCH_REQ),
-            last_request_id,
         )
     }
 
@@ -72,27 +71,22 @@ impl RequestStore {
     }
 
     /// Check if allocate batch for new batch is needed
-    fn should_create_new_batch(&self) -> bool {
-        if let Some(p) = self.request.back() {
-            return self.current_request_index() == 0
-                && p.get(self.current_request_index() as usize).is_some();
-        }
-        true
-    }
-
-    /// Allocate new batch to the queue
-    fn create_new_batch(&mut self) {
-        // workaround https://github.com/rust-lang/rust/issues/44796
-        let new_batch: [Option<Request>; MAX_BATCH_REQ as usize] = Default::default();
-        self.request.push_back(new_batch);
+    /// -> Allocate new batch to the queue
+    fn check_if_create_new_batch(&mut self) {
+        self.request
+            .back()
+            .map(|p| {
+                self.current_request_index() == 0
+                    && p.get(self.current_request_index() as usize).is_some()
+            })
+            .unwrap_or(true)
+            .then(|| self.request.push_back(Default::default()));
     }
 
     /// Create new request
     pub fn create_request(&mut self, caller_id: CallerId, create_request: CreateRequest) {
+        self.check_if_create_new_batch();
         let index = self.current_request_index();
-        if self.should_create_new_batch() {
-            self.create_new_batch();
-        }
         let last_batch = self.request.back_mut().unwrap();
         self.last_request_id += 1;
         last_batch[index as usize] = Some(Request {
