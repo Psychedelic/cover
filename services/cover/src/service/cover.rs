@@ -1,6 +1,4 @@
-use ic_cdk::caller;
-
-use crate::common::types::{CanisterId, ProviderId, ReqId};
+use crate::common::types::{CallerId, CanisterId, ProviderId, ReqId};
 use crate::service::types::{
     AddProvider, AddVerification, CreateRequest, Error, Progress, Provider, ProviderInfo, Request,
     UpdateProgress, UpdateProvider, UpdateVerification, Verification,
@@ -60,33 +58,39 @@ pub fn update_progress(update_progress: UpdateProgress) -> Result<(), Error> {
         .map_err(|e| e.into())
 }
 
-pub fn add_verification(add_verification: AddVerification) -> Result<(), Error> {
+pub fn add_verification(
+    caller_id: CallerId,
+    add_verification: AddVerification,
+) -> Result<(), Error> {
     get_verification_store_mut()
-        .add_verification(caller(), add_verification)
+        .add_verification(caller_id, add_verification)
         .map_err(|e| e.into())
 }
 
-pub fn update_verification(update_verification: UpdateVerification) -> Result<(), Error> {
+pub fn update_verification(
+    caller_id: CallerId,
+    update_verification: UpdateVerification,
+) -> Result<(), Error> {
     get_verification_store_mut()
-        .update_verification(caller(), update_verification)
+        .update_verification(caller_id, update_verification)
         .map_err(|e| e.into())
 }
 
-pub fn create_request(create_request: CreateRequest) -> Result<(), Error> {
+pub fn create_request(caller_id: CallerId, create_request: CreateRequest) -> Result<(), Error> {
     // TODO: handle canister's owner properly
-    get_request_store_mut().create_request(caller(), create_request);
+    get_request_store_mut().create_request(caller_id, create_request);
     Ok(())
 }
 
-pub fn add_provider(add_provider: AddProvider) -> Result<(), Error> {
+pub fn add_provider(caller_id: CallerId, add_provider: AddProvider) -> Result<(), Error> {
     get_provider_store_mut()
-        .add_provider(caller(), add_provider)
+        .add_provider(caller_id, add_provider)
         .map_err(|e| e.into())
 }
 
-pub fn update_provider(update_provider: UpdateProvider) -> Result<(), Error> {
+pub fn update_provider(caller_id: CallerId, update_provider: UpdateProvider) -> Result<(), Error> {
     get_provider_store_mut()
-        .update_provider(caller(), update_provider)
+        .update_provider(caller_id, update_provider)
         .map_err(|e| e.into())
 }
 

@@ -1,3 +1,4 @@
+use ic_cdk::caller;
 use ic_kit::macros::{query, update};
 
 use crate::common::types::{CanisterId, ProviderId, ReqId};
@@ -61,27 +62,27 @@ pub fn update_progress(
 
 #[update]
 fn add_verification(_add_verification: AddVerification) -> Result<(), Error> {
-    cover::add_verification(_add_verification)
+    cover::add_verification(caller(), _add_verification)
 }
 
 #[update]
 fn update_verification(_update_verification: UpdateVerification) -> Result<(), Error> {
-    cover::update_verification(_update_verification)
+    cover::update_verification(caller(), _update_verification)
 }
 
 // #[update]
 pub fn create_request(_create_request: CreateRequest) -> Result<(), Error> {
-    cover::create_request(_create_request)
+    cover::create_request(caller(), _create_request)
 }
 
 #[update]
 fn add_provider(_add_provider: AddProvider) -> Result<(), Error> {
-    cover::add_provider(_add_provider)
+    cover::add_provider(caller(), _add_provider)
 }
 
 #[update]
 fn update_provider(_update_provider: UpdateProvider) -> Result<(), Error> {
-    cover::update_provider(_update_provider)
+    cover::update_provider(caller(), _update_provider)
 }
 
 #[update]
