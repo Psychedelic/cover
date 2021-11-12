@@ -19,7 +19,7 @@ impl Default for VerificationStore {
 }
 
 impl VerificationStore {
-    fn is_verification_existed(&self, canister_id: &CanisterId) -> bool {
+    fn is_verification_exists(&self, canister_id: &CanisterId) -> bool {
         self.verification.contains_key(canister_id)
     }
 
@@ -28,7 +28,7 @@ impl VerificationStore {
         caller_id: CallerId,
         add_verification: AddVerification,
     ) -> Result<(), ErrorKind> {
-        self.is_verification_existed(&add_verification.canister_id)
+        self.is_verification_exists(&add_verification.canister_id)
             .not()
             .then(|| {
                 let now = time_utils::now_to_str();

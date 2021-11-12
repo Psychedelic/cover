@@ -19,7 +19,7 @@ impl Default for ProviderStore {
 }
 
 impl ProviderStore {
-    fn is_provider_existed(&self, provider_id: &ProviderId) -> bool {
+    fn is_provider_exists(&self, provider_id: &ProviderId) -> bool {
         self.provider.contains_key(provider_id)
     }
 
@@ -28,7 +28,7 @@ impl ProviderStore {
         caller_id: CallerId,
         add_provider: AddProvider,
     ) -> Result<(), ErrorKind> {
-        self.is_provider_existed(&add_provider.id)
+        self.is_provider_exists(&add_provider.id)
             .not()
             .then(|| {
                 let now = time_utils::now_to_str();
