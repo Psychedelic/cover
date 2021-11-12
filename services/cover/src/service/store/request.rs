@@ -97,9 +97,9 @@ impl RequestStore {
         self.last_request_id += 1;
         last_batch[index as usize] = Some(Request {
             request_id: self.last_request_id,
-            caller_id,
             canister_id: create_request.canister_id,
             build_settings: create_request.build_settings,
+            created_by: caller_id,
             created_at: time_utils::now_to_str(),
         });
     }
@@ -213,11 +213,11 @@ mod test {
                     let result = result.unwrap();
                     assert_eq!(result.request_id, request_id);
                     if (request_id - offset - 1) % 2 == 0 {
-                        assert_eq!(result.caller_id, mock_principals::bob());
+                        assert_eq!(result.created_by, mock_principals::bob());
                         assert_eq!(result.canister_id, test_data::fake_canister1());
                         assert_eq!(result.build_settings, test_data::fake_build_settings1());
                     } else {
-                        assert_eq!(result.caller_id, mock_principals::alice());
+                        assert_eq!(result.created_by, mock_principals::alice());
                         assert_eq!(result.canister_id, test_data::fake_canister2());
                         assert_eq!(result.build_settings, test_data::fake_build_settings2());
                     }
@@ -247,70 +247,70 @@ mod test {
                 [
                     Some(Request {
                         request_id: 1,
-                        caller_id: mock_principals::bob(),
+                        created_by: mock_principals::bob(),
                         canister_id: test_data::fake_canister1(),
                         build_settings: test_data::fake_build_settings1(),
                         created_at: time_utils::now_to_str(),
                     }),
                     Some(Request {
                         request_id: 2,
-                        caller_id: mock_principals::alice(),
+                        created_by: mock_principals::alice(),
                         canister_id: test_data::fake_canister2(),
                         build_settings: test_data::fake_build_settings2(),
                         created_at: time_utils::now_to_str(),
                     }),
                     Some(Request {
                         request_id: 3,
-                        caller_id: mock_principals::bob(),
+                        created_by: mock_principals::bob(),
                         canister_id: test_data::fake_canister1(),
                         build_settings: test_data::fake_build_settings1(),
                         created_at: time_utils::now_to_str(),
                     }),
                     Some(Request {
                         request_id: 4,
-                        caller_id: mock_principals::alice(),
+                        created_by: mock_principals::alice(),
                         canister_id: test_data::fake_canister2(),
                         build_settings: test_data::fake_build_settings2(),
                         created_at: time_utils::now_to_str(),
                     }),
                     Some(Request {
                         request_id: 5,
-                        caller_id: mock_principals::bob(),
+                        created_by: mock_principals::bob(),
                         canister_id: test_data::fake_canister1(),
                         build_settings: test_data::fake_build_settings1(),
                         created_at: time_utils::now_to_str(),
                     }),
                     Some(Request {
                         request_id: 6,
-                        caller_id: mock_principals::alice(),
+                        created_by: mock_principals::alice(),
                         canister_id: test_data::fake_canister2(),
                         build_settings: test_data::fake_build_settings2(),
                         created_at: time_utils::now_to_str(),
                     }),
                     Some(Request {
                         request_id: 7,
-                        caller_id: mock_principals::bob(),
+                        created_by: mock_principals::bob(),
                         canister_id: test_data::fake_canister1(),
                         build_settings: test_data::fake_build_settings1(),
                         created_at: time_utils::now_to_str(),
                     }),
                     Some(Request {
                         request_id: 8,
-                        caller_id: mock_principals::alice(),
+                        created_by: mock_principals::alice(),
                         canister_id: test_data::fake_canister2(),
                         build_settings: test_data::fake_build_settings2(),
                         created_at: time_utils::now_to_str(),
                     }),
                     Some(Request {
                         request_id: 9,
-                        caller_id: mock_principals::bob(),
+                        created_by: mock_principals::bob(),
                         canister_id: test_data::fake_canister1(),
                         build_settings: test_data::fake_build_settings1(),
                         created_at: time_utils::now_to_str(),
                     }),
                     Some(Request {
                         request_id: 10,
-                        caller_id: mock_principals::alice(),
+                        created_by: mock_principals::alice(),
                         canister_id: test_data::fake_canister2(),
                         build_settings: test_data::fake_build_settings2(),
                         created_at: time_utils::now_to_str(),
@@ -319,7 +319,7 @@ mod test {
                 [
                     Some(Request {
                         request_id: 11,
-                        caller_id: mock_principals::bob(),
+                        created_by: mock_principals::bob(),
                         canister_id: test_data::fake_canister1(),
                         build_settings: test_data::fake_build_settings1(),
                         created_at: time_utils::now_to_str(),

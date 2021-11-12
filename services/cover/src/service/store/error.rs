@@ -4,4 +4,6 @@ pub enum ErrorKind {
     InitExistedProgress,
     ProgressNotFound,
     InvalidProgressStatus,
+    VerificationNotFound,
+    ExistedVerification,
 }
