@@ -12,28 +12,28 @@ mod service;
 
 // TODO: history api
 
-#[query]
-fn get_request_by_id(request_id: ReqId) -> Option<&'static Request> {
+// #[query]
+pub fn get_request_by_id(request_id: ReqId) -> Option<&'static Request> {
     cover::get_request_by_id(request_id)
 }
 
-#[query]
-fn get_all_requests() -> Vec<&'static Request> {
+// #[query]
+pub fn get_all_requests() -> Vec<&'static Request> {
     cover::get_all_requests()
 }
 
-#[query]
-fn get_progress_by_request_id(request_id: ReqId) -> Option<&'static Progress> {
+// #[query]
+pub fn get_progress_by_request_id(request_id: ReqId) -> Option<&'static Progress> {
     cover::get_progress_by_request_id(request_id)
 }
 
-#[query]
-fn get_progresses_by_canister_id(canister_id: CanisterId) -> Vec<&'static Progress> {
+// #[query]
+pub fn get_progresses_by_canister_id(canister_id: CanisterId) -> Vec<&'static Progress> {
     cover::get_progresses_by_canister_id(canister_id)
 }
 
-#[query]
-fn get_all_progresses() -> Vec<&'static Progress> {
+// #[query]
+pub fn get_all_progresses() -> Vec<&'static Progress> {
     cover::get_all_progresses()
 }
 
@@ -47,13 +47,13 @@ fn get_all_verifications() -> Vec<&'static Verification> {
     cover::get_all_verifications()
 }
 
-#[update]
-fn consume_requests(provider_info: ProviderInfo) -> Result<Vec<&'static Request>, Error> {
+// #[update]
+pub fn consume_requests(provider_info: ProviderInfo) -> Result<Vec<&'static Request>, Error> {
     cover::consume_requests(provider_info)
 }
 
-#[update]
-fn update_progress(
+// #[update]
+pub fn update_progress(
     _update_progress: UpdateProgress, // TODO: cdk bug????? param can not be same with fn!!!!!
 ) -> Result<(), Error> {
     cover::update_progress(_update_progress)
@@ -69,8 +69,8 @@ fn update_verification(_update_verification: UpdateVerification) -> Result<(), E
     cover::update_verification(_update_verification)
 }
 
-#[update]
-fn create_request(_create_request: CreateRequest) -> Result<(), Error> {
+// #[update]
+pub fn create_request(_create_request: CreateRequest) -> Result<(), Error> {
     cover::create_request(_create_request)
 }
 
