@@ -6,4 +6,6 @@ pub enum ErrorKind {
     InvalidProgressStatus,
     VerificationNotFound,
     ExistedVerification,
+    ProviderNotFound,
+    ExistedProvider,
 }

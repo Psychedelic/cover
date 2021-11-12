@@ -5,6 +5,18 @@ type BuildSettings = record {
 
 type ProgressStatus = variant { Init; InProgress; Finished; Error };
 
+type AddProvider = record {
+    id: principal;
+    name: text;
+    memo: text;
+};
+
+type UpdateProvider = record {
+    id: principal;
+    name: text;
+    memo: text;
+};
+
 type AddVerification = record {
     canister_id: principal;
     git_checksum: text;
@@ -38,6 +50,16 @@ type UpdateProgress = record {
 type CreateRequest = record {
     canister_id: principal;
     build_settings: BuildSettings;
+};
+
+type Provider = record {
+    id: principal;
+    name: text;
+    memo: text;
+    created_by: principal;
+    created_at: text;
+    updated_by: principal;
+    updated_at: text;
 };
 
 type Verification = record {
@@ -123,5 +145,15 @@ service: {
     //====================================================================================================
     // User API - Update API
     create_request: (CreateRequest) -> (variant { Ok: null; Err: Error });
+    //====================================================================================================
+
+
+    //====================================================================================================
+    // Owner API - Query|Update API
+    add_provider: (AddProvider) -> (variant { Ok: null; Err: Error });
+    update_provider: (UpdateProvider) -> (variant { Ok: null; Err: Error });
+    delete_provider: (provider_id: principal) -> (variant { Ok: null; Err: Error });
+    get_provider_by_id: (provider_id: principal) -> (opt Provider);
+    get_all_providers: () -> (vec Provider);
     //====================================================================================================
 }

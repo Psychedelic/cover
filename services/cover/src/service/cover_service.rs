@@ -1,14 +1,15 @@
 use ic_cdk::caller;
 
-use crate::common::types::{CanisterId, ReqId};
+use crate::common::types::{CanisterId, ProviderId, ReqId};
 use crate::service::types::{
-    AddVerification, CreateRequest, Error, Progress, ProviderInfo, Request, UpdateProgress,
-    UpdateVerification, Verification,
+    AddProvider, AddVerification, CreateRequest, Error, Progress, Provider, ProviderInfo, Request,
+    UpdateProgress, UpdateProvider, UpdateVerification, Verification,
 };
 
 use super::{
-    get_progress_store, get_progress_store_mut, get_request_store_mut, get_request_store_registry,
-    get_verification_store, get_verification_store_mut,
+    get_progress_store, get_progress_store_mut, get_provider_store, get_provider_store_mut,
+    get_request_store_mut, get_request_store_registry, get_verification_store,
+    get_verification_store_mut,
 };
 
 pub fn create_request(create_request: CreateRequest) -> Result<(), Error> {
@@ -75,4 +76,30 @@ pub fn update_verification(update_verification: UpdateVerification) -> Result<()
     get_verification_store_mut()
         .update_verification(caller(), update_verification)
         .map_err(|e| e.into())
+}
+
+pub fn add_provider(add_provider: AddProvider) -> Result<(), Error> {
+    get_provider_store_mut()
+        .add_provider(caller(), add_provider)
+        .map_err(|e| e.into())
+}
+
+pub fn update_provider(update_provider: UpdateProvider) -> Result<(), Error> {
+    get_provider_store_mut()
+        .update_provider(caller(), update_provider)
+        .map_err(|e| e.into())
+}
+
+pub fn delete_provider(provider_id: &ProviderId) -> Result<(), Error> {
+    get_provider_store_mut()
+        .delete_provider(provider_id)
+        .map_err(|e| e.into())
+}
+
+pub fn get_provider_by_id(provider_id: &ProviderId) -> Option<&'static Provider> {
+    get_provider_store().get_provider_by_id(provider_id)
+}
+
+pub fn get_all_providers() -> Vec<&'static Provider> {
+    get_provider_store().get_all_providers()
 }
