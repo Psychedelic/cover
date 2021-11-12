@@ -1,0 +1,22 @@
+name: "Data for Cover"
+description: "Collect Snapshot Data for Cover Canister"
+
+inputs:
+  access_token:
+    description: "Access token to call lambda"
+    required: false
+  wasm_path:
+    description: "Path to the generated wasm file"
+    required: true
+  canister_id:
+    description: "Id of the canister"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Collect checksums"
+      shell: bash
+      run: |
+        echo Gathering data for ${{ inputs.canister_id }}
+        env
