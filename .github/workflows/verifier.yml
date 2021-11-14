@@ -1,0 +1,27 @@
+name: Example Rust Build
+
+on:
+  push:
+    branches:
+      - 'staging'
+      - 'production'
+      - 'feat/DeployBE' # TODO: remove after tests
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Build
+        shell: bash
+        run: |
+          echo "[------------------------- Executing build script --------------------------]"
+      - name: Run Validator Plugin
+        uses: ./.github/actions/CoverAction
+#        uses: Psychedelic/cover/.github/actions/CoverAction@feat/github-plugin
+        with:
+          access_token: "Test-Access-Token"
+          canister_id: "SOME TEST ID"
+          wasm_path: "services/cover/Cargo.toml"

@@ -1,0 +1,38 @@
+name: "Data for Cover"
+description: "Collect Snapshot Data for Cover Canister"
+
+inputs:
+  canister_id:
+    description: "Id of the canister"
+    required: true
+  wasm_path:
+    description: "Path to the generated wasm file"
+    required: true
+  access_token:
+    description: "Access token to call lambda"
+    required: false
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Collect checksums"
+      shell: bash
+      run: |
+        echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+        source .scripts/utils.sh
+        export JSON_PATH=test.json
+
+        jset created_at $(timestamp)
+        jset canister_id ${{ inputs.canister_id }}
+        jset git_checksum $GITHUB_SHA
+        jset wasm_checksum $(wasm_checksum ${{ inputs.wasm_path }})
+        jset build_log_url "TODO"
+        jset source_snapshot_url "N/A"
+        jset percentage 100
+        jset status "Generated"
+        jset wasm_path ${{ inputs.wasm_path }}
+        jset wasm_checksum $(wasm_checksum ${{ inputs.wasm_path }})
+
+        echo "Generated ...."
+        jq < "$JSON_PATH"
+        echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
