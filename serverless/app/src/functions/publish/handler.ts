@@ -9,12 +9,14 @@ import createActor from '../../libs/actor';
 const publish: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async (event) => {
     const data = event.body.json;
     const ret = await createActor().add_verification(data)
-        .then(json =>
-            formatJSONResponse({message: 'success', json})
-        )
-        .catch(err => formatJSONResponse({
-                message: 'error',
-                error: err.message,
+        .then(json => ({
+            statusCode: 200,
+            body: JSON.stringify({message: 'success', json})
+        }))
+        .catch(err => ({
+                // TODO: add server side error handling
+                statusCode: 400, // Bad Request
+                body: JSON.stringify({message: 'error', error: err.message})
             })
         );
     return ret;

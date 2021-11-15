@@ -12,7 +12,7 @@ const getCoverCanisterId = () => {
         const canisters = require(`../../../../.dfx/${net}/canister_ids.json`);
         id = canisters.cover[net] // returns canister_id
     }
-    console.log('COVER_CANISTER_ID', id);
+    if (process.env.DEBUG) console.log('COVER_CANISTER_ID', id);
     return id;
 }
 
