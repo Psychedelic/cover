@@ -16,7 +16,8 @@
     "@dfinity/principal": "^0.10.1",
     "@middy/core": "^1.5.2",
     "@middy/http-json-body-parser": "^1.5.2",
-    "source-map-support": "^0.5.19"
+    "source-map-support": "^0.5.19",
+    "yarn": "^1.22.17"
   },
   "devDependencies": {
     "@serverless/typescript": "^2.23.0",

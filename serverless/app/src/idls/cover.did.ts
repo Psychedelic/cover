@@ -1,81 +1,87 @@
 export const idlFactory = ({ IDL }) => {
-  const ProviderInfo = IDL.Record({});
-  const BuildSettings = IDL.Record({
-    'git_ref' : IDL.Text,
-    'git_tag' : IDL.Text,
-  });
-  const Request = IDL.Record({
-    'request_id' : IDL.Nat64,
-    'canister_id' : IDL.Principal,
-    'created_at' : IDL.Text,
-    'caller_id' : IDL.Principal,
-    'build_settings' : BuildSettings,
+  const AddProvider = IDL.Record({
+    'id' : IDL.Principal,
+    'memo' : IDL.Opt(IDL.Text),
+    'name' : IDL.Text,
   });
   const Error = IDL.Record({
     'debug_log' : IDL.Opt(IDL.Text),
     'code' : IDL.Text,
     'message' : IDL.Text,
   });
-  const CreateRequest = IDL.Record({
+  const AddVerification = IDL.Record({
+    'wasm_checksum' : IDL.Text,
+    'source_snapshot_url' : IDL.Text,
     'canister_id' : IDL.Principal,
-    'build_settings' : BuildSettings,
+    'git_checksum' : IDL.Text,
+    'canister_checksum' : IDL.Text,
+    'build_log_url' : IDL.Text,
   });
-  const ProgressStatus = IDL.Variant({
-    'Error' : IDL.Null,
-    'Init' : IDL.Null,
-    'Finished' : IDL.Null,
-    'InProgress' : IDL.Null,
+  const Provider = IDL.Record({
+    'id' : IDL.Principal,
+    'updated_at' : IDL.Text,
+    'updated_by' : IDL.Principal,
+    'memo' : IDL.Opt(IDL.Text),
+    'name' : IDL.Text,
+    'created_at' : IDL.Text,
+    'created_by' : IDL.Principal,
   });
-  const Progress = IDL.Record({
-    'request_id' : IDL.Nat64,
-    'status' : ProgressStatus,
-    'wasm_checksum' : IDL.Opt(IDL.Text),
-    'updated_at' : IDL.Opt(IDL.Text),
-    'source_snapshot_url' : IDL.Opt(IDL.Text),
+  const Verification = IDL.Record({
+    'wasm_checksum' : IDL.Text,
+    'updated_at' : IDL.Text,
+    'updated_by' : IDL.Principal,
+    'source_snapshot_url' : IDL.Text,
     'canister_id' : IDL.Principal,
-    'git_checksum' : IDL.Opt(IDL.Text),
-    'canister_checksum' : IDL.Opt(IDL.Text),
-    'build_log_url' : IDL.Opt(IDL.Text),
-    'percentage' : IDL.Opt(IDL.Float32),
-    'started_at' : IDL.Text,
+    'git_checksum' : IDL.Text,
+    'created_at' : IDL.Text,
+    'created_by' : IDL.Principal,
+    'canister_checksum' : IDL.Text,
+    'build_log_url' : IDL.Text,
   });
-  const UpdateProgress = IDL.Record({
-    'request_id' : IDL.Nat64,
-    'status' : ProgressStatus,
-    'wasm_checksum' : IDL.Opt(IDL.Text),
-    'source_snapshot_url' : IDL.Opt(IDL.Text),
+  const UpdateProvider = IDL.Record({
+    'id' : IDL.Principal,
+    'memo' : IDL.Opt(IDL.Text),
+    'name' : IDL.Text,
+  });
+  const UpdateVerification = IDL.Record({
+    'wasm_checksum' : IDL.Text,
+    'source_snapshot_url' : IDL.Text,
     'canister_id' : IDL.Principal,
-    'git_checksum' : IDL.Opt(IDL.Text),
-    'canister_checksum' : IDL.Opt(IDL.Text),
-    'build_log_url' : IDL.Opt(IDL.Text),
-    'percentage' : IDL.Opt(IDL.Float32),
+    'git_checksum' : IDL.Text,
+    'canister_checksum' : IDL.Text,
+    'build_log_url' : IDL.Text,
   });
   return IDL.Service({
-    'consume_request' : IDL.Func(
-        [ProviderInfo],
-        [IDL.Variant({ 'Ok' : IDL.Vec(Request), 'Err' : Error })],
-        [],
-      ),
-    'create_request' : IDL.Func(
-        [CreateRequest],
+    'add_provider' : IDL.Func(
+        [AddProvider],
         [IDL.Variant({ 'Ok' : IDL.Null, 'Err' : Error })],
         [],
       ),
-    'get_all_progress' : IDL.Func([], [IDL.Vec(Progress)], []),
-    'get_all_request' : IDL.Func([], [IDL.Vec(Request)], []),
-    'get_progress_by_canister_id' : IDL.Func(
+    'add_verification' : IDL.Func(
+        [AddVerification],
+        [IDL.Variant({ 'Ok' : IDL.Null, 'Err' : Error })],
+        [],
+      ),
+    'delete_provider' : IDL.Func(
         [IDL.Principal],
-        [IDL.Vec(Progress)],
+        [IDL.Variant({ 'Ok' : IDL.Null, 'Err' : Error })],
         [],
       ),
-    'get_progress_by_request_id' : IDL.Func(
-        [IDL.Nat64],
-        [IDL.Opt(Progress)],
+    'get_all_providers' : IDL.Func([], [IDL.Vec(Provider)], []),
+    'get_all_verifications' : IDL.Func([], [IDL.Vec(Verification)], []),
+    'get_provider_by_id' : IDL.Func([IDL.Principal], [IDL.Opt(Provider)], []),
+    'get_verification_by_canister_id' : IDL.Func(
+        [IDL.Principal],
+        [IDL.Opt(Verification)],
         [],
       ),
-    'get_request_by_id' : IDL.Func([IDL.Nat64], [IDL.Opt(Request)], []),
-    'update_progress' : IDL.Func(
-        [UpdateProgress],
+    'update_provider' : IDL.Func(
+        [UpdateProvider],
+        [IDL.Variant({ 'Ok' : IDL.Null, 'Err' : Error })],
+        [],
+      ),
+    'update_verification' : IDL.Func(
+        [UpdateVerification],
         [IDL.Variant({ 'Ok' : IDL.Null, 'Err' : Error })],
         [],
       ),
