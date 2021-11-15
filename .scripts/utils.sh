@@ -31,6 +31,9 @@ jset() {
 wasm_checksum() {
   .scripts/checksum-wasm.sh $1
 }
+canister_checksum() {
+  .scripts/checksum-canister.sh $1
+}
 
 
 timestamp() {

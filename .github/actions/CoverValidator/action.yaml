@@ -15,22 +15,33 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: "Collect checksums"
+    - name: "DFX Tooling"
+      shell: bash
+      run: ./.scripts/dfx-tooling.sh
+      env:
+        DFX_VERSION: 0.8.0
+        DFX_CANDID_RELEASE: 2021-08-20
+
+    - name: "Collecting Cover Data"
       shell: bash
       run: |
-        source .scripts/utils.sh
         export JSON_PATH=output.json
-
+        echo $(.scripts/checksum-canister.sh 4n3qe-piaaa-aaaab-qac7a-cai)
+        source .scripts/utils.sh
         jset created_at $(timestamp)
         jset canister_id ${{ inputs.canister_id }}
+        jset caniser_checksum $(canister_checksum ${{ inputs.canister_id }})
         jset git_ref $GITHUB_REF
         jset git_checksum $GITHUB_SHA
         jset source_snapshot_url "N/A"
         jset wasm_path ${{ inputs.wasm_path }}
         jset wasm_checksum $(wasm_checksum ${{ inputs.wasm_path }})
         jset build_log_url "TODO"
-        jset percentage 100
-        jset status "Generated"
 
-        echo "Generated $JSON_PATH"
+
+    - name: "Call Cover Lambda"
+      shell: bash
+      run: |
+        export JSON_PATH=output.json
+        echo "TODO: Call fleek with the generated $JSON_PATH"
         jq < "$JSON_PATH"

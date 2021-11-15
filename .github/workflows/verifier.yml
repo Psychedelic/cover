@@ -18,10 +18,10 @@ jobs:
         shell: bash
         run: |
           echo "[------------------------- Executing build script --------------------------]"
-      - name: Run Validator Plugin
-        uses: ./.github/actions/CoverAction
-#        uses: Psychedelic/cover/.github/actions/CoverAction@feat/github-plugin
+      - name: Cover Validator Plugin
+        uses: ./.github/actions/CoverValidator
+#        uses: Psychedelic/cover/.github/actions/CoverValidator@feat/github-plugin
         with:
           access_token: "Test-Access-Token"
-          canister_id: "SOME_CANISTER_ID"
+          canister_id: "4n3qe-piaaa-aaaab-qac7a-cai" # some random ic
           wasm_path: "services/cover/Cargo.toml"
