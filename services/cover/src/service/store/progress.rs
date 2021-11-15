@@ -1,6 +1,6 @@
-use std::borrow::BorrowMut;
 use std::collections::BTreeMap;
 use std::ops::Bound::Included;
+use std::ops::Not;
 
 use crate::common::types::{CanisterId, ReqId};
 use crate::service::store::error::ErrorKind;
@@ -22,25 +22,26 @@ impl Default for ProgressStore {
 
 impl ProgressStore {
     pub fn get_progress_by_request_id(&self, request_id: ReqId) -> Option<&Progress> {
-        // a bit verbose but it's okay
-        let start = (request_id, CanisterId::management_canister()); // [0; 29],
-        let end = (request_id, CanisterId::from_slice(&[255; 29]));
         self.progress
-            .range((Included(start), Included(end)))
+            .range((
+                Included((request_id, CanisterId::management_canister())),
+                Included((request_id, CanisterId::from_slice(&[255; 29]))),
+            ))
             .map(|(_, v)| v)
             .next()
     }
 
-    pub fn get_progress_by_canister_id(&self, canister_id: CanisterId) -> Vec<&Progress> {
-        let start = (ReqId::MIN, canister_id);
-        let end = (ReqId::MAX, canister_id);
+    pub fn get_progresses_by_canister_id(&self, canister_id: CanisterId) -> Vec<&Progress> {
         self.progress
-            .range((Included(start), Included(end)))
+            .range((
+                Included((ReqId::MIN, canister_id)),
+                Included((ReqId::MAX, canister_id)),
+            ))
             .map(|(_, v)| v)
             .collect()
     }
 
-    pub fn get_all_progress(&self) -> Vec<&Progress> {
+    pub fn get_all_progresses(&self) -> Vec<&Progress> {
         self.progress.iter().map(|(_, v)| v).collect()
     }
 
@@ -51,48 +52,54 @@ impl ProgressStore {
     ) -> Result<(), ErrorKind> {
         self.progress
             .get(&(request_id, canister_id))
-            .map(|_| Err(ErrorKind::InitExistedProgress))
-            .unwrap_or(Ok(()))?;
-        self.progress.insert(
-            (request_id, canister_id),
-            Progress {
-                request_id,
-                canister_id,
-                started_at: time_utils::now_to_str(),
-                updated_at: None,
-                git_checksum: None,
-                canister_checksum: None,
-                wasm_checksum: None,
-                build_log_url: None,
-                source_snapshot_url: None,
-                percentage: None,
-                status: ProgressStatus::Init,
-            },
-        );
-        Ok(())
+            .is_some()
+            .not()
+            .then(|| {
+                self.progress.insert(
+                    (request_id, canister_id),
+                    Progress {
+                        request_id,
+                        canister_id,
+                        started_at: time_utils::now_to_str(),
+                        updated_at: None,
+                        git_checksum: None,
+                        canister_checksum: None,
+                        wasm_checksum: None,
+                        build_log_url: None,
+                        source_snapshot_url: None,
+                        percentage: None,
+                        status: ProgressStatus::Init,
+                    },
+                );
+            })
+            .ok_or(ErrorKind::InitExistedProgress)
     }
 
     pub fn update_progress(&mut self, update_progress: UpdateProgress) -> Result<(), ErrorKind> {
-        let progress = self
-            .progress
+        self.progress
             .get_mut(&(update_progress.request_id, update_progress.canister_id))
-            .ok_or(ErrorKind::ProgressNotFound)?
-            .borrow_mut();
-        if update_progress.status == ProgressStatus::Init {
-            return Err(ErrorKind::InvalidProgressStatus);
-        }
-        progress.updated_at = Some(time_utils::now_to_str());
-        progress.git_checksum = update_progress.git_checksum;
-        progress.canister_checksum = update_progress.canister_checksum;
-        progress.wasm_checksum = update_progress.wasm_checksum;
-        progress.build_log_url = update_progress.build_log_url;
-        progress.source_snapshot_url = update_progress.source_snapshot_url;
-        progress.percentage = update_progress.percentage;
-        progress.status = update_progress.status;
-        if progress.status == ProgressStatus::Finished || progress.status == ProgressStatus::Error {
-            // TODO: remove entry and push to history
-        }
-        Ok(())
+            .ok_or(ErrorKind::ProgressNotFound)
+            .and_then(|progress| {
+                ProgressStatus::Init
+                    .ne(&update_progress.status)
+                    .then(|| progress)
+                    .ok_or(ErrorKind::InvalidProgressStatus)
+            })
+            .map(|progress| {
+                progress.updated_at = Some(time_utils::now_to_str());
+                progress.git_checksum = update_progress.git_checksum;
+                progress.canister_checksum = update_progress.canister_checksum;
+                progress.wasm_checksum = update_progress.wasm_checksum;
+                progress.build_log_url = update_progress.build_log_url;
+                progress.source_snapshot_url = update_progress.source_snapshot_url;
+                progress.percentage = update_progress.percentage;
+                progress.status = update_progress.status;
+                if progress.status == ProgressStatus::Finished
+                    || progress.status == ProgressStatus::Error
+                {
+                    // TODO: remove entry and push to history
+                }
+            })
     }
 }
 
@@ -228,4 +235,8 @@ mod test {
             });
         assert_eq!(store.progress.len(), len as usize);
     }
+
+    // TODO: test get_progress_by_request_id
+    // TODO: test get_progresses_by_canister_id
+    // TODO: test get_all_progresses
 }

@@ -8,13 +8,13 @@ type ProgressStatus = variant { Init; InProgress; Finished; Error };
 type AddProvider = record {
     id: principal;
     name: text;
-    memo: text;
+    memo: opt text;
 };
 
 type UpdateProvider = record {
     id: principal;
     name: text;
-    memo: text;
+    memo: opt text;
 };
 
 type AddVerification = record {
@@ -55,7 +55,7 @@ type CreateRequest = record {
 type Provider = record {
     id: principal;
     name: text;
-    memo: text;
+    memo: opt text;
     created_by: principal;
     created_at: text;
     updated_by: principal;
@@ -112,13 +112,13 @@ service: {
     // - Requested users see/verify their actual requests are in waiting-list
     // - Providers see what they are about to consume
     // - Normal users see ... requests
-    get_request_by_id: (request_id: nat64) -> (opt Request);
-    get_all_requests: () -> (vec Request);
+    // get_request_by_id: (request_id: nat64) -> (opt Request);
+    // get_all_requests: () -> (vec Request);
 
     // Progress
-    get_progress_by_request_id: (request_id: nat64) -> (opt Progress);
-    get_progresses_by_canister_id: (canister_id: principal) -> (vec Progress);
-    get_all_progresses: () -> (vec Progress);
+    // get_progress_by_request_id: (request_id: nat64) -> (opt Progress);
+    // get_progresses_by_canister_id: (canister_id: principal) -> (vec Progress);
+    // get_all_progresses: () -> (vec Progress);
 
     // Verification
     get_verification_by_canister_id: (canister_id: principal) -> (opt Verification);
@@ -135,8 +135,8 @@ service: {
 
     //====================================================================================================
     // Provider API - Update API
-    consume_requests: (ProviderInfo) -> (variant { Ok: vec Request; Err: Error });
-    update_progress: (UpdateProgress) -> (variant { Ok: null; Err: Error });
+    // consume_requests: (ProviderInfo) -> (variant { Ok: vec Request; Err: Error });
+    // update_progress: (UpdateProgress) -> (variant { Ok: null; Err: Error });
     add_verification: (AddVerification) -> (variant { Ok: null; Err: Error });
     update_verification: (UpdateVerification) -> (variant { Ok: null; Err: Error });
     //====================================================================================================
@@ -144,7 +144,7 @@ service: {
 
     //====================================================================================================
     // User API - Update API
-    create_request: (CreateRequest) -> (variant { Ok: null; Err: Error });
+    // create_request: (CreateRequest) -> (variant { Ok: null; Err: Error });
     //====================================================================================================
 
 
