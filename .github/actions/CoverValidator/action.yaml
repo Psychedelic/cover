@@ -3,25 +3,15 @@ description: "Collect Snapshot Data for Cover Canister"
 
 inputs:
   canister_id:
-    description: "Id of the canister"
-    required: true
+    description: "Id of the canister (optional)"
+    required: false
   wasm_path:
     description: "Path to the generated wasm file"
     required: true
-  access_token:
-    description: "Access token to call lambda"
-    required: false
 
 runs:
   using: "composite"
   steps:
-    - name: "DFX Tooling"
-      shell: bash
-      run: ./.scripts/dfx-tooling.sh
-      env:
-        DFX_VERSION: 0.8.0
-        DFX_CANDID_RELEASE: 2021-08-20
-
     - name: "Collecting Cover Data"
       shell: bash
       run: |
@@ -29,8 +19,12 @@ runs:
         echo $(.scripts/checksum-canister.sh 4n3qe-piaaa-aaaab-qac7a-cai)
         source .scripts/utils.sh
         jset created_at $(timestamp)
-        jset canister_id ${{ inputs.canister_id }}
-        jset canister_checksum $(canister_checksum ${{ inputs.canister_id }})
+        if [ -z "${{inputs.canister_id}}" ]
+        then
+          echo "No canister_id provided, skipping ..."
+        else
+          jset canister_id ${{ inputs.canister_id }}
+        fi
         jset git_ref $GITHUB_REF
         jset git_checksum $GITHUB_SHA
         jset source_snapshot_url "N/A"
