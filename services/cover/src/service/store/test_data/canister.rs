@@ -7,3 +7,7 @@ pub fn fake_canister1() -> CanisterId {
 pub fn fake_canister2() -> CanisterId {
     CanisterId::from_text("rrkah-fqaaa-aaaaa-aaaaq-cai").unwrap()
 }
+
+pub fn fake_canister3() -> CanisterId {
+    CanisterId::from_text("rwlgt-iiaaa-aaaaa-aaaaa-cai").unwrap()
+}
