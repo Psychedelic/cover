@@ -1,7 +1,7 @@
 import {Actor, HttpAgent} from "@dfinity/agent";
 import {CoverIDL, CoverIDLFactory} from "../idls";
 import fetch from 'node-fetch';
-import {getCanisterId} from "./utils";
+import {getCoverCanisterId} from "./utils";
 import {getIdentityFromFile, getIdentityFromPem} from "./identity";
 
 let identity;
@@ -16,7 +16,7 @@ if (process.env.IDENTITY_PEM) {
 }
 
 const createActor = () => {
-    const canisterId = getCanisterId();
+    const canisterId = getCoverCanisterId();
 
     // @ts-ignore
     const agent = new HttpAgent({host: 'http://127.0.0.1:8000', fetch, identity});
