@@ -30,14 +30,13 @@ runs:
         source .scripts/utils.sh
         jset created_at $(timestamp)
         jset canister_id ${{ inputs.canister_id }}
-        jset caniser_checksum $(canister_checksum ${{ inputs.canister_id }})
+        jset canister_checksum $(canister_checksum ${{ inputs.canister_id }})
         jset git_ref $GITHUB_REF
         jset git_checksum $GITHUB_SHA
         jset source_snapshot_url "N/A"
         jset wasm_path ${{ inputs.wasm_path }}
         jset wasm_checksum $(wasm_checksum ${{ inputs.wasm_path }})
         jset build_log_url "TODO"
-
 
     - name: "Call Cover Lambda"
       shell: bash
