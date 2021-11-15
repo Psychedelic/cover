@@ -6,7 +6,7 @@ import schema from './schema';
 import createActor from '../../libs/actor';
 
 const publish: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async (event) => {
-    createActor().add_verification(event.body.json)
+    return createActor().add_verification(event.body.json)
         .then(json => ({
             statusCode: 200,
             body: JSON.stringify({message: 'success', json})
