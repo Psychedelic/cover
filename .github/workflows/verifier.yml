@@ -23,5 +23,5 @@ jobs:
 #        uses: Psychedelic/cover/.github/actions/CoverAction@feat/github-plugin
         with:
           access_token: "Test-Access-Token"
-          canister_id: "SOME TEST ID"
+          canister_id: "SOME_CANISTER_ID"
           wasm_path: "services/cover/Cargo.toml"

@@ -18,21 +18,19 @@ runs:
     - name: "Collect checksums"
       shell: bash
       run: |
-        echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
         source .scripts/utils.sh
-        export JSON_PATH=test.json
+        export JSON_PATH=output.json
 
         jset created_at $(timestamp)
         jset canister_id ${{ inputs.canister_id }}
+        jset git_ref $GITHUB_REF
         jset git_checksum $GITHUB_SHA
-        jset wasm_checksum $(wasm_checksum ${{ inputs.wasm_path }})
-        jset build_log_url "TODO"
         jset source_snapshot_url "N/A"
-        jset percentage 100
-        jset status "Generated"
         jset wasm_path ${{ inputs.wasm_path }}
         jset wasm_checksum $(wasm_checksum ${{ inputs.wasm_path }})
+        jset build_log_url "TODO"
+        jset percentage 100
+        jset status "Generated"
 
-        echo "Generated ...."
+        echo "Generated $JSON_PATH"
         jq < "$JSON_PATH"
-        echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
