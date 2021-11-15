@@ -6,6 +6,8 @@ use crate::service::store::request::RequestStore;
 use crate::service::store::verification::VerificationStore;
 
 pub mod cover;
+pub mod error_handler;
+pub mod guard;
 pub mod time_utils;
 pub mod types;
 
