@@ -1,28 +1,41 @@
 {
-  "name": "app",
+  "name": "cover",
   "version": "1.0.0",
-  "description": "Serverless aws-nodejs-typescript template",
+  "description": "cover",
   "main": "serverless.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "sls offline start",
+    "local": "sls offline start --stage local",
+    "typecheck": "tsc --noEmit",
+    "test": "NODE_ENV=dev jest",
+    "deploy:dev": "sls deploy --stage dev",
+    "deploy:prod": "sls deploy --stage prod -v",
+    "build": "rm -rf dist && tsc -b tsconfig.json",
+    "lint": "eslint src --ext ts",
+    "lint:fix": "eslint src --fix --ext ts && prettier --write \"./src/**/*.{ts,tsx,js,jsx}\"",
+    "format": "prettier --write \"./src/**/*.{ts,tsx,js,jsx}\"",
+    "format:check": "prettier --check \"./src/**/*.{ts,tsx,js,jsx}\""
   },
   "engines": {
     "node": ">=14.15.0"
   },
   "dependencies": {
+    "@aws-sdk/client-sqs": "^3.41.0",
     "@dfinity/agent": "^0.10.1",
     "@dfinity/candid": "^0.10.1",
     "@dfinity/identity": "^0.10.1",
     "@dfinity/principal": "^0.10.1",
     "@middy/core": "^1.5.2",
     "@middy/http-json-body-parser": "^1.5.2",
+    "@middy/sqs-json-body-parser": "^2.5.3",
     "source-map-support": "^0.5.19",
+    "uuid": "^8.3.2",
     "yarn": "^1.22.17"
   },
   "devDependencies": {
     "@serverless/typescript": "^2.23.0",
     "@types/aws-lambda": "^8.10.71",
-    "@types/node": "^14.14.25",
+    "@types/node": "^16.11.7",
     "@types/node-fetch": "^2.5.10",
     "@typescript-eslint/eslint-plugin": "^4.22.0",
     "@typescript-eslint/parser": "^5.3.1",
@@ -32,6 +45,7 @@
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-prettier": "^4.0.0",
     "json-schema-to-ts": "^1.5.0",
+    "prettier": "^2.4.1",
     "serverless": "^2.23.0",
     "serverless-webpack": "^5.3.5",
     "ts-loader": "^8.0.15",
@@ -42,6 +56,6 @@
     "webpack": "^5.20.2",
     "webpack-node-externals": "^2.5.2"
   },
-  "author": "The serverless webpack authors (https://github.com/elastic-coders/serverless-webpack)",
+  "author": "Psychedelic",
   "license": "MIT"
 }

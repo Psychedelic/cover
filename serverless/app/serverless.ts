@@ -1,7 +1,6 @@
 import type { AWS } from '@serverless/typescript';
 
-import publish from '@functions/publish';
-import consume from '@functions/consume';
+import { publish, consume } from '@functions'
 
 const serverlessConfiguration: AWS = {
   service: 'cover',
@@ -12,7 +11,10 @@ const serverlessConfiguration: AWS = {
       includeModules: true,
     },
   },
-  plugins: ['serverless-webpack'],
+  plugins: [
+    'serverless-webpack', 
+    'serverless-offline',
+  ],
   provider: {
     name: 'aws',
     runtime: 'nodejs14.x',
@@ -23,11 +25,29 @@ const serverlessConfiguration: AWS = {
     },
     environment: {
       AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
+      QUEUE_URL: { Ref: 'CoverQueue' },
     },
     lambdaHashingVersion: '20201221',
   },
-  // import the function via paths
   functions: { publish, consume },
+  resources: {
+    Resources: {
+      // ToDo: {botch} add vpc
+      CoverQueue: {
+        Type: 'AWS::SQS::Queue',
+        Properties: {
+          MessageRetentionPeriod: 300,
+          RedrivePolicy: {
+            deadLetterTargetArn: { 'Fn::GetAtt': [ 'CoverDeadLetterQueue', 'Arn']},
+            maxReceiveCount: 1
+          }
+        },
+      },
+      CoverDeadLetterQueue: { 
+        Type: 'AWS::SQS::Queue'
+      },
+    },
+  },
 };
 
 module.exports = serverlessConfiguration;

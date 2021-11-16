@@ -1,7 +1,7 @@
 export default {
   type: "object",
   properties: {
-    json: { type: 'string' }
+    json: { type: "string" },
   },
-  required: ['json']
+  required: ["json"],
 } as const;
