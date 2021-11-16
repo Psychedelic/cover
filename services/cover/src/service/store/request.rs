@@ -5,9 +5,13 @@ use crate::service::store::error::ErrorKindStore;
 use crate::service::time_utils;
 use crate::service::types::{CreateRequest, ProviderInfo, Request};
 
+use ic_kit::candid::CandidType;
+use serde::Deserialize;
+
 /// Batch request buffer
 const MAX_BATCH_REQ: ReqId = 10;
 
+#[derive(CandidType, Deserialize)]
 pub struct RequestStore {
     /// Request counter <=> last request id
     last_request_id: ReqId,
@@ -25,7 +29,7 @@ pub struct RequestStore {
     last_consumed_request_id: ReqId,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(CandidType, Deserialize, Debug, PartialEq)]
 struct ConsumeRegistry {
     provider_info: ProviderInfo,
     batch: Vec<Option<Request>>,
