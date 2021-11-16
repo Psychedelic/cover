@@ -1,11 +1,15 @@
 use std::collections::BTreeMap;
 use std::ops::Not;
 
+use ic_kit::candid::CandidType;
+use serde::Deserialize;
+
 use crate::common::types::{CallerId, CanisterId};
 use crate::service::store::error::ErrorKindStore;
 use crate::service::time_utils;
 use crate::service::types::{AddVerification, UpdateVerification, Verification};
 
+#[derive(CandidType, Deserialize)]
 pub struct VerificationStore {
     verification: BTreeMap<CanisterId, Verification>,
 }

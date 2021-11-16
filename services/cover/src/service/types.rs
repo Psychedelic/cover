@@ -1,4 +1,4 @@
-use ic_cdk::export::candid::CandidType;
+use ic_kit::candid::CandidType;
 use serde::Deserialize;
 
 use crate::common::types::{CallerId, CanisterId, ProviderId, ReqId};
@@ -51,7 +51,7 @@ pub struct UpdateVerification {
     pub source_snapshot_url: String,
 }
 
-#[derive(CandidType, Deserialize, Debug)]
+#[derive(CandidType, Deserialize)]
 pub struct UpdateProgress {
     pub request_id: ReqId,
     pub canister_id: CanisterId,
@@ -70,7 +70,7 @@ pub struct CreateRequest {
     pub build_settings: BuildSettings,
 }
 
-#[derive(CandidType, PartialEq)]
+#[derive(CandidType, Deserialize, PartialEq)]
 pub struct Provider {
     pub id: ProviderId,
     pub name: String,
@@ -81,7 +81,7 @@ pub struct Provider {
     pub updated_at: String,
 }
 
-#[derive(CandidType, PartialEq)]
+#[derive(CandidType, Deserialize, PartialEq)]
 pub struct Verification {
     pub canister_id: CanisterId,
     pub git_checksum: String,
@@ -95,7 +95,7 @@ pub struct Verification {
     pub updated_at: String,
 }
 
-#[derive(CandidType, Debug)]
+#[derive(CandidType, Deserialize)]
 pub struct Progress {
     pub request_id: ReqId,
     pub canister_id: CanisterId,
@@ -110,7 +110,7 @@ pub struct Progress {
     pub status: ProgressStatus,
 }
 
-#[derive(CandidType, Debug, PartialEq, Clone)]
+#[derive(CandidType, Deserialize, Debug, PartialEq, Clone)]
 pub struct Request {
     pub request_id: ReqId,
     pub canister_id: CanisterId,
@@ -123,7 +123,7 @@ pub struct Request {
 #[derive(CandidType, Deserialize, Debug, PartialEq)]
 pub struct ProviderInfo {}
 
-#[derive(CandidType, Deserialize, Debug, PartialEq)]
+#[derive(CandidType, Deserialize)]
 pub struct Error {
     pub code: &'static str,
     pub message: &'static str,

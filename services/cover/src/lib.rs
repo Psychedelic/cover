@@ -1,4 +1,4 @@
-use ic_cdk::caller;
+use ic_kit::ic::caller;
 use ic_kit::macros::{query, update};
 
 use crate::common::types::{CanisterId, ProviderId, ReqId};
@@ -10,6 +10,7 @@ use crate::service::types::{
 
 mod common;
 mod service;
+mod upgrade;
 
 // TODO: history api
 
