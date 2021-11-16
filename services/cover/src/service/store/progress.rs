@@ -2,13 +2,13 @@ use std::collections::BTreeMap;
 use std::ops::Bound::Included;
 use std::ops::Not;
 
+use ic_kit::candid::CandidType;
+use serde::Deserialize;
+
 use crate::common::types::{CanisterId, ReqId};
 use crate::service::store::error::ErrorKindStore;
 use crate::service::time_utils;
 use crate::service::types::{Progress, ProgressStatus, UpdateProgress};
-
-use ic_kit::candid::CandidType;
-use serde::Deserialize;
 
 #[derive(CandidType, Deserialize)]
 pub struct ProgressStore {

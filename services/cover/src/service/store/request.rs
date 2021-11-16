@@ -1,12 +1,12 @@
 use std::collections::{BTreeMap, VecDeque};
 
+use ic_kit::candid::CandidType;
+use serde::Deserialize;
+
 use crate::common::types::{CallerId, ReqId};
 use crate::service::store::error::ErrorKindStore;
 use crate::service::time_utils;
 use crate::service::types::{CreateRequest, ProviderInfo, Request};
-
-use ic_kit::candid::CandidType;
-use serde::Deserialize;
 
 /// Batch request buffer
 const MAX_BATCH_REQ: ReqId = 10;
