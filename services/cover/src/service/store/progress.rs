@@ -7,6 +7,10 @@ use crate::service::store::error::ErrorKindStore;
 use crate::service::time_utils;
 use crate::service::types::{Progress, ProgressStatus, UpdateProgress};
 
+use ic_kit::candid::CandidType;
+use serde::Deserialize;
+
+#[derive(CandidType, Deserialize)]
 pub struct ProgressStore {
     /// Request id is unique => single entry
     progress: BTreeMap<(ReqId, CanisterId), Progress>,
