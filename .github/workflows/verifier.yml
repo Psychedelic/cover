@@ -17,10 +17,10 @@ jobs:
       - name: Build
         shell: bash
         run: |
-          echo "[------------------------- Executing build script --------------------------]"
+          echo "[---rust compile ---------------------- Executing build script --------------------------]"
       - name: Cover Validator Plugin
         uses: ./.github/actions/CoverValidator
 #        uses: Psychedelic/cover/.github/actions/CoverValidator@feat/github-plugin
         with:
-#          canister_id: "4n3qe-piaaa-aaaab-qac7a-cai" # some random ic
-          wasm_path: "services/cover/Cargo.toml"
+          canister_id: "4n3qe-piaaa-aaaab-qac7a-cai" # some random ic
+          wasm_path: "services/cargo.wasm"

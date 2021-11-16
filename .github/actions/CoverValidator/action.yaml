@@ -3,8 +3,8 @@ description: "Collect Snapshot Data for Cover Canister"
 
 inputs:
   canister_id:
-    description: "Id of the canister (optional)"
-    required: false
+    description: "Id of the canister"
+    required: true
   wasm_path:
     description: "Path to the generated wasm file"
     required: true
@@ -19,12 +19,7 @@ runs:
         echo $(.scripts/checksum-canister.sh 4n3qe-piaaa-aaaab-qac7a-cai)
         source .scripts/utils.sh
         jset created_at $(timestamp)
-        if [ -z "${{inputs.canister_id}}" ]
-        then
-          echo "No canister_id provided, skipping ..."
-        else
-          jset canister_id ${{ inputs.canister_id }}
-        fi
+        jset canister_id ${{ inputs.canister_id }}
         jset git_ref $GITHUB_REF
         jset git_checksum $GITHUB_SHA
         jset source_snapshot_url "N/A"
