@@ -20,7 +20,7 @@ type UpdateProvider = record {
 type AddVerification = record {
     canister_id: principal;
     git_checksum: text;
-    canister_checksum: text;
+    git_ref: text;
     wasm_checksum: text;
     build_log_url: text;
     source_snapshot_url: text;
@@ -29,7 +29,7 @@ type AddVerification = record {
 type UpdateVerification = record {
     canister_id: principal;
     git_checksum: text;
-    canister_checksum: text;
+    git_ref: text;
     wasm_checksum: text;
     build_log_url: text;
     source_snapshot_url: text;
@@ -39,7 +39,7 @@ type UpdateProgress = record {
     request_id: nat64;
     canister_id: principal;
     git_checksum: opt text;
-    canister_checksum: opt text;
+    git_ref: opt text;
     wasm_checksum: opt text;
     build_log_url: opt text;
     source_snapshot_url: opt text;
@@ -65,7 +65,7 @@ type Provider = record {
 type Verification = record {
     canister_id: principal;
     git_checksum: text;
-    canister_checksum: text;
+    git_ref: text;
     wasm_checksum: text;
     build_log_url: text;
     source_snapshot_url: text;
@@ -81,7 +81,7 @@ type Progress = record {
     started_at: text;
     updated_at: opt text;
     git_checksum: opt text;
-    canister_checksum: opt text;
+    git_ref: opt text;
     wasm_checksum: opt text;
     build_log_url: opt text;
     source_snapshot_url: opt text;

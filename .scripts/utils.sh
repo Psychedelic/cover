@@ -2,13 +2,12 @@
 
 verifyDependency() {
   for var in "$@"; do
-    if [[ ! ${!var+set} ]]; then
+    if [[ ! -v ${var} ]]; then
       echo "🤡 Oops! Missing the $var environment variable..."
-
       exit 1
-    fi;
-  done;
-};
+    fi
+  done
+}
 
 verifyExecDependency() {
   for cmd in "$@"; do
@@ -18,12 +17,26 @@ verifyExecDependency() {
         exit 1
     fi
     echo "👍 $cmd CLI is available"
-  done;
+  done
 }
 
 jget() {
+  verifyDependency JSON_PATH
   .scripts/json-get.sh $JSON_PATH $1
 }
 jset() {
+  verifyDependency JSON_PATH
   .scripts/json-set.sh $JSON_PATH $1 $2
 }
+wasm_checksum() {
+  .scripts/checksum-wasm.sh $1
+}
+canister_checksum() {
+  .scripts/checksum-canister.sh $1
+}
+
+
+timestamp() {
+  date +"%Y/%m/%d_%H:%M:%S:%N"
+}
+

@@ -41,7 +41,7 @@ impl VerificationStore {
                     Verification {
                         canister_id: add_verification.canister_id,
                         git_checksum: add_verification.git_checksum,
-                        canister_checksum: add_verification.canister_checksum,
+                        git_ref: add_verification.git_ref,
                         wasm_checksum: add_verification.wasm_checksum,
                         build_log_url: add_verification.build_log_url,
                         source_snapshot_url: add_verification.source_snapshot_url,
@@ -65,7 +65,7 @@ impl VerificationStore {
             .map(|verification| {
                 let now = time_utils::now_to_str();
                 verification.git_checksum = update_verification.git_checksum;
-                verification.canister_checksum = update_verification.canister_checksum;
+                verification.git_ref = update_verification.git_ref;
                 verification.wasm_checksum = update_verification.wasm_checksum;
                 verification.build_log_url = update_verification.build_log_url;
                 verification.source_snapshot_url = update_verification.source_snapshot_url;
@@ -162,8 +162,8 @@ mod test {
             assert_eq!(verification.canister_id, update_verification.canister_id);
             assert_eq!(verification.git_checksum, update_verification.git_checksum);
             assert_eq!(
-                verification.canister_checksum,
-                update_verification.canister_checksum
+                verification.git_ref,
+                update_verification.git_ref
             );
             assert_eq!(
                 verification.wasm_checksum,
@@ -197,8 +197,8 @@ mod test {
             assert_eq!(verification.canister_id, update_verification.canister_id);
             assert_eq!(verification.git_checksum, update_verification.git_checksum);
             assert_eq!(
-                verification.canister_checksum,
-                update_verification.canister_checksum
+                verification.git_ref,
+                update_verification.git_ref
             );
             assert_eq!(
                 verification.wasm_checksum,
@@ -231,7 +231,7 @@ mod test {
                 verifications.contains(&&Verification {
                     canister_id: update_verification.canister_id,
                     git_checksum: update_verification.git_checksum,
-                    canister_checksum: update_verification.canister_checksum,
+                    git_ref: update_verification.git_ref,
                     wasm_checksum: update_verification.wasm_checksum,
                     build_log_url: update_verification.build_log_url,
                     source_snapshot_url: update_verification.source_snapshot_url,

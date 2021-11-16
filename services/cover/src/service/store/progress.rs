@@ -67,7 +67,7 @@ impl ProgressStore {
                         started_at: time_utils::now_to_str(),
                         updated_at: None,
                         git_checksum: None,
-                        canister_checksum: None,
+                        git_ref: None,
                         wasm_checksum: None,
                         build_log_url: None,
                         source_snapshot_url: None,
@@ -95,7 +95,7 @@ impl ProgressStore {
             .map(|progress| {
                 progress.updated_at = Some(time_utils::now_to_str());
                 progress.git_checksum = update_progress.git_checksum;
-                progress.canister_checksum = update_progress.canister_checksum;
+                progress.git_ref = update_progress.git_ref;
                 progress.wasm_checksum = update_progress.wasm_checksum;
                 progress.build_log_url = update_progress.build_log_url;
                 progress.source_snapshot_url = update_progress.source_snapshot_url;
@@ -120,7 +120,7 @@ mod test {
         assert_eq!(left.request_id, right.request_id);
         assert_eq!(left.canister_id, right.canister_id);
         assert_eq!(left.git_checksum, right.git_checksum);
-        assert_eq!(left.canister_checksum, right.canister_checksum);
+        assert_eq!(left.git_ref, right.git_ref);
         assert_eq!(left.wasm_checksum, right.wasm_checksum);
         assert_eq!(left.build_log_url, right.build_log_url);
         assert_eq!(left.source_snapshot_url, right.source_snapshot_url);
@@ -145,7 +145,7 @@ mod test {
                     assert_eq!(p.started_at.is_empty(), false);
                     assert_eq!(p.updated_at, None);
                     assert_eq!(p.git_checksum, None);
-                    assert_eq!(p.canister_checksum, None);
+                    assert_eq!(p.git_ref, None);
                     assert_eq!(p.wasm_checksum, None);
                     assert_eq!(p.build_log_url, None);
                     assert_eq!(p.source_snapshot_url, None);
