@@ -8,20 +8,17 @@ const executeRequest = (data) => {
     // TODO: add build fargate call
 }
 
+// TODO: it's just an example, change to get_requests when ready
 const consume = async () => {
     const list = [];
-    await createActor().consume_request({})
-        .then(json => {
-            if (json['Ok']) { // returns a list of requests
-                json['Ok'].forEach(data => {
+    await createActor().get_all_verifications()
+        .then(vec => {
+                vec.forEach(data => {
                     executeRequest(data);
                     list.push(data);
                 });
-            } else {
-                console.log('Error state - no json.Ok');
-                list.push({"error": "No OK object"});
             }
-        })
+        )
         .catch(err => {
                 list.push({"error": "No OK object"});
                 console.log('Error during call', err);
