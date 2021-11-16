@@ -16,7 +16,6 @@ runs:
       shell: bash
       run: |
         export JSON_PATH=output.json
-        echo $(.scripts/checksum-canister.sh 4n3qe-piaaa-aaaab-qac7a-cai)
         source .scripts/utils.sh
         jset created_at $(timestamp)
         jset canister_id ${{ inputs.canister_id }}
