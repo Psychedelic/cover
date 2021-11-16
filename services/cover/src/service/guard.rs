@@ -1,20 +1,19 @@
-use crate::common::types::{CallerId, ProviderId};
-use crate::service::error_handler::ErrorKindService;
-use crate::service::types::Error;
-
-use super::get_provider_store;
-
-#[cfg(not(feature = "local_replica"))]
-use crate::common::types::CanisterId;
-#[cfg(not(feature = "local_replica"))]
-use crate::service::error_handler::ErrorKindApi;
 #[cfg(not(feature = "local_replica"))]
 use ic_kit::ic::id;
-
 #[cfg(not(feature = "local_replica"))]
 use ic_kit::interfaces::management::{CanisterStatus, WithCanisterId};
 #[cfg(not(feature = "local_replica"))]
 use ic_kit::interfaces::Method;
+
+#[cfg(not(feature = "local_replica"))]
+use crate::common::types::CanisterId;
+use crate::common::types::{CallerId, ProviderId};
+#[cfg(not(feature = "local_replica"))]
+use crate::service::error_handler::ErrorKindApi;
+use crate::service::error_handler::ErrorKindService;
+use crate::service::types::Error;
+
+use super::get_provider_store;
 
 pub fn is_valid_provider<T, F: FnOnce() -> Result<T, Error>>(
     provider_id: &ProviderId,
