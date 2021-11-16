@@ -1,7 +1,8 @@
+use ic_cdk::caller;
 use ic_kit::macros::{query, update};
 
 use crate::common::types::{CanisterId, ProviderId, ReqId};
-use crate::service::cover_service;
+use crate::service::cover;
 use crate::service::types::{
     AddProvider, AddVerification, CreateRequest, Error, Progress, Provider, ProviderInfo, Request,
     UpdateProgress, UpdateProvider, UpdateVerification, Verification,
@@ -12,89 +13,89 @@ mod service;
 
 // TODO: history api
 
-#[update]
-fn create_request(_create_request: CreateRequest) -> Result<(), Error> {
-    cover_service::create_request(_create_request)
+// #[query]
+pub fn get_request_by_id(request_id: ReqId) -> Option<&'static Request> {
+    cover::get_request_by_id(request_id)
 }
 
-#[query]
-fn get_request_by_id(request_id: ReqId) -> Option<&'static Request> {
-    cover_service::get_request_by_id(request_id)
+// #[query]
+pub fn get_all_requests() -> Vec<&'static Request> {
+    cover::get_all_requests()
 }
 
-#[query]
-fn get_all_requests() -> Vec<&'static Request> {
-    cover_service::get_all_request()
+// #[query]
+pub fn get_progress_by_request_id(request_id: ReqId) -> Option<&'static Progress> {
+    cover::get_progress_by_request_id(request_id)
 }
 
-#[update]
-fn consume_requests(provider_info: ProviderInfo) -> Result<Vec<&'static Request>, Error> {
-    cover_service::consume_request(provider_info)
+// #[query]
+pub fn get_progresses_by_canister_id(canister_id: CanisterId) -> Vec<&'static Progress> {
+    cover::get_progresses_by_canister_id(canister_id)
 }
 
-#[query]
-fn get_progress_by_request_id(request_id: ReqId) -> Option<&'static Progress> {
-    cover_service::get_progress_by_request_id(request_id)
-}
-
-#[query]
-fn get_progresses_by_canister_id(canister_id: CanisterId) -> Vec<&'static Progress> {
-    cover_service::get_progress_by_canister_id(canister_id)
-}
-
-#[query]
-fn get_all_progresses() -> Vec<&'static Progress> {
-    cover_service::get_all_progress()
-}
-
-#[update]
-fn update_progress(
-    _update_progress: UpdateProgress, // TODO: cdk bug????? param can not be same with fn!!!!!
-) -> Result<(), Error> {
-    cover_service::update_progress(_update_progress)
+// #[query]
+pub fn get_all_progresses() -> Vec<&'static Progress> {
+    cover::get_all_progresses()
 }
 
 #[query]
 fn get_verification_by_canister_id(canister_id: CanisterId) -> Option<&'static Verification> {
-    cover_service::get_verification_by_canister_id(&canister_id)
+    cover::get_verification_by_canister_id(&canister_id)
 }
 
 #[query]
 fn get_all_verifications() -> Vec<&'static Verification> {
-    cover_service::get_all_verification()
+    cover::get_all_verifications()
+}
+
+// #[update]
+pub fn consume_requests(provider_info: ProviderInfo) -> Result<Vec<&'static Request>, Error> {
+    cover::consume_requests(provider_info)
+}
+
+// #[update]
+pub fn update_progress(
+    _update_progress: UpdateProgress, // TODO: cdk bug????? param can not be same with fn!!!!!
+) -> Result<(), Error> {
+    cover::update_progress(_update_progress)
 }
 
 #[update]
 fn add_verification(_add_verification: AddVerification) -> Result<(), Error> {
-    cover_service::add_verification(_add_verification)
+    cover::add_verification(caller(), _add_verification)
 }
 
 #[update]
 fn update_verification(_update_verification: UpdateVerification) -> Result<(), Error> {
-    cover_service::update_verification(_update_verification)
+    cover::update_verification(caller(), _update_verification)
+}
+
+// #[update]
+pub fn create_request(_create_request: CreateRequest) -> Result<(), Error> {
+    cover::create_request(caller(), _create_request)
 }
 
 #[update]
 fn add_provider(_add_provider: AddProvider) -> Result<(), Error> {
-    cover_service::add_provider(_add_provider)
+    cover::add_provider(caller(), _add_provider)
 }
 
 #[update]
 fn update_provider(_update_provider: UpdateProvider) -> Result<(), Error> {
-    cover_service::update_provider(_update_provider)
+    cover::update_provider(caller(), _update_provider)
 }
 
 #[update]
 fn delete_provider(provider_id: ProviderId) -> Result<(), Error> {
-    cover_service::delete_provider(&provider_id)
+    cover::delete_provider(&provider_id)
 }
 
 #[query]
 fn get_provider_by_id(provider_id: ProviderId) -> Option<&'static Provider> {
-    cover_service::get_provider_by_id(&provider_id)
+    cover::get_provider_by_id(&provider_id)
 }
 
 #[query]
 fn get_all_providers() -> Vec<&'static Provider> {
-    cover_service::get_all_providers()
+    cover::get_all_providers()
 }

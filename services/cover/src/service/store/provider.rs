@@ -1,10 +1,10 @@
 use std::collections::BTreeMap;
+use std::ops::Not;
 
 use crate::common::types::{CallerId, ProviderId};
 use crate::service::store::error::ErrorKind;
 use crate::service::time_utils;
 use crate::service::types::{AddProvider, Provider, UpdateProvider};
-use std::ops::Not;
 
 pub struct ProviderStore {
     provider: BTreeMap<ProviderId, Provider>,
@@ -19,7 +19,7 @@ impl Default for ProviderStore {
 }
 
 impl ProviderStore {
-    fn is_provider_existed(&self, provider_id: &ProviderId) -> bool {
+    fn is_provider_exists(&self, provider_id: &ProviderId) -> bool {
         self.provider.contains_key(provider_id)
     }
 
@@ -28,7 +28,7 @@ impl ProviderStore {
         caller_id: CallerId,
         add_provider: AddProvider,
     ) -> Result<(), ErrorKind> {
-        self.is_provider_existed(&add_provider.id)
+        self.is_provider_exists(&add_provider.id)
             .not()
             .then(|| {
                 let now = time_utils::now_to_str();
@@ -82,21 +82,9 @@ impl ProviderStore {
 
 #[cfg(test)]
 mod test {
-    use ic_kit::*;
-
     use crate::service::store::test_data;
 
     use super::*;
-
-    fn caller_gen(seed: u8) -> CallerId {
-        if seed % 3 == 0 {
-            mock_principals::alice()
-        } else if seed % 3 == 1 {
-            mock_principals::bob()
-        } else {
-            mock_principals::john()
-        }
-    }
 
     fn update_provider_gen(seed: u8) -> UpdateProvider {
         if seed % 3 == 0 {
@@ -121,7 +109,7 @@ mod test {
     fn init_test_data(len: u8) -> ProviderStore {
         let mut store = ProviderStore::default();
         for i in 0..len {
-            let result = store.add_provider(caller_gen(i), add_provider_gen(i));
+            let result = store.add_provider(test_data::caller_gen(i), add_provider_gen(i));
             assert_eq!(result, Ok(()));
         }
         store
@@ -132,7 +120,8 @@ mod test {
         let mut store = init_test_data(3);
         assert_eq!(store.provider.len(), 3);
         for i in 0..store.provider.len() {
-            let result = store.add_provider(caller_gen(i as u8), add_provider_gen(i as u8));
+            let result =
+                store.add_provider(test_data::caller_gen(i as u8), add_provider_gen(i as u8));
             assert_eq!(result, Err(ErrorKind::ExistedProvider));
         }
     }
@@ -142,21 +131,21 @@ mod test {
         let mut store = ProviderStore::default();
         for i in 0..3 {
             let update_provider = update_provider_gen(i as u8);
-            let caller_id = caller_gen(i as u8);
+            let caller_id = test_data::caller_gen(i as u8);
             let result = store.update_provider(caller_id, update_provider);
             assert_eq!(result, Err(ErrorKind::ProviderNotFound));
         }
         let mut store = init_test_data(3);
         for i in 0..store.provider.len() {
             let update_provider = update_provider_gen(i as u8);
-            let caller_id = caller_gen(i as u8);
+            let caller_id = test_data::caller_gen(i as u8);
             let result = store.update_provider(caller_id, update_provider);
             assert_eq!(result, Ok(()));
         }
         for i in 0..store.provider.len() {
             let update_provider = update_provider_gen(i as u8);
             let provider = store.provider.get(&update_provider.id).unwrap();
-            let caller_id = caller_gen(i as u8);
+            let caller_id = test_data::caller_gen(i as u8);
             let now = time_utils::now_to_str();
             assert_eq!(provider.id, update_provider.id);
             assert_eq!(provider.name, update_provider.name);
@@ -191,7 +180,7 @@ mod test {
         for i in 0..store.provider.len() {
             let provider = add_provider_gen(i as u8);
             let provider = store.get_provider_by_id(&provider.id).unwrap();
-            let caller_id = caller_gen(i as u8);
+            let caller_id = test_data::caller_gen(i as u8);
             let now = time_utils::now_to_str();
             assert_eq!(provider.id, provider.id);
             assert_eq!(provider.name, provider.name);
@@ -209,7 +198,7 @@ mod test {
         let providers = store.get_all_providers();
         for i in 0..providers.len() {
             let provider = add_provider_gen(i as u8);
-            let caller_id = caller_gen(i as u8);
+            let caller_id = test_data::caller_gen(i as u8);
             let now = time_utils::now_to_str();
             assert_eq!(
                 providers.contains(&&Provider {

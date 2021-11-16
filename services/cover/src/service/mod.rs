@@ -5,7 +5,7 @@ use crate::service::store::provider::ProviderStore;
 use crate::service::store::request::RequestStore;
 use crate::service::store::verification::VerificationStore;
 
-pub mod cover_service;
+pub mod cover;
 pub mod time_utils;
 pub mod types;
 
