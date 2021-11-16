@@ -13,3 +13,7 @@ pub fn is_valid_provider<T, F: FnOnce() -> Result<T, Error>>(
         .then(|| f())
         .unwrap_or_else(|| Err(ErrorKindService::InvalidProvider.into()))
 }
+
+pub fn is_cover_owner() -> bool {
+    true
+}
