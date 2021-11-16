@@ -1,4 +1,5 @@
 use crate::common::types::{CallerId, CanisterId, ProviderId, ReqId};
+use crate::service::guard::is_valid_provider;
 use crate::service::types::{
     AddProvider, AddVerification, CreateRequest, Error, Progress, Provider, ProviderInfo, Request,
     UpdateProgress, UpdateProvider, UpdateVerification, Verification,
@@ -62,18 +63,22 @@ pub fn add_verification(
     caller_id: CallerId,
     add_verification: AddVerification,
 ) -> Result<(), Error> {
-    get_verification_store_mut()
-        .add_verification(caller_id, add_verification)
-        .map_err(|e| e.into())
+    is_valid_provider(&caller_id, || {
+        get_verification_store_mut()
+            .add_verification(caller_id, add_verification)
+            .map_err(|e| e.into())
+    })
 }
 
 pub fn update_verification(
     caller_id: CallerId,
     update_verification: UpdateVerification,
 ) -> Result<(), Error> {
-    get_verification_store_mut()
-        .update_verification(caller_id, update_verification)
-        .map_err(|e| e.into())
+    is_valid_provider(&caller_id, || {
+        get_verification_store_mut()
+            .update_verification(caller_id, update_verification)
+            .map_err(|e| e.into())
+    })
 }
 
 pub fn create_request(caller_id: CallerId, create_request: CreateRequest) -> Result<(), Error> {

@@ -3,7 +3,7 @@ use std::ops::Bound::Included;
 use std::ops::Not;
 
 use crate::common::types::{CanisterId, ReqId};
-use crate::service::store::error::ErrorKind;
+use crate::service::store::error::ErrorKindStore;
 use crate::service::time_utils;
 use crate::service::types::{Progress, ProgressStatus, UpdateProgress};
 
@@ -49,7 +49,7 @@ impl ProgressStore {
         &mut self,
         request_id: ReqId,
         canister_id: CanisterId,
-    ) -> Result<(), ErrorKind> {
+    ) -> Result<(), ErrorKindStore> {
         self.progress
             .get(&(request_id, canister_id))
             .is_some()
@@ -72,18 +72,21 @@ impl ProgressStore {
                     },
                 );
             })
-            .ok_or(ErrorKind::InitExistedProgress)
+            .ok_or(ErrorKindStore::InitExistedProgress)
     }
 
-    pub fn update_progress(&mut self, update_progress: UpdateProgress) -> Result<(), ErrorKind> {
+    pub fn update_progress(
+        &mut self,
+        update_progress: UpdateProgress,
+    ) -> Result<(), ErrorKindStore> {
         self.progress
             .get_mut(&(update_progress.request_id, update_progress.canister_id))
-            .ok_or(ErrorKind::ProgressNotFound)
+            .ok_or(ErrorKindStore::ProgressNotFound)
             .and_then(|progress| {
                 ProgressStatus::Init
                     .ne(&update_progress.status)
                     .then(|| progress)
-                    .ok_or(ErrorKind::InvalidProgressStatus)
+                    .ok_or(ErrorKindStore::InvalidProgressStatus)
             })
             .map(|progress| {
                 progress.updated_at = Some(time_utils::now_to_str());
@@ -149,7 +152,7 @@ mod test {
         assert_eq!(store.progress.len(), len as usize);
         for i in 1..len + 1 {
             let result = store.init_progress(i, test_data::fake_canister1());
-            assert_eq!(result, Err(ErrorKind::InitExistedProgress));
+            assert_eq!(result, Err(ErrorKindStore::InitExistedProgress));
         }
         assert_eq!(store.progress.len(), len as usize);
     }
@@ -168,7 +171,7 @@ mod test {
                 i,
                 test_data::fake_canister2(),
             ));
-            assert_eq!(result, Err(ErrorKind::ProgressNotFound));
+            assert_eq!(result, Err(ErrorKindStore::ProgressNotFound));
             let update_progress = if i % 4 == 0 {
                 test_data::fake_update_progress_init(i, test_data::fake_canister1())
             } else if i % 4 == 1 {
@@ -182,7 +185,7 @@ mod test {
             assert_eq!(
                 result,
                 if i % 4 == 0 {
-                    Err(ErrorKind::InvalidProgressStatus)
+                    Err(ErrorKindStore::InvalidProgressStatus)
                 } else {
                     Ok(())
                 }

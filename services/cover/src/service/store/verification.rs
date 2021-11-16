@@ -2,7 +2,7 @@ use std::collections::BTreeMap;
 use std::ops::Not;
 
 use crate::common::types::{CallerId, CanisterId};
-use crate::service::store::error::ErrorKind;
+use crate::service::store::error::ErrorKindStore;
 use crate::service::time_utils;
 use crate::service::types::{AddVerification, UpdateVerification, Verification};
 
@@ -27,7 +27,7 @@ impl VerificationStore {
         &mut self,
         caller_id: CallerId,
         add_verification: AddVerification,
-    ) -> Result<(), ErrorKind> {
+    ) -> Result<(), ErrorKindStore> {
         self.is_verification_exists(&add_verification.canister_id)
             .not()
             .then(|| {
@@ -48,14 +48,14 @@ impl VerificationStore {
                     },
                 );
             })
-            .ok_or(ErrorKind::ExistedVerification)
+            .ok_or(ErrorKindStore::ExistedVerification)
     }
 
     pub fn update_verification(
         &mut self,
         caller_id: CallerId,
         update_verification: UpdateVerification,
-    ) -> Result<(), ErrorKind> {
+    ) -> Result<(), ErrorKindStore> {
         self.verification
             .get_mut(&update_verification.canister_id)
             .map(|verification| {
@@ -68,7 +68,7 @@ impl VerificationStore {
                 verification.updated_by = caller_id;
                 verification.updated_at = now;
             })
-            .ok_or(ErrorKind::VerificationNotFound)
+            .ok_or(ErrorKindStore::VerificationNotFound)
     }
 
     pub fn get_verification_by_canister_id(
@@ -127,7 +127,7 @@ mod test {
                 test_data::caller_gen(i as u8),
                 add_verification_gen(i as u8),
             );
-            assert_eq!(result, Err(ErrorKind::ExistedVerification));
+            assert_eq!(result, Err(ErrorKindStore::ExistedVerification));
         }
     }
 
@@ -138,7 +138,7 @@ mod test {
             let update_verification = update_verification_gen(i as u8);
             let caller_id = test_data::caller_gen(i as u8);
             let result = store.update_verification(caller_id, update_verification);
-            assert_eq!(result, Err(ErrorKind::VerificationNotFound));
+            assert_eq!(result, Err(ErrorKindStore::VerificationNotFound));
         }
         let mut store = init_test_data(3);
         for i in 0..store.verification.len() {
