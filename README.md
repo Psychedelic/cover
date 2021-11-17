@@ -1,6 +1,4 @@
-<div align="center" style="padding-bottom: 20px;">
-  <img src="./.repo/images/repo-logo.svg" width="220" height="auto"/>
-</div>
+![](https://docs.covercode.ooo/overview/imgs/mainn.png)
 
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-blue.svg)](https://conventionalcommits.org)
 [![Client](https://github.com/Psychedelic/fleek-ooo/actions/workflows/pr-test-runner-client.yml/badge.svg)](https://github.com/Psychedelic/fleek-ooo/actions/workflows/pr-test-runner-client.yml)
@@ -9,9 +7,11 @@
 
 # Cover
 
-A canister validation service.
+Cover (short for Code Verification) is an open internet service that helps verify the code of canisters on the Internet Computer.
 
-TODO: cleanup 
+- Visit [our website](https://covercode.ooo)
+- Visit [Cover's Docs](https://docs.covercode.ooo)
+- Follow [Cover on Twitter](https://twitter.com/cover_ois) 
 
 ## Requirements ⚙️
 
