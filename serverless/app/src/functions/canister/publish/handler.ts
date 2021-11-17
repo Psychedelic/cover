@@ -1,11 +1,12 @@
-import "source-map-support/register";
+import 'source-map-support/register';
 
-import schema from "./schema";
-import middy from "@middy/core";
-import createActor from "@libs/actor";
-import { ValidatedEventSQSEvent } from "@libs/sqs";
-import sqsBatch from "@middy/sqs-partial-batch-failure";
-import sqsJsonBodyParser from "@middy/sqs-json-body-parser";
+import middy from '@middy/core';
+import createActor from '@libs/actor';
+import { ValidatedEventSQSEvent } from '@libs/sqs';
+import sqsBatch from '@middy/sqs-partial-batch-failure';
+import sqsJsonBodyParser from '@middy/sqs-json-body-parser';
+
+const schema = require('./schema.json');
 
 /**
  * Consumes messages from queue
@@ -27,7 +28,7 @@ const publish: ValidatedEventSQSEvent<typeof schema> = async (event) => {
 
       return Promise.resolve({
         statusCode: 200,
-        body: JSON.stringify({ message: "success", result }),
+        body: JSON.stringify({ message: 'success', result }),
       });
     } catch (error) {
       console.error(`Error publish:  ${(error as Error).message}`);
