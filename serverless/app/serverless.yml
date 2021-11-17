@@ -1,18 +1,22 @@
 service: cover
+variablesResolutionMode: 20210326
 
 plugins:
   - serverless-webpack
   # - serverless-plugin-optimize
   - serverless-prune-plugin
+  - serverless-offline
 
 provider:
   name: aws
   runtime: nodejs14.x
+  lambdaHashingVersion: 20201221
   stage: ${opt:stage, 'dev'}
   region: us-west-2
   environment:
     STAGE: ${opt:stage, 'dev'}
-
+    COVER_CANISTER_ID: "rrkah-fqaaa-aaaaa-aaaaq-cai"
+    IDENTITY_PEM: "${ssm:cover-identity-pem}"
 
 custom:
   prune:
@@ -29,6 +33,11 @@ custom:
     includeModules:
       forceExclude:
         - aws-sdk
+  serverless-offline:
+    httpsProtocol: "dev-certs"
+    httpPort: 4000
+    stageVariables:
+      foo: "bar"
 
 package:
   individually: true
@@ -47,9 +56,6 @@ functions:
           request:
             schemas:
               application/json: ${file(src/functions/publish/schema.json)}
-    environment:
-      CANISTER_ID: 'some-canister-id'
-      IDENTITY_PEM: ${ssm:cover-identity-pem~true}
   consume:
     timeout: 10
     memorySize: 128
