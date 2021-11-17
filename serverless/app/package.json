@@ -4,7 +4,9 @@
   "description": "Serverless aws-nodejs-typescript template",
   "main": "serverless.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint src --ext ts",
+    "lint:fix": "eslint src --fix --ext ts && prettier --write \"./src/**/*.{ts,tsx,js,jsx}\""
   },
   "engines": {
     "node": ">=14.15.0"
@@ -16,23 +18,31 @@
     "@dfinity/principal": "^0.10.1",
     "@middy/core": "^1.5.2",
     "@middy/http-json-body-parser": "^1.5.2",
+    "cross-fetch": "^3.1.4",
     "source-map-support": "^0.5.19",
     "yarn": "^1.22.17"
   },
   "devDependencies": {
-    "@serverless/typescript": "^2.23.0",
     "@types/aws-lambda": "^8.10.71",
     "@types/node": "^14.14.25",
     "@types/node-fetch": "^2.5.10",
     "@typescript-eslint/eslint-plugin": "^4.22.0",
     "@typescript-eslint/parser": "^5.3.1",
+    "aws-sdk": "^2.1030.0",
     "eslint": "7.16.0",
     "eslint-config-airbnb": "^18.2.1",
-    "eslint-import-resolver-typescript": "^2.4.0",
-    "eslint-plugin-import": "^2.22.1",
+    "eslint-config-airbnb-typescript": "^15.0.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-import-resolver-typescript": "^2.5.0",
+    "eslint-plugin-import": "^2.25.3",
     "eslint-plugin-prettier": "^4.0.0",
     "json-schema-to-ts": "^1.5.0",
+    "prettier": "^2.4.1",
     "serverless": "^2.23.0",
+    "serverless-offline": "^8.2.0",
+    "serverless-plugin-optimize": "^4.2.1-rc.1",
+    "serverless-plugin-typescript": "^2.1.0",
+    "serverless-prune-plugin": "^1.6.1",
     "serverless-webpack": "^5.3.5",
     "ts-loader": "^8.0.15",
     "ts-node": "^9.1.1",

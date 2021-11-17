@@ -3,13 +3,12 @@ import {CoverIDL, CoverIDLFactory} from "../idls";
 import fetch from 'node-fetch';
 import {getCoverCanisterId} from "./utils";
 import {getIdentityFromFile, getIdentityFromPem} from "./identity";
-
-let identity;
+let identity: any;
 if (process.env.IDENTITY_PEM) {
-    console.log("Using identity.pem string");
+    if (process.env.DEBUG) console.log("Using identity.pem string", process.env.IDENTITY_PEM);
     identity = getIdentityFromPem(process.env.IDENTITY_PEM);
 } else if (process.env.IDENTITY_PEM_PATH) { // use path
-    console.log(`Using identity from file ${process.env.IDENTITY_PEM_PATH}`);
+    if (process.env.DEBUG) console.log(`Using identity from file ${process.env.IDENTITY_PEM_PATH}`);
     identity = getIdentityFromFile(process.env.IDENTITY_PEM_PATH);
 } else {
     throw new Error("Either IDENTITY_PEM or IDENTITY_PEM_PATH is required");

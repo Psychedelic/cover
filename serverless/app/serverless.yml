@@ -1,0 +1,66 @@
+service: cover
+variablesResolutionMode: 20210326
+
+plugins:
+  - serverless-webpack
+  # - serverless-plugin-optimize
+  - serverless-prune-plugin
+  - serverless-offline
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  lambdaHashingVersion: 20201221
+  stage: ${opt:stage, 'dev'}
+  region: us-west-2
+  environment:
+    STAGE: ${opt:stage, 'dev'}
+    COVER_CANISTER_ID: "rrkah-fqaaa-aaaaa-aaaaq-cai"
+    IDENTITY_PEM: "${ssm:cover-identity-pem}"
+
+custom:
+  prune:
+    automatic: true
+    number: 3
+  # optimize:
+  #   exclude:
+  #     - aws-sdk
+  #     - firebase-admin
+  webpack:
+    webpackConfig: 'webpack.config.js' # Name of webpack configuration file
+    packager: 'yarn' # Packager that will be used to package your external modules
+    excludeFiles: src/**/*.test.js # Provide a glob for files to ignore
+    includeModules:
+      forceExclude:
+        - aws-sdk
+  serverless-offline:
+    httpsProtocol: "dev-certs"
+    httpPort: 4000
+    stageVariables:
+      foo: "bar"
+
+package:
+  individually: true
+
+functions:
+  publish:
+    timeout: 10
+    memorySize: 128
+    handler: src/functions/publish/handler.main
+    # environment:
+    #   TOPIC_ARN: !Ref PinRequestTopic
+    events:
+      - http:
+          path: /publish
+          method: POST
+          request:
+            schemas:
+              application/json: ${file(src/functions/publish/schema.json)}
+  consume:
+    timeout: 10
+    memorySize: 128
+    handler: src/functions/consume/handler.main
+    events:
+      - http:
+          path: /consume
+          method: GET
