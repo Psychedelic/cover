@@ -1,0 +1,34 @@
+name: "Data for Cover"
+description: "Collect Snapshot Data for Cover Canister"
+
+inputs:
+  canister_id:
+    description: "Id of the canister"
+    required: true
+  wasm_path:
+    description: "Path to the generated wasm file"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Collecting Cover Data"
+      shell: bash
+      run: |
+        export JSON_PATH=output.json
+        source .scripts/utils.sh
+        jset created_at $(timestamp)
+        jset canister_id ${{ inputs.canister_id }}
+        jset git_ref $GITHUB_REF
+        jset git_checksum $GITHUB_SHA
+        jset source_snapshot_url "N/A"
+        jset wasm_path ${{ inputs.wasm_path }}
+        jset wasm_checksum $(wasm_checksum ${{ inputs.wasm_path }})
+        jset build_log_url "TODO"
+
+    - name: "Call Cover Lambda"
+      shell: bash
+      run: |
+        export JSON_PATH=output.json
+        echo "TODO: Call fleek with the generated $JSON_PATH"
+        jq < "$JSON_PATH"

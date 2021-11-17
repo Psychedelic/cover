@@ -1,11 +1,15 @@
 use std::collections::BTreeMap;
 use std::ops::Not;
 
+use ic_kit::candid::CandidType;
+use serde::Deserialize;
+
 use crate::common::types::{CallerId, CanisterId};
-use crate::service::store::error::ErrorKind;
+use crate::service::store::error::ErrorKindStore;
 use crate::service::time_utils;
 use crate::service::types::{AddVerification, UpdateVerification, Verification};
 
+#[derive(CandidType, Deserialize)]
 pub struct VerificationStore {
     verification: BTreeMap<CanisterId, Verification>,
 }
@@ -19,7 +23,7 @@ impl Default for VerificationStore {
 }
 
 impl VerificationStore {
-    fn is_verification_exists(&self, canister_id: &CanisterId) -> bool {
+    fn verification_exists(&self, canister_id: &CanisterId) -> bool {
         self.verification.contains_key(canister_id)
     }
 
@@ -27,8 +31,8 @@ impl VerificationStore {
         &mut self,
         caller_id: CallerId,
         add_verification: AddVerification,
-    ) -> Result<(), ErrorKind> {
-        self.is_verification_exists(&add_verification.canister_id)
+    ) -> Result<(), ErrorKindStore> {
+        self.verification_exists(&add_verification.canister_id)
             .not()
             .then(|| {
                 let now = time_utils::now_to_str();
@@ -37,7 +41,7 @@ impl VerificationStore {
                     Verification {
                         canister_id: add_verification.canister_id,
                         git_checksum: add_verification.git_checksum,
-                        canister_checksum: add_verification.canister_checksum,
+                        git_ref: add_verification.git_ref,
                         wasm_checksum: add_verification.wasm_checksum,
                         build_log_url: add_verification.build_log_url,
                         source_snapshot_url: add_verification.source_snapshot_url,
@@ -48,27 +52,27 @@ impl VerificationStore {
                     },
                 );
             })
-            .ok_or(ErrorKind::ExistedVerification)
+            .ok_or(ErrorKindStore::ExistedVerification)
     }
 
     pub fn update_verification(
         &mut self,
         caller_id: CallerId,
         update_verification: UpdateVerification,
-    ) -> Result<(), ErrorKind> {
+    ) -> Result<(), ErrorKindStore> {
         self.verification
             .get_mut(&update_verification.canister_id)
             .map(|verification| {
                 let now = time_utils::now_to_str();
                 verification.git_checksum = update_verification.git_checksum;
-                verification.canister_checksum = update_verification.canister_checksum;
+                verification.git_ref = update_verification.git_ref;
                 verification.wasm_checksum = update_verification.wasm_checksum;
                 verification.build_log_url = update_verification.build_log_url;
                 verification.source_snapshot_url = update_verification.source_snapshot_url;
                 verification.updated_by = caller_id;
                 verification.updated_at = now;
             })
-            .ok_or(ErrorKind::VerificationNotFound)
+            .ok_or(ErrorKindStore::VerificationNotFound)
     }
 
     pub fn get_verification_by_canister_id(
@@ -127,7 +131,7 @@ mod test {
                 test_data::caller_gen(i as u8),
                 add_verification_gen(i as u8),
             );
-            assert_eq!(result, Err(ErrorKind::ExistedVerification));
+            assert_eq!(result, Err(ErrorKindStore::ExistedVerification));
         }
     }
 
@@ -138,7 +142,7 @@ mod test {
             let update_verification = update_verification_gen(i as u8);
             let caller_id = test_data::caller_gen(i as u8);
             let result = store.update_verification(caller_id, update_verification);
-            assert_eq!(result, Err(ErrorKind::VerificationNotFound));
+            assert_eq!(result, Err(ErrorKindStore::VerificationNotFound));
         }
         let mut store = init_test_data(3);
         for i in 0..store.verification.len() {
@@ -158,8 +162,8 @@ mod test {
             assert_eq!(verification.canister_id, update_verification.canister_id);
             assert_eq!(verification.git_checksum, update_verification.git_checksum);
             assert_eq!(
-                verification.canister_checksum,
-                update_verification.canister_checksum
+                verification.git_ref,
+                update_verification.git_ref
             );
             assert_eq!(
                 verification.wasm_checksum,
@@ -193,8 +197,8 @@ mod test {
             assert_eq!(verification.canister_id, update_verification.canister_id);
             assert_eq!(verification.git_checksum, update_verification.git_checksum);
             assert_eq!(
-                verification.canister_checksum,
-                update_verification.canister_checksum
+                verification.git_ref,
+                update_verification.git_ref
             );
             assert_eq!(
                 verification.wasm_checksum,
@@ -227,7 +231,7 @@ mod test {
                 verifications.contains(&&Verification {
                     canister_id: update_verification.canister_id,
                     git_checksum: update_verification.git_checksum,
-                    canister_checksum: update_verification.canister_checksum,
+                    git_ref: update_verification.git_ref,
                     wasm_checksum: update_verification.wasm_checksum,
                     build_log_url: update_verification.build_log_url,
                     source_snapshot_url: update_verification.source_snapshot_url,

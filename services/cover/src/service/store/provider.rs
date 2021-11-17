@@ -1,11 +1,15 @@
 use std::collections::BTreeMap;
 use std::ops::Not;
 
+use ic_kit::candid::CandidType;
+use serde::Deserialize;
+
 use crate::common::types::{CallerId, ProviderId};
-use crate::service::store::error::ErrorKind;
+use crate::service::store::error::ErrorKindStore;
 use crate::service::time_utils;
 use crate::service::types::{AddProvider, Provider, UpdateProvider};
 
+#[derive(CandidType, Deserialize)]
 pub struct ProviderStore {
     provider: BTreeMap<ProviderId, Provider>,
 }
@@ -19,7 +23,7 @@ impl Default for ProviderStore {
 }
 
 impl ProviderStore {
-    fn is_provider_exists(&self, provider_id: &ProviderId) -> bool {
+    pub fn provider_exists(&self, provider_id: &ProviderId) -> bool {
         self.provider.contains_key(provider_id)
     }
 
@@ -27,8 +31,8 @@ impl ProviderStore {
         &mut self,
         caller_id: CallerId,
         add_provider: AddProvider,
-    ) -> Result<(), ErrorKind> {
-        self.is_provider_exists(&add_provider.id)
+    ) -> Result<(), ErrorKindStore> {
+        self.provider_exists(&add_provider.id)
             .not()
             .then(|| {
                 let now = time_utils::now_to_str();
@@ -45,14 +49,14 @@ impl ProviderStore {
                     },
                 );
             })
-            .ok_or(ErrorKind::ExistedProvider)
+            .ok_or(ErrorKindStore::ExistedProvider)
     }
 
     pub fn update_provider(
         &mut self,
         caller_id: CallerId,
         update_provider: UpdateProvider,
-    ) -> Result<(), ErrorKind> {
+    ) -> Result<(), ErrorKindStore> {
         self.provider
             .get_mut(&update_provider.id)
             .map(|provider| {
@@ -61,14 +65,14 @@ impl ProviderStore {
                 provider.updated_by = caller_id;
                 provider.updated_at = time_utils::now_to_str();
             })
-            .ok_or(ErrorKind::ProviderNotFound)
+            .ok_or(ErrorKindStore::ProviderNotFound)
     }
 
-    pub fn delete_provider(&mut self, provider_id: &ProviderId) -> Result<(), ErrorKind> {
+    pub fn delete_provider(&mut self, provider_id: &ProviderId) -> Result<(), ErrorKindStore> {
         self.provider
             .remove(provider_id)
             .map(|_| ())
-            .ok_or(ErrorKind::ProviderNotFound)
+            .ok_or(ErrorKindStore::ProviderNotFound)
     }
 
     pub fn get_provider_by_id(&self, provider_id: &ProviderId) -> Option<&Provider> {
@@ -122,7 +126,7 @@ mod test {
         for i in 0..store.provider.len() {
             let result =
                 store.add_provider(test_data::caller_gen(i as u8), add_provider_gen(i as u8));
-            assert_eq!(result, Err(ErrorKind::ExistedProvider));
+            assert_eq!(result, Err(ErrorKindStore::ExistedProvider));
         }
     }
 
@@ -133,7 +137,7 @@ mod test {
             let update_provider = update_provider_gen(i as u8);
             let caller_id = test_data::caller_gen(i as u8);
             let result = store.update_provider(caller_id, update_provider);
-            assert_eq!(result, Err(ErrorKind::ProviderNotFound));
+            assert_eq!(result, Err(ErrorKindStore::ProviderNotFound));
         }
         let mut store = init_test_data(3);
         for i in 0..store.provider.len() {
@@ -163,7 +167,7 @@ mod test {
         for i in 0..3 {
             let provider = add_provider_gen(i as u8);
             let result = store.delete_provider(&provider.id);
-            assert_eq!(result, Err(ErrorKind::ProviderNotFound));
+            assert_eq!(result, Err(ErrorKindStore::ProviderNotFound));
         }
         let mut store = init_test_data(3);
         for i in 0..store.provider.len() {

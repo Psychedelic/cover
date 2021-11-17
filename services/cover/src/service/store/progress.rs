@@ -2,11 +2,15 @@ use std::collections::BTreeMap;
 use std::ops::Bound::Included;
 use std::ops::Not;
 
+use ic_kit::candid::CandidType;
+use serde::Deserialize;
+
 use crate::common::types::{CanisterId, ReqId};
-use crate::service::store::error::ErrorKind;
+use crate::service::store::error::ErrorKindStore;
 use crate::service::time_utils;
 use crate::service::types::{Progress, ProgressStatus, UpdateProgress};
 
+#[derive(CandidType, Deserialize)]
 pub struct ProgressStore {
     /// Request id is unique => single entry
     progress: BTreeMap<(ReqId, CanisterId), Progress>,
@@ -49,7 +53,7 @@ impl ProgressStore {
         &mut self,
         request_id: ReqId,
         canister_id: CanisterId,
-    ) -> Result<(), ErrorKind> {
+    ) -> Result<(), ErrorKindStore> {
         self.progress
             .get(&(request_id, canister_id))
             .is_some()
@@ -63,7 +67,7 @@ impl ProgressStore {
                         started_at: time_utils::now_to_str(),
                         updated_at: None,
                         git_checksum: None,
-                        canister_checksum: None,
+                        git_ref: None,
                         wasm_checksum: None,
                         build_log_url: None,
                         source_snapshot_url: None,
@@ -72,23 +76,26 @@ impl ProgressStore {
                     },
                 );
             })
-            .ok_or(ErrorKind::InitExistedProgress)
+            .ok_or(ErrorKindStore::InitExistedProgress)
     }
 
-    pub fn update_progress(&mut self, update_progress: UpdateProgress) -> Result<(), ErrorKind> {
+    pub fn update_progress(
+        &mut self,
+        update_progress: UpdateProgress,
+    ) -> Result<(), ErrorKindStore> {
         self.progress
             .get_mut(&(update_progress.request_id, update_progress.canister_id))
-            .ok_or(ErrorKind::ProgressNotFound)
+            .ok_or(ErrorKindStore::ProgressNotFound)
             .and_then(|progress| {
                 ProgressStatus::Init
                     .ne(&update_progress.status)
                     .then(|| progress)
-                    .ok_or(ErrorKind::InvalidProgressStatus)
+                    .ok_or(ErrorKindStore::InvalidProgressStatus)
             })
             .map(|progress| {
                 progress.updated_at = Some(time_utils::now_to_str());
                 progress.git_checksum = update_progress.git_checksum;
-                progress.canister_checksum = update_progress.canister_checksum;
+                progress.git_ref = update_progress.git_ref;
                 progress.wasm_checksum = update_progress.wasm_checksum;
                 progress.build_log_url = update_progress.build_log_url;
                 progress.source_snapshot_url = update_progress.source_snapshot_url;
@@ -113,7 +120,7 @@ mod test {
         assert_eq!(left.request_id, right.request_id);
         assert_eq!(left.canister_id, right.canister_id);
         assert_eq!(left.git_checksum, right.git_checksum);
-        assert_eq!(left.canister_checksum, right.canister_checksum);
+        assert_eq!(left.git_ref, right.git_ref);
         assert_eq!(left.wasm_checksum, right.wasm_checksum);
         assert_eq!(left.build_log_url, right.build_log_url);
         assert_eq!(left.source_snapshot_url, right.source_snapshot_url);
@@ -138,7 +145,7 @@ mod test {
                     assert_eq!(p.started_at.is_empty(), false);
                     assert_eq!(p.updated_at, None);
                     assert_eq!(p.git_checksum, None);
-                    assert_eq!(p.canister_checksum, None);
+                    assert_eq!(p.git_ref, None);
                     assert_eq!(p.wasm_checksum, None);
                     assert_eq!(p.build_log_url, None);
                     assert_eq!(p.source_snapshot_url, None);
@@ -149,7 +156,7 @@ mod test {
         assert_eq!(store.progress.len(), len as usize);
         for i in 1..len + 1 {
             let result = store.init_progress(i, test_data::fake_canister1());
-            assert_eq!(result, Err(ErrorKind::InitExistedProgress));
+            assert_eq!(result, Err(ErrorKindStore::InitExistedProgress));
         }
         assert_eq!(store.progress.len(), len as usize);
     }
@@ -168,7 +175,7 @@ mod test {
                 i,
                 test_data::fake_canister2(),
             ));
-            assert_eq!(result, Err(ErrorKind::ProgressNotFound));
+            assert_eq!(result, Err(ErrorKindStore::ProgressNotFound));
             let update_progress = if i % 4 == 0 {
                 test_data::fake_update_progress_init(i, test_data::fake_canister1())
             } else if i % 4 == 1 {
@@ -182,7 +189,7 @@ mod test {
             assert_eq!(
                 result,
                 if i % 4 == 0 {
-                    Err(ErrorKind::InvalidProgressStatus)
+                    Err(ErrorKindStore::InvalidProgressStatus)
                 } else {
                     Ok(())
                 }

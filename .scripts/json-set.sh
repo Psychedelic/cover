@@ -10,4 +10,7 @@ fi
 
 newJson=$(jq --arg key0 "$2" --arg value0 "$3" '.| .[$key0]=$value0' < $OUTPUT_FILE)
 echo $newJson > $OUTPUT_FILE
-echo $newJson
+
+if [[ $DEBUG ]]; then
+  echo $newJson
+fi

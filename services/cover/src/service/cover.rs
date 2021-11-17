@@ -1,4 +1,5 @@
 use crate::common::types::{CallerId, CanisterId, ProviderId, ReqId};
+use crate::service::guard::{is_cover_owner, is_valid_provider};
 use crate::service::types::{
     AddProvider, AddVerification, CreateRequest, Error, Progress, Provider, ProviderInfo, Request,
     UpdateProgress, UpdateProvider, UpdateVerification, Verification,
@@ -6,16 +7,15 @@ use crate::service::types::{
 
 use super::{
     get_progress_store, get_progress_store_mut, get_provider_store, get_provider_store_mut,
-    get_request_store_mut, get_request_store_registry, get_verification_store,
-    get_verification_store_mut,
+    get_request_store, get_request_store_mut, get_verification_store, get_verification_store_mut,
 };
 
 pub fn get_request_by_id(request_id: ReqId) -> Option<&'static Request> {
-    get_request_store_registry().get_request_by_id(request_id)
+    get_request_store().get_request_by_id(request_id)
 }
 
 pub fn get_all_requests() -> Vec<&'static Request> {
-    get_request_store_registry().get_all_requests()
+    get_request_store().get_all_requests()
 }
 
 pub fn get_progress_by_request_id(request_id: ReqId) -> Option<&'static Progress> {
@@ -62,18 +62,22 @@ pub fn add_verification(
     caller_id: CallerId,
     add_verification: AddVerification,
 ) -> Result<(), Error> {
-    get_verification_store_mut()
-        .add_verification(caller_id, add_verification)
-        .map_err(|e| e.into())
+    is_valid_provider(&caller_id, || {
+        get_verification_store_mut()
+            .add_verification(caller_id, add_verification)
+            .map_err(|e| e.into())
+    })
 }
 
 pub fn update_verification(
     caller_id: CallerId,
     update_verification: UpdateVerification,
 ) -> Result<(), Error> {
-    get_verification_store_mut()
-        .update_verification(caller_id, update_verification)
-        .map_err(|e| e.into())
+    is_valid_provider(&caller_id, || {
+        get_verification_store_mut()
+            .update_verification(caller_id, update_verification)
+            .map_err(|e| e.into())
+    })
 }
 
 pub fn create_request(caller_id: CallerId, create_request: CreateRequest) -> Result<(), Error> {
@@ -82,22 +86,34 @@ pub fn create_request(caller_id: CallerId, create_request: CreateRequest) -> Res
     Ok(())
 }
 
-pub fn add_provider(caller_id: CallerId, add_provider: AddProvider) -> Result<(), Error> {
-    get_provider_store_mut()
-        .add_provider(caller_id, add_provider)
-        .map_err(|e| e.into())
+pub async fn add_provider(caller_id: CallerId, add_provider: AddProvider) -> Result<(), Error> {
+    is_cover_owner(&caller_id, || {
+        get_provider_store_mut()
+            .add_provider(caller_id, add_provider)
+            .map_err(|e| e.into())
+    })
+    .await
 }
 
-pub fn update_provider(caller_id: CallerId, update_provider: UpdateProvider) -> Result<(), Error> {
-    get_provider_store_mut()
-        .update_provider(caller_id, update_provider)
-        .map_err(|e| e.into())
+pub async fn update_provider(
+    caller_id: CallerId,
+    update_provider: UpdateProvider,
+) -> Result<(), Error> {
+    is_cover_owner(&caller_id, || {
+        get_provider_store_mut()
+            .update_provider(caller_id, update_provider)
+            .map_err(|e| e.into())
+    })
+    .await
 }
 
-pub fn delete_provider(provider_id: &ProviderId) -> Result<(), Error> {
-    get_provider_store_mut()
-        .delete_provider(provider_id)
-        .map_err(|e| e.into())
+pub async fn delete_provider(caller_id: &CallerId, provider_id: &ProviderId) -> Result<(), Error> {
+    is_cover_owner(caller_id, || {
+        get_provider_store_mut()
+            .delete_provider(provider_id)
+            .map_err(|e| e.into())
+    })
+    .await
 }
 
 pub fn get_provider_by_id(provider_id: &ProviderId) -> Option<&'static Provider> {

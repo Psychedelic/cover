@@ -1,13 +1,17 @@
 use std::collections::{BTreeMap, VecDeque};
 
+use ic_kit::candid::CandidType;
+use serde::Deserialize;
+
 use crate::common::types::{CallerId, ReqId};
-use crate::service::store::error::ErrorKind;
+use crate::service::store::error::ErrorKindStore;
 use crate::service::time_utils;
 use crate::service::types::{CreateRequest, ProviderInfo, Request};
 
 /// Batch request buffer
 const MAX_BATCH_REQ: ReqId = 10;
 
+#[derive(CandidType, Deserialize)]
 pub struct RequestStore {
     /// Request counter <=> last request id
     last_request_id: ReqId,
@@ -25,7 +29,7 @@ pub struct RequestStore {
     last_consumed_request_id: ReqId,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(CandidType, Deserialize, Debug, PartialEq)]
 struct ConsumeRegistry {
     provider_info: ProviderInfo,
     batch: Vec<Option<Request>>,
@@ -125,10 +129,10 @@ impl RequestStore {
     pub fn consume_requests(
         &mut self,
         provider_info: ProviderInfo,
-    ) -> Result<Vec<&Request>, ErrorKind> {
+    ) -> Result<Vec<&Request>, ErrorKindStore> {
         let from = self.last_consumed_request_id;
         if from >= self.last_request_id {
-            return Err(ErrorKind::RequestNotFound);
+            return Err(ErrorKindStore::RequestNotFound);
         }
         self.last_consumed_request_id =
             self.next_consume_request_id(self.last_consumed_request_id, self.last_request_id);
@@ -379,7 +383,7 @@ mod test {
 
             // error consume when no request
             let result = store.consume_requests(test_data::fake_provider_info1());
-            assert_eq!(result, Err(ErrorKind::RequestNotFound));
+            assert_eq!(result, Err(ErrorKindStore::RequestNotFound));
 
             store.fake_store_with_offset(offset, len as usize);
 
