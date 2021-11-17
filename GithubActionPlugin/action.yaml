@@ -15,8 +15,9 @@ runs:
     - name: "Collecting Cover Data"
       shell: bash
       run: |
-        source ${{ github.action_path}}/utils.sh
+        ls -la
         echo "-------------------"
+        source ${{ github.action_path}}/utils.sh
         export JSON_PATH=output.json
         jset created_at $(timestamp)
         jset canister_id ${{ inputs.canister_id }}

@@ -108,7 +108,14 @@ const runCanisterBuilder = (canisterName) => {
   }
 
   // Run the ic cdk optimisation
-  runOptimizer(name);
+  try {
+    runOptimizer(name);
+  } catch (err) {
+    log(
+      LOG_TYPES.error,
+      'Optimizer Not Available / DISABLED: '+err.message,
+    );
+  }
 
   // Complete the process by outputing a msg
   log(
