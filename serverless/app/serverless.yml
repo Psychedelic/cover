@@ -1,8 +1,8 @@
 service: cover
 
 plugins:
-  - serverless-plugin-typescript
-  - serverless-plugin-optimize
+  - serverless-webpack
+  # - serverless-plugin-optimize
   - serverless-prune-plugin
 
 provider:
@@ -18,10 +18,17 @@ custom:
   prune:
     automatic: true
     number: 3
-  optimize:
-    exclude:
-      - aws-sdk
-      - firebase-admin
+  # optimize:
+  #   exclude:
+  #     - aws-sdk
+  #     - firebase-admin
+  webpack:
+    webpackConfig: 'webpack.config.js' # Name of webpack configuration file
+    packager: 'yarn' # Packager that will be used to package your external modules
+    excludeFiles: src/**/*.test.js # Provide a glob for files to ignore
+    includeModules:
+      forceExclude:
+        - aws-sdk
 
 package:
   individually: true
@@ -40,7 +47,14 @@ functions:
           request:
             schemas:
               application/json: ${file(src/functions/publish/schema.json)}
+    environment:
+      CANISTER_ID: 'some-canister-id'
+      IDENTITY_PEM: ${ssm:cover-identity-pem~true}
   consume:
     timeout: 10
     memorySize: 128
     handler: src/functions/consume/handler.main
+    events:
+      - http:
+          path: /consume
+          method: GET
