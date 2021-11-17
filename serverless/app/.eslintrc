@@ -1,16 +1,22 @@
 {
   "env": {
-    "browser": true,
+    "browser": false,
     "es2021": true,
     "node": true
   },
-  "extends": [],
+  "extends": [
+    "airbnb-typescript/base",
+    "plugin:@typescript-eslint/recommended",
+    "prettier"
+  ],
   "parserOptions": {
     "ecmaFeatures": {
       "jsx": true
     },
     "ecmaVersion": 12,
-    "sourceType": "module"
+    "sourceType": "module",
+    "project": "./tsconfig.json",
+    "tsconfigRootDir": "./"
   },
   "parser": "@typescript-eslint/parser",
   "plugins": [
@@ -37,6 +43,17 @@
         "ts": "never",
         "tsx": "never"
       }
-    ]
+    ],
+    "curly": "error",
+    "@typescript-eslint/no-inferrable-types": "error",
+    "no-console": "off",
+    "import/prefer-default-export": "off",
+    "no-restricted-syntax": "off",
+    "no-continue": "off"
+  },
+  "settings": {
+    "import/resolver": {
+      "typescript": {}
+    }
   }
 }

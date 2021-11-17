@@ -1,0 +1,46 @@
+service: cover
+
+plugins:
+  - serverless-plugin-typescript
+  - serverless-plugin-optimize
+  - serverless-prune-plugin
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  stage: ${opt:stage, 'dev'}
+  region: us-west-2
+  environment:
+    STAGE: ${opt:stage, 'dev'}
+
+
+custom:
+  prune:
+    automatic: true
+    number: 3
+  optimize:
+    exclude:
+      - aws-sdk
+      - firebase-admin
+
+package:
+  individually: true
+
+functions:
+  publish:
+    timeout: 10
+    memorySize: 128
+    handler: src/functions/publish/handler.main
+    # environment:
+    #   TOPIC_ARN: !Ref PinRequestTopic
+    events:
+      - http:
+          path: /publish
+          method: POST
+          request:
+            schemas:
+              application/json: ${file(src/functions/publish/schema.json)}
+  consume:
+    timeout: 10
+    memorySize: 128
+    handler: src/functions/consume/handler.main
