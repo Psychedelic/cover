@@ -1,5 +1,5 @@
 use crate::common::types::{CallerId, CanisterId, ProviderId, ReqId};
-use crate::service::guard::is_valid_provider;
+use crate::service::guard::{is_cover_owner, is_valid_provider};
 use crate::service::types::{
     AddProvider, AddVerification, CreateRequest, Error, Progress, Provider, ProviderInfo, Request,
     UpdateProgress, UpdateProvider, UpdateVerification, Verification,
@@ -86,22 +86,34 @@ pub fn create_request(caller_id: CallerId, create_request: CreateRequest) -> Res
     Ok(())
 }
 
-pub fn add_provider(caller_id: CallerId, add_provider: AddProvider) -> Result<(), Error> {
-    get_provider_store_mut()
-        .add_provider(caller_id, add_provider)
-        .map_err(|e| e.into())
+pub async fn add_provider(caller_id: CallerId, add_provider: AddProvider) -> Result<(), Error> {
+    is_cover_owner(&caller_id, || {
+        get_provider_store_mut()
+            .add_provider(caller_id, add_provider)
+            .map_err(|e| e.into())
+    })
+    .await
 }
 
-pub fn update_provider(caller_id: CallerId, update_provider: UpdateProvider) -> Result<(), Error> {
-    get_provider_store_mut()
-        .update_provider(caller_id, update_provider)
-        .map_err(|e| e.into())
+pub async fn update_provider(
+    caller_id: CallerId,
+    update_provider: UpdateProvider,
+) -> Result<(), Error> {
+    is_cover_owner(&caller_id, || {
+        get_provider_store_mut()
+            .update_provider(caller_id, update_provider)
+            .map_err(|e| e.into())
+    })
+    .await
 }
 
-pub fn delete_provider(provider_id: &ProviderId) -> Result<(), Error> {
-    get_provider_store_mut()
-        .delete_provider(provider_id)
-        .map_err(|e| e.into())
+pub async fn delete_provider(caller_id: &CallerId, provider_id: &ProviderId) -> Result<(), Error> {
+    is_cover_owner(caller_id, || {
+        get_provider_store_mut()
+            .delete_provider(provider_id)
+            .map_err(|e| e.into())
+    })
+    .await
 }
 
 pub fn get_provider_by_id(provider_id: &ProviderId) -> Option<&'static Provider> {

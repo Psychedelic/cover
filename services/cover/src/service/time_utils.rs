@@ -7,7 +7,7 @@ fn u64_to_utc(time: u64) -> DateTime<Utc> {
 
 #[cfg(not(test))]
 pub fn now_to_str() -> String {
-    let time = ic_cdk::api::time();
+    let time = ic_kit::ic::time();
     let utc = u64_to_utc(time);
     utc.to_rfc3339_opts(SecondsFormat::Millis, false)
 }

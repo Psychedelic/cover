@@ -3,6 +3,8 @@ const { execSync } = require('child_process');
 const stdout = require('@stdlib/streams-node-stdout');
 const minimist = require('minimist');
 
+const is_production = () => process.env.MODE === 'PRODUCTION';
+
 // Set the encoding
 stdout.setEncoding('utf8');
 
@@ -37,6 +39,7 @@ const buildWasm = (pkg) => {
   const buildCommand = [
     'cargo',
     'build',
+    is_production() ? '' : '--features=local_replica',
     '--target',
     'wasm32-unknown-unknown',
     '--release',
@@ -46,7 +49,7 @@ const buildWasm = (pkg) => {
 
   log(
     LOG_TYPES.chore,
-    `Building ${underscoredName}.wasm`,
+    `Building ${underscoredName}.wasm in mode ${is_production() ? 'Production' : 'Local'}`,
   );
 
   try {
@@ -69,7 +72,7 @@ const runOptimizer = (name) => {
     'ic-cdk-optimizer',
     `target/wasm32-unknown-unknown/release/${name}.wasm`,
     '-o',
-    `target/wasm32-unknown-unknown/release/${name}-opt.wasm`,
+    `target/wasm32-unknown-unknown/release/${name}.wasm`,
   ];
 
   log(
@@ -102,21 +105,6 @@ const runCanisterBuilder = (canisterName) => {
 
     // aborts the process...
     abort();
-  }
-
-  // Exit on ic cdk optimisation is falsy
-  if (!process.env.IC_CDK_OPTIMIZER) {
-    log(
-      LOG_TYPES.warning,
-      'The ic-cdk-optimizer is disabled (skip)',
-    );
-
-    log(
-      LOG_TYPES.chore,
-      'Finished: Services builder without ic cdk optimisation',
-    );
-
-    return;
   }
 
   // Run the ic cdk optimisation

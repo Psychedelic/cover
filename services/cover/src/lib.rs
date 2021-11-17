@@ -77,18 +77,18 @@ pub fn create_request(_create_request: CreateRequest) -> Result<(), Error> {
 }
 
 #[update]
-fn add_provider(_add_provider: AddProvider) -> Result<(), Error> {
-    cover::add_provider(caller(), _add_provider)
+async fn add_provider(_add_provider: AddProvider) -> Result<(), Error> {
+    cover::add_provider(caller(), _add_provider).await
 }
 
 #[update]
-fn update_provider(_update_provider: UpdateProvider) -> Result<(), Error> {
-    cover::update_provider(caller(), _update_provider)
+async fn update_provider(_update_provider: UpdateProvider) -> Result<(), Error> {
+    cover::update_provider(caller(), _update_provider).await
 }
 
 #[update]
-fn delete_provider(provider_id: ProviderId) -> Result<(), Error> {
-    cover::delete_provider(&provider_id)
+async fn delete_provider(provider_id: ProviderId) -> Result<(), Error> {
+    cover::delete_provider(&caller(), &provider_id).await
 }
 
 #[query]
