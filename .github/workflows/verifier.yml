@@ -7,20 +7,38 @@ on:
       - 'production'
       - 'feat/DeployBE' # TODO: remove after tests
 
+
 jobs:
   verify:
     runs-on: ubuntu-latest
+    env:
+      cover_canister_id: "rrkah-fqaaa-aaaaa-aaaaq-cai"
     steps:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Build
-        shell: bash
+      - name: Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          default: true
+          override: true
+          target: wasm32-unknown-unknown
+
+      - name: Set Cover Canister Id
         run: |
-          echo "[---rust compile ---------------------- Executing build script --------------------------]"
+          mkdir -p .dfx/local
+          echo "{ }"|jq ".cover.local=\"${{ env.cover_canister_id }}\"" > .dfx/local/canister_ids.json
+          cat .dfx/local/canister_ids.json
+
+      - name: Build WASM
+        run: |
+          npm install
+          node build.js --name cover
+
       - name: Cover Validator Plugin
         uses: ./GithubActionPlugin
 #        uses: Psychedelic/cover/GithubActionPlugin@main
         with:
-          canister_id: "4n3qe-piaaa-aaaab-qac7a-cai" # some random ic
-          wasm_path: "services/cargo.wasm"
+          canister_id: ${{ env.cover_canister_id }}  # some random ic
+          wasm_path: ".dfx/local/services/cover.wasm"

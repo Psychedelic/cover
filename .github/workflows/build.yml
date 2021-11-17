@@ -1,0 +1,82 @@
+name: Cover
+
+on:
+  push:
+    branches:
+      - 'production'
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        build: [ linux-stable ]
+        include:
+          - build: linux-stable
+            os: ubuntu-latest
+            rust: stable
+            dfx: 0.8.0
+            dfx-candid: 2021-08-20
+            node-version: 14.x
+    env:
+      cover_canister_id: "rrkah-fqaaa-aaaaa-aaaaq-cai"
+
+    steps:
+#      - name: Ubuntu essentials
+#        run: |
+#          apt-get update
+#          apt-get install -y build-essential libc6-dev
+
+      - uses: actions/checkout@v2
+
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - run: npm install
+
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            **/target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}-1
+
+      - name: Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ matrix.rust }}
+          profile: minimal
+          default: true
+          override: true
+          target: wasm32-unknown-unknown
+#          components: cargo,rustc,rustup
+
+      - name: IC CDK Optimizer
+        run: cargo install --locked ic-cdk-optimizer
+
+      - name: DFX Tooling
+        run: ./.scripts/dfx-tooling.sh
+        env:
+          DFX_VERSION: ${{ matrix.dfx }}
+          dfx-candid_RELEASE: ${{ matrix.dfx-candid }}
+
+      - name: Set Cover Canister Id
+        run: |
+          mkdir -p .dfx/local
+          echo "{ }"|jq ".cover.local=\"${{ env.cover_canister_id }}\"" > .dfx/local/canister_ids.json
+          cat .dfx/local/canister_ids.json
+
+      - name: Build WASM
+        env:
+          MODE: 'PRODUCTION'
+        run: node build.js --name cover
+
+      - name: Cover Validator Plugin
+        uses: ./GithubActionPlugin
+        #        uses: Psychedelic/cover/GithubActionPlugin@main
+        with:
+          canister_id: ${{ env.cover_canister_id }}  # some random ic
+          wasm_path: ".dfx/local/canisters/cover/cover.wasm"
