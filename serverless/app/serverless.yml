@@ -23,6 +23,7 @@ provider:
         - Effect: 'Allow'
           Action:
             - "sqs:SendMessage"
+            - "sqs:DeleteMessage"
           Resource: 
             - !GetAtt 
               - CoverQueue
