@@ -12,6 +12,7 @@ provider:
   lambdaHashingVersion: 20201221
   region: us-west-2
   environment:
+    DEBUG: true
     STAGE: ${opt:stage, 'dev'}
     COVER_CANISTER_ID: "rrkah-fqaaa-aaaaa-aaaaq-cai"
     IDENTITY_PEM: "${ssm:cover-identity-pem}"

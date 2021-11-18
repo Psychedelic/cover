@@ -11,7 +11,7 @@ if (process.env.DEBUG && pem) {
 }
 if (!pem) {
   pem = process.env.IDENTITY_PEM;
-  if (process.env.DEBUG && pem) console.log('Using IDENTITY_PEM');
+  if (process.env.DEBUG && pem) console.log('Using IDENTITY_PEM', pem);
 }
 
 if (pem) {

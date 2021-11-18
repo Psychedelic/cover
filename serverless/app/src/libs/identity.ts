@@ -17,8 +17,8 @@ const getIdentityFromPem = (pem: string): Secp256k1KeyIdentity => {
   const keys = pemHex.replace(PRIV_KEY_INIT, '');
   const [privateKey, publicKey] = keys.split(KEY_SEPARATOR);
 
-  if (!publicKey) throw new Error('Invalid identity publicKey', pem);
-  if (!privateKey) throw new Error('Invalid identity privateKey', pem);
+  if (!publicKey) throw new Error(`Invalid identity publicKey: ${pem}`);
+  if (!privateKey) throw new Error(`Invalid identity privateKey: ${pem}`);
 
   const identity = Secp256k1KeyIdentity.fromParsedJson([
         publicKey,

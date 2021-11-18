@@ -6,6 +6,8 @@ on:
 jobs:
   testCover:
     runs-on: ubuntu-latest
+    env:
+      cover_canister_id: "rrkah-fqaaa-aaaaa-aaaaq-cai"
     steps:
       - uses: actions/checkout@v2
       - run: |
