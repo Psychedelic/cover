@@ -17,6 +17,10 @@ provider:
     COVER_CANISTER_ID: "rrkah-fqaaa-aaaaa-aaaaq-cai"
     IDENTITY_PEM: "${ssm:cover-identity-pem~true}"
     QUEUE_URL: !Ref CoverQueue
+    NODE_ENV: production
+    DFX_HOST: https://ic0.app
+#    NODE_ENV: development
+#    DFX_HOST: http://localhost:8000
   iam:
     role:
       statements:

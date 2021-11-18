@@ -29,8 +29,7 @@ export const publishSqs: APIGatewayProxyHandler = async (
             body: `Error publishSqs: no data!`,
         });
     }
-
-    const coverPayload: CoverPayload = event.body;
+    const coverPayload = event.body as unknown as CoverPayload;
 
     const response = {
         statusCode: 200,
