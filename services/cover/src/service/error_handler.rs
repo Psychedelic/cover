@@ -19,6 +19,7 @@ pub enum ErrorKindApi {
     // General
     //============================================================================
     InterCanister((RejectionCode, String)),
+    BlackholeCanisterStatus(String),
 }
 
 // ERR_{MODULE}_001_{SEQUENCE}
@@ -32,6 +33,11 @@ impl From<ErrorKindApi> for Error {
                 code: "ERR_000_001_001",
                 message: "An error occurred when calling inter-canister",
                 debug_log: Some(format!("RejectionCode: {:?}\n{}", e.0, e.1)),
+            },
+            ErrorKindApi::BlackholeCanisterStatus(e) => Self {
+                code: "ERR_000_001_002",
+                message: "An error occurred when get status from blackhole canister",
+                debug_log: Some(e),
             },
         }
     }
@@ -65,7 +71,7 @@ impl From<ErrorKindService> for Error {
             //============================================================================
             ErrorKindService::InvalidCoverController => Self {
                 code: "ERR_004_002_001",
-                message: "Invalid provider",
+                message: "Invalid controller",
                 debug_log: None,
             },
         }
