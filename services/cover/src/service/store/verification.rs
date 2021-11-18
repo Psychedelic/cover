@@ -161,10 +161,7 @@ mod test {
             let now = time_utils::now_to_str();
             assert_eq!(verification.canister_id, update_verification.canister_id);
             assert_eq!(verification.git_checksum, update_verification.git_checksum);
-            assert_eq!(
-                verification.git_ref,
-                update_verification.git_ref
-            );
+            assert_eq!(verification.git_ref, update_verification.git_ref);
             assert_eq!(
                 verification.wasm_checksum,
                 update_verification.wasm_checksum
@@ -196,10 +193,7 @@ mod test {
             let now = time_utils::now_to_str();
             assert_eq!(verification.canister_id, update_verification.canister_id);
             assert_eq!(verification.git_checksum, update_verification.git_checksum);
-            assert_eq!(
-                verification.git_ref,
-                update_verification.git_ref
-            );
+            assert_eq!(verification.git_ref, update_verification.git_ref);
             assert_eq!(
                 verification.wasm_checksum,
                 update_verification.wasm_checksum
