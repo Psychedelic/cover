@@ -1,7 +1,7 @@
 import 'source-map-support/register';
 
 import {middyfy} from '@libs/lambda';
-import {CoverPayload} from '@libs/coverPayload';
+import {CoverPayload} from '@functions/sqs/coverPayload';
 import {APIGatewayProxyHandler} from 'aws-lambda';
 import {formatJSONResponse} from '@libs/apiGateway';
 import {

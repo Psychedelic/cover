@@ -1,6 +1,6 @@
 import { FromSchema } from 'json-schema-to-ts';
 
-export interface CoverPaylod {
+export interface CoverPayloadI {
   created_at: string;
   git_ref: string;
   git_checksum: string;
@@ -43,4 +43,4 @@ export const CoverSchema = {
   required: ['url', 'serviceName'],
 } as const;
 
-export type CoverPayload = FromSchema<typeof payloadSchema>;
+export type CoverPayload = FromSchema<typeof CoverSchema>;

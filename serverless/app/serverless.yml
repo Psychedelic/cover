@@ -15,7 +15,7 @@ provider:
     DEBUG: true
     STAGE: ${opt:stage, 'dev'}
     COVER_CANISTER_ID: "rrkah-fqaaa-aaaaa-aaaaq-cai"
-    IDENTITY_PEM: "${ssm:cover-identity-pem}"
+    IDENTITY_PEM: "${ssm:cover-identity-pem~true}"
     QUEUE_URL: !Ref CoverQueue
   iam:
     role:
