@@ -3,6 +3,7 @@ import { CoverIDL, CoverIDLFactory } from '../idls';
 import fetch from 'node-fetch';
 import { getCoverCanisterId } from './utils';
 import { getIdentityFromFile, getIdentityFromPem } from './identity';
+
 let identity: any;
 let pem = process.env.LOCAL_IDENTITY_PEM;
 if (process.env.DEBUG && pem) {

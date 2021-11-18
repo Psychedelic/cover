@@ -100,3 +100,8 @@ resources:
         Type: AWS::SQS::Queue
         Properties:
           QueueName: cover-dead-letter-queue-${self:custom.resourceSuffix}
+
+      CoverDeadLetterQueue:
+        Type: AWS::SQS::Queue
+        Properties:
+          QueueName: cover-dead-letter-queue-${self:custom.resourceSuffix}
