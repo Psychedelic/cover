@@ -1,9 +1,8 @@
 service: cover
-variablesResolutionMode: 20210326
+# variablesResolutionMode: 20210326
 
 plugins:
   - serverless-webpack
-  # - serverless-plugin-optimize
   - serverless-prune-plugin
   - serverless-offline
 
@@ -17,15 +16,24 @@ provider:
     STAGE: ${opt:stage, 'dev'}
     COVER_CANISTER_ID: "rrkah-fqaaa-aaaaa-aaaaq-cai"
     IDENTITY_PEM: "${ssm:cover-identity-pem}"
+    QUEUE_URL: !Ref CoverQueue
+  iam:
+    role:
+      statements:
+        - Effect: 'Allow'
+          Action:
+            - "sqs:SendMessage"
+            - "sqs:DeleteMessage"
+          Resource: 
+            - !GetAtt 
+              - CoverQueue
+              - Arn
 
 custom:
+  resourceSuffix: ${self:service.name}-${self:provider.stage}
   prune:
     automatic: true
     number: 3
-  # optimize:
-  #   exclude:
-  #     - aws-sdk
-  #     - firebase-admin
   webpack:
     webpackConfig: 'webpack.config.js' # Name of webpack configuration file
     packager: 'yarn' # Packager that will be used to package your external modules
@@ -34,8 +42,8 @@ custom:
       forceExclude:
         - aws-sdk
   serverless-offline:
-    httpsProtocol: "dev-certs"
-    httpPort: 4000
+    # httpsProtocol: "dev-certs"
+    httpPort: 3000
     stageVariables:
       foo: "bar"
 
@@ -46,21 +54,50 @@ functions:
   publish:
     timeout: 10
     memorySize: 128
-    handler: src/functions/publish/handler.main
+    handler: src/functions/canister/publish/handler.main
     # environment:
     #   TOPIC_ARN: !Ref PinRequestTopic
     events:
       - http:
           path: /publish
           method: POST
-          request:
-            schemas:
-              application/json: ${file(src/functions/publish/schema.json)}
-  consume:
+      - sqs:
+          batchSize: 10
+          maximumRetryAttempts: 10
+          arn:
+            Fn::GetAtt:
+              - CoverQueue
+              - Arn
+  publishSqs:
     timeout: 10
     memorySize: 128
-    handler: src/functions/consume/handler.main
+    handler: src/functions/sqs/publishSqs.main
     events:
       - http:
-          path: /consume
-          method: GET
+          path: /publishSqs
+          method: POST
+  # consume:
+  #   timeout: 10
+  #   memorySize: 128
+  #   handler: src/functions/canister/consume/handler.main
+  #   events:
+  #     - http:
+  #         path: /consume
+  #         method: GET
+          
+resources:
+  - Resources:
+      CoverQueue:
+        Type: 'AWS::SQS::Queue'
+        Properties:
+          QueueName: cover-queue-${self:custom.resourceSuffix}
+          RedrivePolicy:
+            maxReceiveCount: 10
+            deadLetterTargetArn: !GetAtt 
+              - CoverDeadLetterQueue
+              - Arn
+
+      CoverDeadLetterQueue:
+        Type: AWS::SQS::Queue
+        Properties:
+          QueueName: cover-dead-letter-queue-${self:custom.resourceSuffix}
