@@ -31,6 +31,8 @@ runs:
     - name: "Call Cover Lambda Service"
       shell: bash
       run: |
-        echo "Sending cover to ${{env.SQS_URL}}"
+        source ${{ github.action_path}}/utils.sh
+        verifyDependency COVER_SQS_URL
+        echo "Sending to ${{env.COVER_SQS_URL}} <-"
         jq < "${{ github.workspace }}/output.json"
-        curl -X POST ${{env.SQS_URL}} -H "Content-Type: application/json" -d "@output.json"
+        curl -X POST ${{env.COVER_SQS_URL}} -H "Content-Type: application/json" -d "@output.json"
