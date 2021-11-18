@@ -7,20 +7,13 @@ import { APIGatewayProxyHandler } from 'aws-lambda';
 import { formatJSONResponse } from '@libs/apiGateway';
 import {
   SQSClient,
-  SendMessageBatchCommand,
   SendMessageCommand,
 } from '@aws-sdk/client-sqs';
 
-const LOCAL = true;
+const QueueUrl = process.env.QUEUE_URL;
+// const QueueUrl = `http://localhost:9324/queue/cover-queue-cover-${process.env.STAGE}`
+// const QueueUrl = 'https://sqs.us-west-2.amazonaws.com/768127979193/cover-queue-cover-dev';
 
-// const QueueUrl = LOCAL
-//   ? `http://localhost:9324/queue/cover-queue-cover-${process.env.STAGE}`
-//   : (process.env.QUEUE_URL as string);
-
-const QueueUrl =
-  'https://sqs.us-west-2.amazonaws.com/768127979193/cover-queue-cover-dev';
-
-const MAX_MESSAGES_PER_BATCH = 10;
 const sqsClient = new SQSClient({ region: process.env.AWS_REGION });
 
 export const publishSqs: APIGatewayProxyHandler = async (
@@ -34,12 +27,13 @@ export const publishSqs: APIGatewayProxyHandler = async (
   }
 
   const coverPayload: CoverPayload = event.body;
-  const responseBody = {
-    responseCode: 200,
-    message: '',
-    messageId: '',
-  };
+  console.log('Received', { QueueUrl, coverPayload });
 
+  const body = {
+        responseCode: 200,
+        message: '',
+        messageId: '',
+      };
   try {
     const command = new SendMessageCommand({
       QueueUrl,
@@ -56,10 +50,7 @@ export const publishSqs: APIGatewayProxyHandler = async (
 
   const response = {
     statusCode: 200,
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(responseBody),
+    body;
   };
 
   return formatJSONResponse(response);

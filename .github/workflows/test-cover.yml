@@ -1,0 +1,20 @@
+on:
+  push:
+    branches:
+      - handler
+
+jobs:
+  testCover:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: |
+          echo "Creating dummy wasm file"
+          cp Cargo.lock dummy.wasm
+
+      - name: Cover Validator Plugin
+        uses: ./GithubActionPlugin
+        #        uses: Psychedelic/cover/GithubActionPlugin@main
+        with:
+          canister_id: ${{ env.cover_canister_id }}  # some random ic
+          wasm_path: "dummy.wasm"

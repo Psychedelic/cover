@@ -28,9 +28,9 @@ runs:
         jset wasm_checksum $(wasm_checksum ${{ inputs.wasm_path }})
         jset build_log_url "TODO"
 
-    - name: "Call Cover Lambda"
+    - name: "Call Cover Lambda Service"
       shell: bash
       run: |
-        export JSON_PATH=output.json
-        echo "TODO: Call fleek with the generated $JSON_PATH"
-        jq < "$JSON_PATH"
+        echo "Sending cover to ${{env.SQS_URL}}"
+        jq < "${{ github.workspace }}/output.json"
+        curl -X POST ${{env.SQS_URL}} -H "Content-Type: application/json" -d "@output.json"
