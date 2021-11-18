@@ -33,7 +33,7 @@ export const publishSqs: APIGatewayProxyHandler = async (
     });
   }
 
-  const coverPayload: CoverPayload = JSON.parse(event.body);
+  const coverPayload: CoverPayload = event.body;
   const responseBody = {
     responseCode: 200,
     message: '',
