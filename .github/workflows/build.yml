@@ -3,7 +3,8 @@ name: Cover build.js
 on:
   push:
     branches:
-      - 'production'
+      - production
+      - main
 
 jobs:
   build:
@@ -66,7 +67,7 @@ jobs:
 
       - name: Cover Validator Plugin
         uses: ./GithubActionPlugin
-        #        uses: Psychedelic/cover/GithubActionPlugin@main
+        # uses: Psychedelic/cover/GithubActionPlugin@main
         with:
-          canister_id: ${{ env.cover_canister_id }}  # some random ic
+          canister_id: ${{ env.cover_canister_id }}
           wasm_path: "target/wasm32-unknown-unknown/release/cover.wasm"
