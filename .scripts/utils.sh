@@ -19,24 +19,3 @@ verifyExecDependency() {
     echo "👍 $cmd CLI is available"
   done
 }
-
-jget() {
-  verifyDependency JSON_PATH
-  .scripts/json-get.sh $JSON_PATH $1
-}
-jset() {
-  verifyDependency JSON_PATH
-  .scripts/json-set.sh $JSON_PATH $1 $2
-}
-wasm_checksum() {
-  .scripts/checksum-wasm.sh $1
-}
-canister_checksum() {
-  .scripts/checksum-canister.sh $1
-}
-
-
-timestamp() {
-  date +"%Y/%m/%d_%H:%M:%S:%N"
-}
-

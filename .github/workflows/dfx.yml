@@ -1,0 +1,79 @@
+name: Cover DFX
+
+on:
+  push:
+    branches:
+      - 'feat/buildGitflow'
+
+jobs:
+  dfx:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        build: [ linux-stable ]
+        include:
+          - build: linux-stable
+            os: ubuntu-latest
+            rust: stable
+            dfx: 0.8.0
+            dfx-candid: 2021-08-20
+            node-version: 14.x
+    env:
+      cover_canister_id: "rrkah-fqaaa-aaaaa-aaaaq-cai"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: npm install
+
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            **/target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}-1
+
+      - name: Install cmake
+        run: |
+          sudo apt-get update
+          sudo apt-get install cmake -y
+
+      - name: Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ matrix.rust }}
+          profile: minimal
+          default: true
+          override: true
+          target: wasm32-unknown-unknown
+
+      - name: IC CDK Optimizer
+        run: cargo install ic-cdk-optimizer
+
+      - name: DFX Tooling
+        run: ./.scripts/dfx-tooling.sh
+        env:
+          DFX_VERSION: ${{ matrix.dfx }}
+          DFX_CANDID_RELEASE: ${{ matrix.dfx-candid }}
+
+      - name: Set Cover Canister Id
+        run: |
+          mkdir -p .dfx/local
+          echo "{ }"|jq ".cover.local=\"${{ env.cover_canister_id }}\"" > .dfx/local/canister_ids.json
+          cat .dfx/local/canister_ids.json
+
+      - name: Build WASM
+        run: |
+          dfx build cover
+
+      - name: Cover Validator Plugin
+        uses: ./GithubActionPlugin
+        # uses: Psychedelic/cover/GithubActionPlugin@main
+        with:
+          canister_id: ${{ env.cover_canister_id }}
+          wasm_path: ".dfx/local/canisters/cover/cover.wasm"
