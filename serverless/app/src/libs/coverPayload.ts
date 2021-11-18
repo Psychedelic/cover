@@ -8,11 +8,15 @@ export interface CoverPaylod {
   wasm_path: string;
   wasm_checksum: string;
   build_log_url: string;
+  canister_id: string;
 }
 
-export const payloadSchema = {
+export const CoverSchema = {
   type: 'object',
   properties: {
+    canister_id: {
+      type: 'string',
+    },
     created_at: {
       type: 'string',
     },

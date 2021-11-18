@@ -4,6 +4,7 @@ service: cover
 plugins:
   - serverless-webpack
   - serverless-prune-plugin
+  - serverless-offline-sqs
   - serverless-offline
 
 provider:
@@ -15,7 +16,7 @@ provider:
   environment:
     STAGE: ${opt:stage, 'dev'}
     COVER_CANISTER_ID: "rrkah-fqaaa-aaaaa-aaaaq-cai"
-    IDENTITY_PEM: "${ssm:cover-identity-pem}"
+    # IDENTITY_PEM: "${ssm:cover-identity-pem}"
     QUEUE_URL: !Ref CoverQueue
   iam:
     role:
@@ -43,7 +44,7 @@ custom:
         - aws-sdk
   serverless-offline:
     # httpsProtocol: "dev-certs"
-    httpPort: 4000
+    httpPort: 3000
     stageVariables:
       foo: "bar"
 
@@ -61,24 +62,36 @@ functions:
       - http:
           path: /publish
           method: POST
-          # request:
-          #   schemas:
-          #     application/json: ${file(src/functions/publish/schema.json)}
-  consume:
+      - sqs:
+          batchSize: 10
+          maximumRetryAttempts: 10
+          arn:
+            Fn::GetAtt:
+              - CoverQueue
+              - Arn
+  publishSqs:
     timeout: 10
     memorySize: 128
-    handler: src/functions/canister/consume/handler.main
+    handler: src/functions/sqs/publishSqs.main
     events:
       - http:
-          path: /consume
-          method: GET
+          path: /publishSqs
+          method: POST
+  # consume:
+  #   timeout: 10
+  #   memorySize: 128
+  #   handler: src/functions/canister/consume/handler.main
+  #   events:
+  #     - http:
+  #         path: /consume
+  #         method: GET
           
 resources:
   - Resources:
       CoverQueue:
         Type: 'AWS::SQS::Queue'
         Properties:
-          QueueName: update-queue-${self:custom.resourceSuffix}
+          QueueName: cover-queue-${self:custom.resourceSuffix}
           RedrivePolicy:
             maxReceiveCount: 10
             deadLetterTargetArn: !GetAtt 
@@ -88,4 +101,4 @@ resources:
       CoverDeadLetterQueue:
         Type: AWS::SQS::Queue
         Properties:
-          QueueName: update-dead-letter-queue-${self:custom.resourceSuffix}
+          QueueName: cover-dead-letter-queue-${self:custom.resourceSuffix}
