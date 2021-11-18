@@ -367,7 +367,6 @@ dependencies = [
  "ic-cdk-macros",
  "ic-kit",
  "serde",
- "serde_bytes",
 ]
 
 [[package]]
