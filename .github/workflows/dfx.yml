@@ -38,6 +38,11 @@ jobs:
             **/target
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}-1
 
+      - name: Install cmake
+        run: |
+          apt-get update
+          apt-get install cmake -y
+
       - name: Rust toolchain
         uses: actions-rs/toolchain@v1
         with:
@@ -48,10 +53,7 @@ jobs:
           target: wasm32-unknown-unknown
 
       - name: IC CDK Optimizer
-        run: |
-          apt-get update
-          apt-get install cmake -y
-          cargo install ic-cdk-optimizer
+        run: cargo install ic-cdk-optimizer
 
       - name: DFX Tooling
         run: ./.scripts/dfx-tooling.sh
