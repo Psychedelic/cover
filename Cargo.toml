@@ -1,6 +1,7 @@
 [workspace]
 members = [
   "services/cover",
+  "services/blackhole",
 ]
 
 [profile.release]

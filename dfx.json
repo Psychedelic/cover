@@ -7,6 +7,12 @@
       "candid": "services/cover/cover.did",
       "wasm": "target/wasm32-unknown-unknown/release/cover.wasm",
       "type": "custom"
+    },
+    "blackhole": {
+      "build": "node build.js --name blackhole",
+      "candid": "services/blackhole/blackhole.did",
+      "wasm": "target/wasm32-unknown-unknown/release/blackhole.wasm",
+      "type": "custom"
     }
   },
   "defaults": {

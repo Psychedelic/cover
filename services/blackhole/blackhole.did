@@ -1,0 +1,18 @@
+service: {
+  whoami: () -> (caller: principal);
+  canister_status : (canister_id: principal) -> (variant {
+      Ok: record {
+            status : variant { running; stopping; stopped };
+            settings: record {
+              controllers : vec principal;
+              compute_allocation : nat;
+              memory_allocation : nat;
+              freezing_threshold : nat;
+            };
+            module_hash: opt blob;
+            memory_size: nat;
+            cycles: nat;
+      };
+      Err: text
+  });
+}

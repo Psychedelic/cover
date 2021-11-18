@@ -1,0 +1,14 @@
+[package]
+name = "blackhole"
+version = "0.0.1"
+edition = "2018"
+authors = ["Fleek Team <support@fleek.co>"]
+
+[dependencies]
+ic-cdk-macros = "0.3.2"
+ic-cdk = "0.3.2"
+ic-kit = "0.4.3"
+serde = "1.0.130"
+
+[lib]
+crate-type = ["cdylib"]
