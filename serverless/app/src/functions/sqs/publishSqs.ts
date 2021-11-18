@@ -23,19 +23,17 @@ const QueueUrl =
 const MAX_MESSAGES_PER_BATCH = 10;
 const sqsClient = new SQSClient({ region: process.env.AWS_REGION });
 
-const mockEvent = {
-  canister_id: 'REMOVE',
-  created_at: '2021/11/15_11:28:01:103133356',
-  git_ref: 'refs/heads/feat/github-plugin',
-  git_checksum: '6d55a6d3288c708e0a68d8ac8c6277b2bbff3ff1',
-  source_snapshot_url: 'N/A',
-  wasm_path: 'services/cover/Cargo.toml',
-  wasm_checksum:
-    '0x4d80d6cd59573d16b368929d0754efb5b98eb7ffaaab6d4464218e25f8aaedf3',
-  build_log_url: 'TODO',
-};
+export const publishSqs: APIGatewayProxyHandler = async (
+  event
+): Promise<any> => {
+  if (!event.body) {
+    return formatJSONResponse({
+      statusCode: 500,
+      body: `Error publishSqs: no data!`,
+    });
+  }
 
-export const publishSqs: APIGatewayProxyHandler = async (): Promise<any> => {
+  const coverPayload: CoverPayload = JSON.parse(event.body);
   const responseBody = {
     responseCode: 200,
     message: '',
@@ -45,7 +43,7 @@ export const publishSqs: APIGatewayProxyHandler = async (): Promise<any> => {
   try {
     const command = new SendMessageCommand({
       QueueUrl,
-      MessageBody: JSON.stringify(mockEvent),
+      MessageBody: JSON.stringify(coverPayload),
       // MessageGroupId: mockEvent.git_checksum,
       // MessageDeduplicationId: uuid(),
     });

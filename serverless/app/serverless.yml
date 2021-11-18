@@ -4,7 +4,6 @@ service: cover
 plugins:
   - serverless-webpack
   - serverless-prune-plugin
-  - serverless-offline-sqs
   - serverless-offline
 
 provider:

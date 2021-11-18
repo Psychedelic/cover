@@ -53,7 +53,6 @@
     "prettier": "^2.4.1",
     "serverless": "^2.23.0",
     "serverless-offline": "^8.2.0",
-    "serverless-offline-sqs": "^5.0.0",
     "serverless-plugin-optimize": "^4.2.1-rc.1",
     "serverless-plugin-typescript": "^2.1.0",
     "serverless-prune-plugin": "^1.6.1",
