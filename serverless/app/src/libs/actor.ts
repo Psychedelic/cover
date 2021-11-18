@@ -4,14 +4,21 @@ import fetch from 'node-fetch';
 import { getCoverCanisterId } from './utils';
 import { getIdentityFromFile, getIdentityFromPem } from './identity';
 let identity: any;
-if (process.env.IDENTITY_PEM) {
-  if (process.env.DEBUG)
-    console.log('Using identity.pem string', process.env.IDENTITY_PEM);
-  identity = getIdentityFromPem(process.env.IDENTITY_PEM);
+let pem = process.env.LOCAL_IDENTITY_PEM;
+if (process.env.DEBUG && pem) {
+  console.log('Using LOCAL_IDENTITY_PEM');
+}
+if (!pem) {
+  pem = process.env.IDENTITY_PEM;
+  if (process.env.DEBUG && pem) console.log('Using IDENTITY_PEM');
+}
+
+if (pem) {
+  identity = getIdentityFromPem(pem);
 } else if (process.env.IDENTITY_PEM_PATH) {
   // use path
   if (process.env.DEBUG)
-    console.log(`Using identity from file ${process.env.IDENTITY_PEM_PATH}`);
+    console.log(`Using IDENTITY_PEM_PATH ${process.env.IDENTITY_PEM_PATH}`);
   identity = getIdentityFromFile(process.env.IDENTITY_PEM_PATH);
 } else {
   throw new Error('Either IDENTITY_PEM or IDENTITY_PEM_PATH is required');

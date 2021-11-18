@@ -24,8 +24,8 @@ provider:
           Action:
             - "sqs:SendMessage"
             - "sqs:DeleteMessage"
-          Resource: 
-            - !GetAtt 
+          Resource:
+            - !GetAtt
               - CoverQueue
               - Arn
 
@@ -84,7 +84,6 @@ functions:
   #     - http:
   #         path: /consume
   #         method: GET
-          
 resources:
   - Resources:
       CoverQueue:
@@ -93,7 +92,7 @@ resources:
           QueueName: cover-queue-${self:custom.resourceSuffix}
           RedrivePolicy:
             maxReceiveCount: 10
-            deadLetterTargetArn: !GetAtt 
+            deadLetterTargetArn: !GetAtt
               - CoverDeadLetterQueue
               - Arn
 

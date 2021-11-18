@@ -1,38 +1,26 @@
 import 'source-map-support/register';
-import { formatJSONResponse } from '@libs/apiGateway';
-import { middyfy } from '@libs/lambda';
+import {formatJSONResponse} from '@libs/apiGateway';
+import {middyfy} from '@libs/lambda';
 import createActor from '@libs/actor';
+import {Verification} from "../../../idls/cover.did";
 
-const executeRequest = (data) => {
-  console.log('Received request json', data);
-  // TODO: add build fargate call
-};
-
+// Just a placeholder for a future use
 const consume = async () => {
-  const list = [];
-  await createActor()
-    .consume_request({})
-    .then((json) => {
-      if (json.Ok) {
-        // returns a list of requests
-        json.Ok.forEach((data) => {
-          executeRequest(data);
-          list.push(data);
+    let list = [] as Verification[];
+    await createActor()
+        .get_all_verifications()
+        .then((vers) => {
+            list = vers;
+            console.log('Verifications', vers);
+        })
+        .catch((err) => {
+            console.log('Error during call', err);
         });
-      } else {
-        console.log('Error state - no json.Ok');
-        list.push({ error: 'No OK object' });
-      }
-    })
-    .catch((err) => {
-      list.push({ error: 'No OK object' });
-      console.log('Error during call', err);
-    });
 
-  return formatJSONResponse({
-    message: `Consumed data`,
-    list,
-  });
+    return formatJSONResponse({
+        message: `Consumed data`,
+        list,
+    });
 };
 
 export const main = middyfy(consume);
