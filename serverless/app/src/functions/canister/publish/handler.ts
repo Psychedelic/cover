@@ -29,7 +29,9 @@ const publish = async (event: SQSEvent) => {
 
         try {
             const payload = tempPayload as AddVerification;
+            console.log('AddVerification', {payload});
             const result = await createActor().add_verification(payload);
+            console.log('AddVerification', {result});
 
             return Promise.resolve(formatJSONResponse({
                 statusCode: 200,

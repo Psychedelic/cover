@@ -15,8 +15,6 @@ runs:
     - name: "Collecting Cover Data"
       shell: bash
       run: |
-        ls -la
-        echo "-------------------"
         source ${{ github.action_path}}/utils.sh
         export JSON_PATH=output.json
         jset created_at $(timestamp)
@@ -32,7 +30,7 @@ runs:
       shell: bash
       run: |
         source ${{ github.action_path}}/utils.sh
-        verifyDependency COVER_SQS_URL
+        export COVER_SQS_URL="https://7d6er3977d.execute-api.us-west-2.amazonaws.com/dev/publishSqs"
         echo "Sending to ${{env.COVER_SQS_URL}} <-"
         jq < "${{ github.workspace }}/output.json"
-        curl -X POST ${{env.COVER_SQS_URL}} -H "Content-Type: application/json" -d "@output.json"
+        curl -X POST ${COVER_SQS_URL} -H "Content-Type: application/json" -d "@output.json"

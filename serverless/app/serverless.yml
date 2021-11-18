@@ -14,7 +14,8 @@ provider:
   environment:
     DEBUG: true
     STAGE: ${opt:stage, 'dev'}
-    COVER_CANISTER_ID: "rrkah-fqaaa-aaaaa-aaaaq-cai"
+    COVER_SQS_URL: "https://7d6er3977d.execute-api.us-west-2.amazonaws.com/"
+    COVER_CANISTER_ID: "iftvq-niaaa-aaaai-qasga-cai"
     IDENTITY_PEM: "${ssm:cover-identity-pem~true}"
     QUEUE_URL: !Ref CoverQueue
     NODE_ENV: production

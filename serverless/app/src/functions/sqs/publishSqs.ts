@@ -14,9 +14,6 @@ let QueueUrl = process.env.QUEUE_URL;
 if (process.env.STAGE == 'local') {
     QueueUrl = `http://localhost:9324/queue/cover-queue-cover-${process.env.STAGE}`
 }
-if (process.env.STAGE == 'dev') {
-  QueueUrl = 'https://sqs.us-west-2.amazonaws.com/768127979193/cover-queue-cover-dev';
-}
 
 const sqsClient = new SQSClient({region: process.env.AWS_REGION});
 
@@ -29,6 +26,7 @@ export const publishSqs: APIGatewayProxyHandler = async (
             body: `Error publishSqs: no data!`,
         });
     }
+
     const coverPayload = event.body as unknown as CoverPayload;
 
     const response = {
@@ -38,7 +36,8 @@ export const publishSqs: APIGatewayProxyHandler = async (
     try {
         console.log('Sending', {
             // env: process.env,
-            QueueUrl, coverPayload});
+            QueueUrl, coverPayload
+        });
         const command = new SendMessageCommand({
             QueueUrl,
             MessageBody: JSON.stringify(coverPayload),
