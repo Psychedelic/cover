@@ -40,8 +40,8 @@ jobs:
 
       - name: Install cmake
         run: |
-          apt-get update
-          apt-get install cmake -y
+          sudo apt-get update
+          sudo apt-get install cmake -y
 
       - name: Rust toolchain
         uses: actions-rs/toolchain@v1
