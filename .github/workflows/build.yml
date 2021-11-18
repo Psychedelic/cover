@@ -1,4 +1,4 @@
-name: Cover
+name: Cover build.js
 
 on:
   push:
@@ -46,8 +46,12 @@ jobs:
           default: true
           override: true
           target: wasm32-unknown-unknown
-      # OptimizerDISABLED
-      #- run: cargo install ic-cdk-optimizer
+
+      - name: IC CDK Optimizer
+        run: |
+          apt-get update
+          apt-get install cmake -y
+          cargo install ic-cdk-optimizer
 
       - name: Set Cover Canister Id
         run: |
