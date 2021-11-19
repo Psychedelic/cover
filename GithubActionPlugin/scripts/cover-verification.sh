@@ -17,7 +17,7 @@ cani=$(echo $resp | awk '/hash: (.+)$/{print $5}')
 
 echo "Wasm checksum: $wasm"
 echo "Module hash: $cani"
-if [[ $wasm == $cani ]]; then
+if [[ $wasm == $cani && $wasm ]]; then
   echo "Status: Verified"
   exit 0
 else
