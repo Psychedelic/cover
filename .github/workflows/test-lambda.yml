@@ -1,20 +1,48 @@
 name: CoverPublishSqs
 
-on: 
+on:
   push:
     branches: '**'
 
 jobs:
-  deployment:
+#  deployment:
+#    runs-on: ubuntu-latest
+#
+#    steps:
+#    - name: Publish Sqs
+#      id: publishSqs
+#      uses: fjogeleit/http-request-action@master
+#      with:
+#        url: 'https://7d6er3977d.execute-api.us-west-2.amazonaws.com/dev/publishSqs'
+#        method: 'POST'
+#        data: '{"canister_id":"REMOVE","created_at":"2021/11/15_11:28:01:103133356","git_ref":"refs/heads/feat/github-plugin","git_checksum":"6d55a6d3288c708e0a68d8ac8c6277b2bbff3ff1","source_snapshot_url":"N/A","wasm_path":"services/cover/Cargo.toml","wasm_checksum":"0x4d80d6cd59573d16b368929d0754efb5b98eb7ffaaab6d4464218e25f8aaedf3","build_log_url":"TODO"}'
+#    - name: Show Response
+#      run: echo ${{ steps.publishSqs.outputs.response }}
+  info:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Publish Sqs
-      id: publishSqs
-      uses: fjogeleit/http-request-action@master
-      with:
-        url: 'https://7d6er3977d.execute-api.us-west-2.amazonaws.com/dev/publishSqs'
-        method: 'POST'
-        data: '{"canister_id":"REMOVE","created_at":"2021/11/15_11:28:01:103133356","git_ref":"refs/heads/feat/github-plugin","git_checksum":"6d55a6d3288c708e0a68d8ac8c6277b2bbff3ff1","source_snapshot_url":"N/A","wasm_path":"services/cover/Cargo.toml","wasm_checksum":"0x4d80d6cd59573d16b368929d0754efb5b98eb7ffaaab6d4464218e25f8aaedf3","build_log_url":"TODO"}'
-    - name: Show Response
-      run: echo ${{ steps.publishSqs.outputs.response }}
+      - run: env
+      - name: Dump GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
+      - name: Dump job context
+        env:
+          JOB_CONTEXT: ${{ toJson(job) }}
+        run: echo "$JOB_CONTEXT"
+      - name: Dump steps context
+        env:
+          STEPS_CONTEXT: ${{ toJson(steps) }}
+        run: echo "$STEPS_CONTEXT"
+      - name: Dump runner context
+        env:
+          RUNNER_CONTEXT: ${{ toJson(runner) }}
+        run: echo "$RUNNER_CONTEXT"
+      - name: Dump strategy context
+        env:
+          STRATEGY_CONTEXT: ${{ toJson(strategy) }}
+        run: echo "$STRATEGY_CONTEXT"
+      - name: Dump matrix context
+        env:
+          MATRIX_CONTEXT: ${{ toJson(matrix) }}
+        run: echo "$MATRIX_CONTEXT"
