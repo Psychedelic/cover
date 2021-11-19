@@ -127,4 +127,8 @@ Module hash: 0xecb74c834fcd93d27dd2c0e35410c3b34cf9f7c45e4721a2fbd92a7babf11eaf
 You can see that the checksums are equal. You can also use a tool called cover verification.
 ```
 cover-verification rrkah-fqaaa-aaaaa-aaaaq-cai
+
+Wasm checksum = "0xecb74c834fcd93d27dd2c0e35410c3b34cf9f7c45e4721a2fbd92a7babf11eaf"
+Module hash: 0xecb74c834fcd93d27dd2c0e35410c3b34cf9f7c45e4721a2fbd92a7babf11eaf
+Status: Verified
 ```
