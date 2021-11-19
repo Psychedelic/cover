@@ -8,11 +8,16 @@ export interface AddVerification {
   'wasm_checksum' : string,
   'source_snapshot_url' : string,
   'canister_id' : Principal,
-  'git_checksum' : string,
+  'git_repo' : string,
   'git_ref' : string,
+  'git_sha' : string,
   'build_log_url' : string,
 }
-export interface BuildSettings { 'git_ref' : string, 'git_tag' : string }
+export interface BuildSettings {
+  'git_repo' : string,
+  'git_ref' : string,
+  'git_sha' : string,
+}
 export interface CreateRequest {
   'canister_id' : Principal,
   'build_settings' : BuildSettings,
@@ -29,8 +34,9 @@ export interface Progress {
   'updated_at' : [] | [string],
   'source_snapshot_url' : [] | [string],
   'canister_id' : Principal,
-  'git_checksum' : [] | [string],
+  'git_repo' : [] | [string],
   'git_ref' : [] | [string],
+  'git_sha' : [] | [string],
   'build_log_url' : [] | [string],
   'percentage' : [] | [number],
   'started_at' : string,
@@ -62,8 +68,9 @@ export interface UpdateProgress {
   'wasm_checksum' : [] | [string],
   'source_snapshot_url' : [] | [string],
   'canister_id' : Principal,
-  'git_checksum' : [] | [string],
+  'git_repo' : [] | [string],
   'git_ref' : [] | [string],
+  'git_sha' : [] | [string],
   'build_log_url' : [] | [string],
   'percentage' : [] | [number],
 }
@@ -76,8 +83,9 @@ export interface UpdateVerification {
   'wasm_checksum' : string,
   'source_snapshot_url' : string,
   'canister_id' : Principal,
-  'git_checksum' : string,
+  'git_repo' : string,
   'git_ref' : string,
+  'git_sha' : string,
   'build_log_url' : string,
 }
 export interface Verification {
@@ -86,10 +94,11 @@ export interface Verification {
   'updated_by' : Principal,
   'source_snapshot_url' : string,
   'canister_id' : Principal,
-  'git_checksum' : string,
   'created_at' : string,
   'created_by' : Principal,
+  'git_repo' : string,
   'git_ref' : string,
+  'git_sha' : string,
   'build_log_url' : string,
 }
 export interface _SERVICE {

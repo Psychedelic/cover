@@ -20,7 +20,7 @@ runs:
         jset created_at $(timestamp)
         jset canister_id ${{ inputs.canister_id }}
         jset git_ref $GITHUB_REF
-        jset git_checksum $GITHUB_SHA
+        jset git_sha $GITHUB_SHA
         jset git_repo $GITHUB_REPOSITORY
         jset source_snapshot_url "N/A"
         jset wasm_path ${{ inputs.wasm_path }}
