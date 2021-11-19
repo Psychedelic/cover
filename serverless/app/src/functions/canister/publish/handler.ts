@@ -29,16 +29,16 @@ const publish = async (event: SQSEvent) => {
 
         try {
             const payload = tempPayload as SubmitVerification;
-            console.log('AddVerification', {payload});
+            console.log('SubmitVerification', {data});
             const result = await createActor().submit_verification(payload);
-            console.log('AddVerification', {result});
+            console.log('SubmitVerification', {result});
 
             return Promise.resolve(formatJSONResponse({
                 statusCode: 200,
                 body: {message: 'success', result},
             }));
         } catch (error) {
-            console.error(`Error add_verification:  ${(error as Error).message}`);
+            console.error(`Error SubmitVerification:  ${(error as Error).message}`);
             return Promise.reject(error);
         }
     });
