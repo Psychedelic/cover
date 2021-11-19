@@ -41,7 +41,7 @@ export const publishSqs: APIGatewayProxyHandler = async (
         const command = new SendMessageCommand({
             QueueUrl,
             MessageBody: JSON.stringify(coverPayload),
-            // MessageGroupId: mockEvent.git_checksum,
+            // MessageGroupId: mockEvent.git_sha,
             // MessageDeduplicationId: uuid(),
         });
         await sqsClient.send(command);

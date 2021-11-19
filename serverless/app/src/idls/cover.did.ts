@@ -13,7 +13,7 @@ export const idlFactory = ({ IDL }) => {
     'wasm_checksum' : IDL.Text,
     'source_snapshot_url' : IDL.Text,
     'canister_id' : IDL.Principal,
-    'git_checksum' : IDL.Text,
+    'git_sha' : IDL.Text,
     'git_ref' : IDL.Text,
     'build_log_url' : IDL.Text,
   });
@@ -32,7 +32,7 @@ export const idlFactory = ({ IDL }) => {
     'updated_by' : IDL.Principal,
     'source_snapshot_url' : IDL.Text,
     'canister_id' : IDL.Principal,
-    'git_checksum' : IDL.Text,
+    'git_sha' : IDL.Text,
     'created_at' : IDL.Text,
     'created_by' : IDL.Principal,
     'git_ref' : IDL.Text,
@@ -47,7 +47,7 @@ export const idlFactory = ({ IDL }) => {
     'wasm_checksum' : IDL.Text,
     'source_snapshot_url' : IDL.Text,
     'canister_id' : IDL.Principal,
-    'git_checksum' : IDL.Text,
+    'git_sha' : IDL.Text,
     'git_ref' : IDL.Text,
     'build_log_url' : IDL.Text,
   });

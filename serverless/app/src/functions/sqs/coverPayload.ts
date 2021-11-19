@@ -3,7 +3,7 @@ import { FromSchema } from 'json-schema-to-ts';
 export interface CoverPayloadI {
   created_at: string;
   git_ref: string;
-  git_checksum: string;
+  git_sha: string;
   source_snapshot_url: string;
   wasm_path: string;
   wasm_checksum: string;
@@ -26,7 +26,7 @@ export const CoverSchema = {
     source_snapshot_url: {
       type: 'string',
     },
-    git_checksum: {
+    git_sha: {
       type: 'string',
     },
     wasm_path: {
