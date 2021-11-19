@@ -3,7 +3,10 @@ use ic_kit::macros::{query, update};
 
 use crate::common::types::{CanisterId, ProviderId, ReqId};
 use crate::service::cover;
-use crate::service::types::{AddProvider, AddVerification, CreateRequest, Error, Progress, Provider, ProviderInfo, Request, UpdateProgress, UpdateProvider, UpdateVerification, Verification, SubmitVerification};
+use crate::service::types::{
+    AddProvider, AddVerification, CreateRequest, Error, Progress, Provider, ProviderInfo, Request,
+    SubmitVerification, UpdateProgress, UpdateProvider, UpdateVerification, Verification,
+};
 
 mod common;
 mod service;
@@ -70,7 +73,7 @@ pub fn update_verification(_update_verification: UpdateVerification) -> Result<(
 
 #[update]
 fn submit_verification(_submit_verification: SubmitVerification) -> Result<(), Error> {
-  cover::submit_verification(caller(), _submit_verification)
+    cover::submit_verification(caller(), _submit_verification)
 }
 
 // #[update]
