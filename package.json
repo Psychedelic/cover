@@ -27,15 +27,6 @@
     "dfx:install": "dfx canister install --all",
     "dfx:upgrade": "dfx build --check && dfx canister install --all --mode=upgrade",
     "storybook": "yarn build:ui && start-storybook -p 6006",
-    "bootstrap": "npx lerna bootstrap",
-    "build:storybook": "build-storybook",
-    "build:ui": "lerna run --scope ui build",
-    "build:wallet-connect": "lerna run --scope wallet-connect build",
-    "build:dashboard": "yarn build:ui && lerna run --scope dashboard build",
-    "dev:dashboard": "yarn build:ui && lerna run --scope dashboard start",
-    "lint:ui": "lerna run --scope ui lint",
-    "lint:dashboard": "lerna run --scope dashboard lint",
-    "lint": "yarn lint:ui && yarn lint:dashboard",
     "test:services": "cargo run"
   },
   "devDependencies": {

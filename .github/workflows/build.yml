@@ -5,6 +5,7 @@ on:
     branches:
       - production
       - main
+      - feat/readme
 
 jobs:
   build:
@@ -18,7 +19,7 @@ jobs:
             rust: stable
             dfx: 0.8.0
             dfx-candid: 2021-08-20
-            node-version: 14.x
+            node-version: 16.x
     env:
       cover_canister_id: "iftvq-niaaa-aaaai-qasga-cai"
 
@@ -59,8 +60,8 @@ jobs:
       - name: Set Cover Canister Id
         run: |
           mkdir -p .dfx/local
-          echo "{ }"|jq ".cover.local=\"${{ env.cover_canister_id }}\"" > .dfx/local/canister_ids.json
-          cat .dfx/local/canister_ids.json
+          echo "{ }"|jq ".cover.local=\"${{ env.cover_canister_id }}\"" > canister_ids.json
+          cat canister_ids.json
 
       - name: Build WASM
         env:
@@ -68,8 +69,7 @@ jobs:
         run: node build.js --name cover
 
       - name: Cover Validator Plugin
-        uses: ./GithubActionPlugin
-        # uses: Psychedelic/cover/GithubActionPlugin@main
+        uses: Psychedelic/cover/GithubActionPlugin@main
         with:
           canister_id: ${{ env.cover_canister_id }}
           wasm_path: "target/wasm32-unknown-unknown/release/cover.wasm"
