@@ -62,6 +62,15 @@ export interface Request {
   'created_by' : Principal,
   'build_settings' : BuildSettings,
 }
+export interface SubmitVerification {
+  'wasm_checksum' : string,
+  'source_snapshot_url' : string,
+  'canister_id' : Principal,
+  'git_repo' : string,
+  'git_ref' : string,
+  'git_sha' : string,
+  'build_log_url' : string,
+}
 export interface UpdateProgress {
   'request_id' : bigint,
   'status' : ProgressStatus,
@@ -106,10 +115,6 @@ export interface _SERVICE {
       { 'Ok' : null } |
         { 'Err' : Error }
     >,
-  'add_verification' : (arg_0: AddVerification) => Promise<
-      { 'Ok' : null } |
-        { 'Err' : Error }
-    >,
   'delete_provider' : (arg_0: Principal) => Promise<
       { 'Ok' : null } |
         { 'Err' : Error }
@@ -120,11 +125,11 @@ export interface _SERVICE {
   'get_verification_by_canister_id' : (arg_0: Principal) => Promise<
       [] | [Verification]
     >,
-  'update_provider' : (arg_0: UpdateProvider) => Promise<
+  'submit_verification' : (arg_0: SubmitVerification) => Promise<
       { 'Ok' : null } |
         { 'Err' : Error }
     >,
-  'update_verification' : (arg_0: UpdateVerification) => Promise<
+  'update_provider' : (arg_0: UpdateProvider) => Promise<
       { 'Ok' : null } |
         { 'Err' : Error }
     >,

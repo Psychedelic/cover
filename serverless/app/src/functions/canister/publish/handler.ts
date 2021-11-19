@@ -8,7 +8,7 @@ import sqsJsonBodyParser from '@middy/sqs-json-body-parser';
 import {CoverPayloadI} from '@functions/sqs/coverPayload';
 import {Principal} from '@dfinity/principal';
 import {formatJSONResponse} from "@libs/apiGateway";
-import {AddVerification} from "../../../idls/cover.did";
+import {SubmitVerification} from "../../../idls/cover.did";
 
 /**
  * Consumes messages from queue.
@@ -28,9 +28,9 @@ const publish = async (event: SQSEvent) => {
         };
 
         try {
-            const payload = tempPayload as AddVerification;
+            const payload = tempPayload as SubmitVerification;
             console.log('AddVerification', {payload});
-            const result = await createActor().add_verification(payload);
+            const result = await createActor().submit_verification(payload);
             console.log('AddVerification', {result});
 
             return Promise.resolve(formatJSONResponse({
