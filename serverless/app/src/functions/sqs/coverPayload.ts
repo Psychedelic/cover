@@ -1,14 +1,15 @@
 import { FromSchema } from 'json-schema-to-ts';
 
 export interface CoverPayloadI {
+  canister_id: string;
   created_at: string;
   git_ref: string;
   git_sha: string;
-  source_snapshot_url: string;
+  git_repo: string;
   wasm_path: string;
   wasm_checksum: string;
+  source_snapshot_url: string;
   build_log_url: string;
-  canister_id: string;
 }
 
 export const CoverSchema = {
