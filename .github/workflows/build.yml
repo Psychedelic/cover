@@ -5,8 +5,6 @@ on:
     branches:
       - production
       - main
-      - feat/readme
-
 jobs:
   build:
     runs-on: ${{ matrix.os }}
@@ -60,7 +58,7 @@ jobs:
       - name: Set Cover Canister Id
         run: |
           mkdir -p .dfx/local
-          echo "{ }"|jq ".cover.local=\"${{ env.cover_canister_id }}\"" > canister_ids.json
+          echo "{ }"|jq ".cover.local=\"${{ env.cover_canister_id }}\"" >  canister_ids.json
           cat canister_ids.json
 
       - name: Build WASM
