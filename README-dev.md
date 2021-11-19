@@ -23,9 +23,14 @@ See Cargo [Readme](./services/cover/README-dev.MD)
 
 ### Serverless
 
-Install serverless (TODO)
+
 
 ```sh
 cd serverless/app
-yarn
+
+# deploy lambdas
+yarn deploy:dev 
+
+# see logs
+sls logs -f publish -t    
 ```
