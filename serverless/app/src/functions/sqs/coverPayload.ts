@@ -24,7 +24,7 @@ export const CoverSchema = {
     git_ref: {
       type: 'string',
     },
-    source_snapshot_url: {
+    git_repo: {
       type: 'string',
     },
     git_sha: {
@@ -39,6 +39,9 @@ export const CoverSchema = {
     build_log_url: {
       type: 'string',
       format: 'uri',
+    },
+    source_snapshot_url: {
+      type: 'string',
     },
   },
   required: ['url', 'serviceName'],
