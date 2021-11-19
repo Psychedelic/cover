@@ -67,6 +67,7 @@ impl VerificationStore {
                 let now = time_utils::now_to_str();
                 verification.git_sha = update_verification.git_sha;
                 verification.git_ref = update_verification.git_ref;
+                verification.git_repo = update_verification.git_repo;
                 verification.wasm_checksum = update_verification.wasm_checksum;
                 verification.build_log_url = update_verification.build_log_url;
                 verification.source_snapshot_url = update_verification.source_snapshot_url;
@@ -163,6 +164,7 @@ mod test {
             assert_eq!(verification.canister_id, update_verification.canister_id);
             assert_eq!(verification.git_sha, update_verification.git_sha);
             assert_eq!(verification.git_ref, update_verification.git_ref);
+            assert_eq!(verification.git_repo, update_verification.git_repo);
             assert_eq!(
                 verification.wasm_checksum,
                 update_verification.wasm_checksum
@@ -195,6 +197,7 @@ mod test {
             assert_eq!(verification.canister_id, update_verification.canister_id);
             assert_eq!(verification.git_sha, update_verification.git_sha);
             assert_eq!(verification.git_ref, update_verification.git_ref);
+            assert_eq!(verification.git_repo, update_verification.git_repo);
             assert_eq!(
                 verification.wasm_checksum,
                 update_verification.wasm_checksum
