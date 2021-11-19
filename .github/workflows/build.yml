@@ -20,7 +20,7 @@ jobs:
             dfx-candid: 2021-08-20
             node-version: 14.x
     env:
-      cover_canister_id: "rrkah-fqaaa-aaaaa-aaaaq-cai"
+      cover_canister_id: "iftvq-niaaa-aaaai-qasga-cai"
 
     steps:
       - uses: actions/checkout@v2

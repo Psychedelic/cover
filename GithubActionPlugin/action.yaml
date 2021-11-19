@@ -15,22 +15,25 @@ runs:
     - name: "Collecting Cover Data"
       shell: bash
       run: |
-        ls -la
-        echo "-------------------"
         source ${{ github.action_path}}/utils.sh
         export JSON_PATH=output.json
         jset created_at $(timestamp)
         jset canister_id ${{ inputs.canister_id }}
         jset git_ref $GITHUB_REF
         jset git_checksum $GITHUB_SHA
+        jset git_repo $GITHUB_REPOSITORY
         jset source_snapshot_url "N/A"
         jset wasm_path ${{ inputs.wasm_path }}
         jset wasm_checksum $(wasm_checksum ${{ inputs.wasm_path }})
         jset build_log_url "TODO"
 
-    - name: "Call Cover Lambda"
+    - name: "Call Cover SQS Lambda"
       shell: bash
       run: |
-        export JSON_PATH=output.json
-        echo "TODO: Call fleek with the generated $JSON_PATH"
-        jq < "$JSON_PATH"
+        # Set URL of the Lambda receiving SQS cover events
+        export COVER_LAMBDA_URL="https://7d6er3977d.execute-api.us-west-2.amazonaws.com/dev/publishSqs"
+        jq < "${{ github.workspace }}/output.json"
+        ret=$(curl -i -X POST ${COVER_LAMBDA_URL} \
+          -H "Content-Type: application/json"\
+          -d "@output.json")
+        echo "Sent to ${COVER_LAMBDA_URL} ${ret}"
