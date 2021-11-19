@@ -23,7 +23,7 @@ impl Default for VerificationStore {
 }
 
 impl VerificationStore {
-    fn verification_exists(&self, canister_id: &CanisterId) -> bool {
+    pub fn verification_exists(&self, canister_id: &CanisterId) -> bool {
         self.verification.contains_key(canister_id)
     }
 

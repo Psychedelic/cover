@@ -5,7 +5,7 @@ use crate::common::types::{CanisterId, ProviderId, ReqId};
 use crate::service::cover;
 use crate::service::types::{
     AddProvider, AddVerification, CreateRequest, Error, Progress, Provider, ProviderInfo, Request,
-    UpdateProgress, UpdateProvider, UpdateVerification, Verification,
+    SubmitVerification, UpdateProgress, UpdateProvider, UpdateVerification, Verification,
 };
 
 mod common;
@@ -61,14 +61,19 @@ pub fn update_progress(
     cover::update_progress(_update_progress)
 }
 
-#[update]
-fn add_verification(_add_verification: AddVerification) -> Result<(), Error> {
+// #[update]
+pub fn add_verification(_add_verification: AddVerification) -> Result<(), Error> {
     cover::add_verification(caller(), _add_verification)
 }
 
-#[update]
-fn update_verification(_update_verification: UpdateVerification) -> Result<(), Error> {
+// #[update]
+pub fn update_verification(_update_verification: UpdateVerification) -> Result<(), Error> {
     cover::update_verification(caller(), _update_verification)
+}
+
+#[update]
+fn submit_verification(_submit_verification: SubmitVerification) -> Result<(), Error> {
+    cover::submit_verification(caller(), _submit_verification)
 }
 
 // #[update]
