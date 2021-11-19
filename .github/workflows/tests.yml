@@ -1,0 +1,37 @@
+on:
+  push:
+    branches:
+      - handler
+
+jobs:
+  testPublicPlugin:
+    runs-on: ubuntu-latest
+    env:
+      cover_canister_id: "rrkah-fqaaa-aaaaa-aaaaq-cai"
+    steps:
+      - uses: actions/checkout@v2
+      - run: |
+          echo "Creating dummy wasm file"
+          cp Cargo.lock dummy.wasm
+
+      - name: Cover Validator Plugin
+        uses: Psychedelic/cover/GithubActionPlugin@main
+        with:
+          canister_id: ${{ env.cover_canister_id }}  # some random ic
+          wasm_path: "dummy.wasm"
+
+  testLocalPlugin:
+    runs-on: ubuntu-latest
+    env:
+      cover_canister_id: "rrkah-fqaaa-aaaaa-aaaaq-cai"
+    steps:
+      - uses: actions/checkout@v2
+      - run: |
+          echo "Creating dummy wasm file"
+          cp Cargo.lock dummy.wasm
+
+      - name: Cover Validator Plugin
+        uses: ./GithubActionPlugin
+        with:
+          canister_id: ${{ env.cover_canister_id }}  # some random ic
+          wasm_path: "dummy.wasm"

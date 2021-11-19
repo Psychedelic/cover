@@ -15,17 +15,18 @@ runs:
     - name: "Collecting Cover Data"
       shell: bash
       run: |
-        source ${{ github.action_path}}/utils.sh
+        source ${{ github.action_path}}/scripts/utils.sh
         export JSON_PATH=output.json
+        jset github_job ${{ job.run_id }}
         jset created_at $(timestamp)
         jset canister_id ${{ inputs.canister_id }}
         jset git_ref $GITHUB_REF
         jset git_sha $GITHUB_SHA
         jset git_repo $GITHUB_REPOSITORY
-        jset source_snapshot_url "N/A"
         jset wasm_path ${{ inputs.wasm_path }}
         jset wasm_checksum $(wasm_checksum ${{ inputs.wasm_path }})
-        jset build_log_url "TODO"
+        jset build_log_url "NA"
+        jset source_snapshot_url "NA"
 
     - name: "Call Cover SQS Lambda"
       shell: bash
@@ -35,5 +36,6 @@ runs:
         jq < "${{ github.workspace }}/output.json"
         ret=$(curl -i -X POST ${COVER_LAMBDA_URL} \
           -H "Content-Type: application/json"\
+          -H "Authorized: ${{github.token}}" \
           -d "@output.json")
         echo "Sent to ${COVER_LAMBDA_URL} ${ret}"
