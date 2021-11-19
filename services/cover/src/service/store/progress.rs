@@ -97,6 +97,7 @@ impl ProgressStore {
                 progress.updated_at = Some(time_utils::now_to_str());
                 progress.git_sha = update_progress.git_sha;
                 progress.git_ref = update_progress.git_ref;
+                progress.git_repo = update_progress.git_repo;
                 progress.wasm_checksum = update_progress.wasm_checksum;
                 progress.build_log_url = update_progress.build_log_url;
                 progress.source_snapshot_url = update_progress.source_snapshot_url;
@@ -122,6 +123,7 @@ mod test {
         assert_eq!(left.canister_id, right.canister_id);
         assert_eq!(left.git_sha, right.git_sha);
         assert_eq!(left.git_ref, right.git_ref);
+        assert_eq!(left.git_repo, right.git_repo);
         assert_eq!(left.wasm_checksum, right.wasm_checksum);
         assert_eq!(left.build_log_url, right.build_log_url);
         assert_eq!(left.source_snapshot_url, right.source_snapshot_url);
@@ -147,6 +149,7 @@ mod test {
                     assert_eq!(p.updated_at, None);
                     assert_eq!(p.git_sha, None);
                     assert_eq!(p.git_ref, None);
+                    assert_eq!(p.git_repo, None);
                     assert_eq!(p.wasm_checksum, None);
                     assert_eq!(p.build_log_url, None);
                     assert_eq!(p.source_snapshot_url, None);
