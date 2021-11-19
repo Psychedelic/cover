@@ -23,14 +23,15 @@ pub fn is_valid_provider<T, F: FnOnce() -> Result<T, Error>>(
         .unwrap_or_else(|| Err(ErrorKindService::InvalidProvider.into()))
 }
 
-/// FOR LOCAL TESTING
-/// BLACKHOLE_CANISTER_ID: rrkah-fqaaa-aaaaa-aaaaq-cai
+// FOR LOCAL TESTING
+// BLACKHOLE_CANISTER_ID: "rrkah-fqaaa-aaaaa-aaaaq-cai"
 // #[cfg(not(feature = "local_replica"))]
 // const BLACKHOLE_CANISTER_ID: CanisterId = CanisterId::from_slice(&[0, 0, 0, 0, 0, 0, 0, 1, 1, 1]);
 
-/// FIXME: Production Fleek's canister id
+/// Production Fleek's canister id: "s4jec-wiaaa-aaaah-qch4q-cai"
 #[cfg(not(feature = "local_replica"))]
-const BLACKHOLE_CANISTER_ID: CanisterId = CanisterId::from_slice(&[]);
+const BLACKHOLE_CANISTER_ID: CanisterId =
+    CanisterId::from_slice(&[0, 0, 0, 0, 0, 240, 17, 249, 1, 1]);
 
 #[cfg(not(feature = "local_replica"))]
 pub async fn is_cover_owner<T, F: FnOnce() -> Result<T, Error>>(
