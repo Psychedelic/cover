@@ -17,7 +17,7 @@ runs:
       run: |
         source ${{ github.action_path}}/scripts/utils.sh
         export JSON_PATH=output.json
-        jset github_job ${{ job.run_id }}
+        jset github_job $GITHUB_RUN_ID
         jset created_at $(timestamp)
         jset canister_id ${{ inputs.canister_id }}
         jset git_ref $GITHUB_REF
