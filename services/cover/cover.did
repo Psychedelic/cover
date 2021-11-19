@@ -17,16 +17,7 @@ type UpdateProvider = record {
     memo: opt text;
 };
 
-type AddVerification = record {
-    canister_id: principal;
-    git_checksum: text;
-    git_ref: text;
-    wasm_checksum: text;
-    build_log_url: text;
-    source_snapshot_url: text;
-};
-
-type UpdateVerification = record {
+type SubmitVerification = record {
     canister_id: principal;
     git_checksum: text;
     git_ref: text;
@@ -137,8 +128,7 @@ service: {
     // Provider API - Update API
     // consume_requests: (ProviderInfo) -> (variant { Ok: vec Request; Err: Error });
     // update_progress: (UpdateProgress) -> (variant { Ok: null; Err: Error });
-    add_verification: (AddVerification) -> (variant { Ok: null; Err: Error });
-    update_verification: (UpdateVerification) -> (variant { Ok: null; Err: Error });
+    submit_verification: (SubmitVerification) -> (variant { Ok: null; Err: Error });
     //====================================================================================================
 
 
