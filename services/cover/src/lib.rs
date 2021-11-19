@@ -58,13 +58,13 @@ pub fn update_progress(
     cover::update_progress(_update_progress)
 }
 
-#[update]
-fn add_verification(_add_verification: AddVerification) -> Result<(), Error> {
+// #[update]
+pub fn add_verification(_add_verification: AddVerification) -> Result<(), Error> {
     cover::add_verification(caller(), _add_verification)
 }
 
-#[update]
-fn update_verification(_update_verification: UpdateVerification) -> Result<(), Error> {
+// #[update]
+pub fn update_verification(_update_verification: UpdateVerification) -> Result<(), Error> {
     cover::update_verification(caller(), _update_verification)
 }
 
