@@ -32,17 +32,7 @@ pub struct UpdateProvider {
 }
 
 #[derive(CandidType, Deserialize)]
-pub struct AddVerification {
-    pub canister_id: CanisterId,
-    pub git_checksum: String,
-    pub git_ref: String,
-    pub wasm_checksum: String,
-    pub build_log_url: String,
-    pub source_snapshot_url: String,
-}
-
-#[derive(CandidType, Deserialize)]
-pub struct UpdateVerification {
+pub struct SubmitVerification {
     pub canister_id: CanisterId,
     pub git_checksum: String,
     pub git_ref: String,
