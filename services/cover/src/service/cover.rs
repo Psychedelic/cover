@@ -1,8 +1,8 @@
 use crate::common::types::{CallerId, CanisterId, ProviderId, ReqId};
 use crate::service::guard::{is_cover_owner, is_valid_provider};
 use crate::service::types::{
-    AddProvider, AddVerification, CreateRequest, Error, Progress, Provider, ProviderInfo, Request,
-    UpdateProgress, UpdateProvider, UpdateVerification, Verification,
+    AddProvider, CreateRequest, Error, Progress, Provider, ProviderInfo, Request,
+    SubmitVerification, UpdateProgress, UpdateProvider, Verification,
 };
 
 use super::{
@@ -58,25 +58,19 @@ pub fn update_progress(update_progress: UpdateProgress) -> Result<(), Error> {
         .map_err(|e| e.into())
 }
 
-pub fn add_verification(
+pub fn submit_verification(
     caller_id: CallerId,
-    add_verification: AddVerification,
+    submit_verification: SubmitVerification,
 ) -> Result<(), Error> {
     is_valid_provider(&caller_id, || {
-        get_verification_store_mut()
-            .add_verification(caller_id, add_verification)
-            .map_err(|e| e.into())
-    })
-}
-
-pub fn update_verification(
-    caller_id: CallerId,
-    update_verification: UpdateVerification,
-) -> Result<(), Error> {
-    is_valid_provider(&caller_id, || {
-        get_verification_store_mut()
-            .update_verification(caller_id, update_verification)
-            .map_err(|e| e.into())
+        match get_verification_store().verification_exists(&submit_verification.canister_id) {
+            true => get_verification_store_mut()
+                .update_verification(caller_id, submit_verification)
+                .map_err(|e| e.into()),
+            false => get_verification_store_mut()
+                .add_verification(caller_id, submit_verification)
+                .map_err(|e| e.into()),
+        }
     })
 }
 
