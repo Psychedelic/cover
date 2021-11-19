@@ -19,7 +19,7 @@ jobs:
             rust: stable
             dfx: 0.8.0
             dfx-candid: 2021-08-20
-            node-version: 14.x
+            node-version: 16.x
     env:
       cover_canister_id: "iftvq-niaaa-aaaai-qasga-cai"
 
