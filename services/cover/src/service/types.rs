@@ -48,7 +48,7 @@ pub struct UpdateVerification {
     pub canister_id: CanisterId,
     pub git_sha: String,
     pub git_ref: String,
-    pub git_repo: Option<String>,
+    pub git_repo: String,
     pub wasm_checksum: String,
     pub build_log_url: String,
     pub source_snapshot_url: String,
