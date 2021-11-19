@@ -28,7 +28,7 @@ pub fn is_valid_provider<T, F: FnOnce() -> Result<T, Error>>(
 // #[cfg(not(feature = "local_replica"))]
 // const BLACKHOLE_CANISTER_ID: CanisterId = CanisterId::from_slice(&[0, 0, 0, 0, 0, 0, 0, 1, 1, 1]);
 
-/// Production Fleek's canister id: "s4jec-wiaaa-aaaah-qch4q-cai"
+/// Fleek's IC Blackhole canister id: "s4jec-wiaaa-aaaah-qch4q-cai"
 #[cfg(not(feature = "local_replica"))]
 const BLACKHOLE_CANISTER_ID: CanisterId =
     CanisterId::from_slice(&[0, 0, 0, 0, 0, 240, 17, 249, 1, 1]);
