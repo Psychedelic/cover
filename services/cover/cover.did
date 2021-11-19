@@ -38,6 +38,16 @@ type UpdateVerification = record {
     source_snapshot_url: text;
 };
 
+type SubmitVerification = record {
+    canister_id: principal;
+    git_sha: text;
+    git_ref: text;
+    git_repo: text;
+    wasm_checksum: text;
+    build_log_url: text;
+    source_snapshot_url: text;
+};
+
 type UpdateProgress = record {
     request_id: nat64;
     canister_id: principal;
@@ -145,6 +155,7 @@ service: {
     // update_progress: (UpdateProgress) -> (variant { Ok: null; Err: Error });
     add_verification: (AddVerification) -> (variant { Ok: null; Err: Error });
     update_verification: (UpdateVerification) -> (variant { Ok: null; Err: Error });
+    submit_verification: (SubmitVerification) -> (variant { Ok: null; Err: Error });
     //====================================================================================================
 
 
