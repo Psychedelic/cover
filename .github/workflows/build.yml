@@ -67,7 +67,7 @@ jobs:
         run: node build.js --name cover
 
       - name: Cover Validator Plugin
-                 uses: Psychedelic/cover/GithubActionPlugin@main
+        uses: Psychedelic/cover/GithubActionPlugin@main
         with:
           canister_id: ${{ env.cover_canister_id }}
           wasm_path: "target/wasm32-unknown-unknown/release/cover.wasm"
