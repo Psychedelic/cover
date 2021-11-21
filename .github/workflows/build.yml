@@ -5,69 +5,30 @@ on:
     branches:
       - production
       - main
+      - fix/*
+
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        build: [ linux-stable ]
-        include:
-          - build: linux-stable
-            os: ubuntu-latest
-            rust: stable
-            dfx: 0.8.0
-            dfx-candid: 2021-08-20
-            node-version: 16.x
+    runs-on: ubuntu-20.04
+    container:
+      image: fleek/f3o:0.2.2
     env:
       cover_canister_id: "iftvq-niaaa-aaaai-qasga-cai"
 
     steps:
       - uses: actions/checkout@v2
 
-      - name: Setup Node
-        uses: actions/setup-node@v2
-        with:
-          node-version: ${{ matrix.node-version }}
-      - run: npm install
-
-      - uses: actions/cache@v2
-        with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            **/target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}-1
-
-      - name: Install cmake
-        run: |
-          sudo apt-get update
-          sudo apt-get install cmake -y
-
-      - name: Rust toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: ${{ matrix.rust }}
-          profile: minimal
-          default: true
-          override: true
-          target: wasm32-unknown-unknown
-
-      - name: IC CDK Optimizer
-        run: cargo install ic-cdk-optimizer
-
-      - name: Set Cover Canister Id
-        run: |
-          mkdir -p .dfx/local
-          echo "{ }"|jq ".cover.local=\"${{ env.cover_canister_id }}\"" >  canister_ids.json
-          cat canister_ids.json
-
       - name: Build WASM
-        env:
-          MODE: 'PRODUCTION'
-        run: node build.js --name cover
+        run: |
+          # HACK: set HOME to get github actions to execute correctly
+          export HOME=/root
+          export PATH="$HOME/.cargo/bin:${PATH}"
+          # Start build
+          yarn
+          MODE="PRODUCTION"; dfx build cover --check
 
       - name: Cover Validator Plugin
         uses: Psychedelic/cover/GithubActionPlugin@main
         with:
           canister_id: ${{ env.cover_canister_id }}
-          wasm_path: "target/wasm32-unknown-unknown/release/cover.wasm"
+          wasm_path: ".dfx/local/canisters/cover/cover.wasm"
