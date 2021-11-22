@@ -6,11 +6,13 @@
 #  fleek/f3o-fe
 FROM fleek/f3o:latest
 
-RUN apt-get install nano -y
+RUN apt-get install nano tree -y
 RUN yarn global add serve
+
+COPY GithubActionPlugin/dockers/entrypoint.sh /root/entrypoint.sh
 
 WORKDIR /workspace
 COPY . .
 
 EXPOSE 5000
-ENTRYPOINT [ "/bin/bash" ]
+ENTRYPOINT [ "/root/entrypoint.sh" ]
