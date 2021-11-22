@@ -16,7 +16,7 @@ runs:
       shell: bash
       run: |
         source ${GITHUB_ACTION_PATH}/scripts/utils.sh
-        export JSON_PATH="${{ github.workspace }}/output.json"
+        export JSON_PATH="${RUNNER_TEMP}/output.json"
         jset github_job $GITHUB_RUN_ID
         jset created_at $(timestamp)
         jset canister_id ${{ inputs.canister_id }}
@@ -32,7 +32,7 @@ runs:
       shell: bash
       run: |
         # Set URL of the Lambda receiving SQS cover events
-        export JSON_PATH="${{ github.workspace }}/output.json"
+        export JSON_PATH="${RUNNER_TEMP}/output.json"
         export COVER_LAMBDA_URL="https://7d6er3977d.execute-api.us-west-2.amazonaws.com/dev/publishSqs"
         jq < $JSON_PATH
         ret=$(curl -i -X POST ${COVER_LAMBDA_URL} \
