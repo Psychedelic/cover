@@ -25,7 +25,7 @@ If you are Cover developer, please read the [Developer Readme](./README-dev.md)
 ### Create Build Action 
 
 Inside of your canister repo create a directory `.github/workflows/` and add a `myBuild.yml` file,
-with the following content. To see a full build example see [dfx.yml](.github/workflows/dfx.yml)
+with the following content. To see a full build example see [build.yml](.github/workflows/build.yml)
 ```yaml
 
 name: Example canister build using build.js 
@@ -39,35 +39,19 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    container:
+      image: fleek/f3o:0.2.2
+
     steps:
       - uses: actions/checkout@v2
 
-      - name: Setup Node
-        uses: actions/setup-node@v2
-        with:
-          node-version: 16.x
-      - run: npm install
-
-      - name: Install cmake
-        run: |
-          sudo apt-get update
-          sudo apt-get install cmake -y
-
-      - name: Rust toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: ${{ matrix.rust }}
-          profile: minimal
-          default: true
-          override: true
-          target: wasm32-unknown-unknown
-
-      - name: IC CDK Optimizer
-#        Generates target/wasm32-unknown-unknown/release/canister.wasm 
-        run: cargo install ic-cdk-optimizer
-
       - name: Build WASM
-        run: node build.js --name cover
+          # HACK: set HOME to get github actions to execute correctly
+          export HOME=/root
+          export PATH="$HOME/.cargo/bin:${PATH}"
+          # Start build
+          yarn
+          MODE=PRODUCTION dfx build cover --check
 
       - name: Cover Validator Plugin
         uses: Psychedelic/cover/GithubActionPlugin@main
@@ -79,6 +63,25 @@ jobs:
 Whenever you push your code using `production` or `main` branches, the above workflow will be triggered. 
 If you successfully generated the canister.wasm the [Cover Validation Plugin](./GithubActionPlugin) 
 will call an AWS Lambda Function that will add the validation results to the [Cover canister](https://ic.rocks/principal/iftvq-niaaa-aaaai-qasga-cai)   
+
+### Build Canister
+
+In order to get the same wasm files on github actions and locally, 
+we need to ensure that the build environment on github actions is EXACTLY the same as the local one. 
+Thus, if you want to generate a wasm file locally, you must use the same docker image as the github actions is using.
+
+You can either provide your own docker image (We suggest you use ubuntu:20:04 at the base) or 
+you use our fleek/f3o docker image that includes tools needed to build Rust based canisters. 
+The fleek/f3o image is build with this [Dockerfile](./GithubActionPlugin/dockers/f3o/Dockerfile). 
+
+#### Executing local build 
+
+To execute a local build using fleek/f3o image, in your local folder run 
+ `GithubActionPlugin/dockers/docker-build.sh` to generate wasm files inside of folder `./dfx-build`.
+
+You can tweak the docker-build.sh and the entrypoint.sh scripts to your needs. Just make sure that the 
+entrypoint.sh matches your Buld.WASM section in github actions. 
+
 
 ### Checking canister status 
 
