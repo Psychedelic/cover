@@ -28,7 +28,8 @@ jobs:
           MODE=PRODUCTION dfx build cover --check
 
       - name: Cover Validator Plugin
-        uses: Psychedelic/cover/GithubActionPlugin@main
+        uses: ./GithubActionPlugin
+        # uses: Psychedelic/cover/GithubActionPlugin@main
         with:
           canister_id: ${{ env.cover_canister_id }}
           wasm_path: ".dfx/local/canisters/cover/cover.wasm"
