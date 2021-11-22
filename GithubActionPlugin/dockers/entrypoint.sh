@@ -1,5 +1,5 @@
 #!/bin/bash
 set +x
 yarn
-MODE=PRODUCTION dfx build --all --check
+MODE=PRODUCTION dfx build cover --check
 tree .dfx
