@@ -57,7 +57,7 @@ jobs:
         uses: Psychedelic/cover/GithubActionPlugin@main
         with:
           canister_id: "iftvq-niaaa-aaaai-qasga-cai"
-          wasm_path: "target/wasm32-unknown-unknown/release/canister.wasm"
+          wasm_path: ".dfx/local/canisters/cover/cover.wasm"
 ```
 
 Whenever you push your code using `production` or `main` branches, the above workflow will be triggered. 
