@@ -7,7 +7,7 @@ ENV DFX_CANDID_RELEASE=2021-08-20
 
 RUN apt-get update
 RUN DEBIAN_FRONTEND="noninteractive" apt-get -y install tzdata
-RUN apt-get install build-essential curl cmake make less wget git rsync jq net-tools -y
+RUN apt-get install build-essential curl cmake make less wget git rsync jq net-tools nano tree -y
 
 # Install yarn and nodejs
 RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -

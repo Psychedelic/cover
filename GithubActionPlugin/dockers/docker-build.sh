@@ -1,6 +1,6 @@
 #!/bin/bash
 echo "Creating docker builder dfx-builder"
-docker build -t fleek/dfx-builder -f .docker/deployment/Dockerfile .
+docker build -t fleek/dfx-builder -f ./GithubActionPlugin/build/Dockerfile .
 echo "Build docker fleek/dfx-builder completed ..."
 echo "-----------------------------------------------------"
 TARGET="$(pwd)/dfx-build"

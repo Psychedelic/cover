@@ -40,7 +40,7 @@ jobs:
     runs-on: ubuntu-latest
 
     container:
-      image: fleek/f3o:0.2.2
+      image: fleek/dfxrust
 
     steps:
       - uses: actions/checkout@v2
@@ -71,12 +71,12 @@ we need to ensure that the build environment on github actions is EXACTLY the sa
 Thus, if you want to generate a wasm file locally, you must use the same docker image as the github actions is using.
 
 You can either provide your own docker image (We suggest you use ubuntu:20:04 at the base) or 
-you use our fleek/f3o docker image that includes tools needed to build Rust based canisters. 
-The fleek/f3o image is build with this [Dockerfile](./GithubActionPlugin/dockers/f3o/Dockerfile). 
+you use our fleek/dfxrust docker image that includes tools needed to build Rust based canisters. 
+The fleek/dfxrust image is build with this [Dockerfile](GithubActionPlugin/dockers/dfxrust/Dockerfile). 
 
 #### Executing local build 
 
-To execute a local build using fleek/f3o image, in your local folder run 
+To execute a local build using fleek/dfxrust image, in your local folder run 
  `GithubActionPlugin/dockers/docker-build.sh` to generate wasm files inside of folder `./dfx-build`.
 
 You can tweak the docker-build.sh and the entrypoint.sh scripts to your needs. Just make sure that the 
