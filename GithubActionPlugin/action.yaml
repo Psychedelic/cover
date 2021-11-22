@@ -15,6 +15,11 @@ runs:
     - name: "Collecting Cover Data"
       shell: bash
       run: |
+        echo "---${pwd}-------------------------------------------"
+        ls -la
+        echo "----------------------------------------------"
+        env
+        echo "----------------------------------------------"
         source ${{ github.action_path}}/scripts/utils.sh
         export JSON_PATH=output.json
         jset github_job ${{ job.run_id }}
