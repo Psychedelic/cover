@@ -4,7 +4,7 @@
 #  -e CANISTERIUM_CANISTER_ID="rrkah-fqaaa-aaaaa-aaaaq-cai" \
 #  -e PAT=YOUR_PERSONAL_AT \
 #  fleek/f3o-fe
-FROM fleek/f3o:latest
+FROM fleek/f3o:0.2.2
 
 RUN apt-get install nano tree -y
 RUN yarn global add serve
