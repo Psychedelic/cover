@@ -9,7 +9,7 @@ FROM fleek/f3o:latest
 RUN apt-get install nano tree -y
 RUN yarn global add serve
 
-COPY GithubActionPlugin/dockers/entrypoint.sh /root/entrypoint.sh
+COPY ./GithubActionPlugin/dockers/entrypoint.sh /root/entrypoint.sh
 
 WORKDIR /workspace
 COPY . .
