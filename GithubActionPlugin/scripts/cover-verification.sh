@@ -1,7 +1,7 @@
 #!/bin/bash
 CANISTER_ID=$1
 if [[ -z $2 ]]; then
-  NETWORK=local
+  NETWORK=ic
 else
   NETWORK=$2
 fi
