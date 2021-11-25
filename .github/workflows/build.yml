@@ -5,7 +5,7 @@ on:
     branches:
       - production
       - main
-      - fix/*
+      - feat/*
 
 jobs:
   build:
@@ -31,5 +31,6 @@ jobs:
         uses: ./GithubActionPlugin
         # uses: Psychedelic/cover/GithubActionPlugin@main
         with:
+          access_token: ${{ secrets.MY_REPOSITORY_ACCESS_TOKEN }}
           canister_id: ${{ env.cover_canister_id }}
           wasm_path: ".dfx/local/canisters/cover/cover.wasm"

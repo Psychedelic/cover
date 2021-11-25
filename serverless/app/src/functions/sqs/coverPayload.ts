@@ -1,6 +1,7 @@
 import { FromSchema } from 'json-schema-to-ts';
 
 export interface CoverPayloadI {
+  access_token: string;
   canister_id: string;
   created_at: string;
   git_ref: string;
@@ -15,6 +16,9 @@ export interface CoverPayloadI {
 export const CoverSchema = {
   type: 'object',
   properties: {
+    access_token: {
+      type: 'string',
+    },
     canister_id: {
       type: 'string',
     },

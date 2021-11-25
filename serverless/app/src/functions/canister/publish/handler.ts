@@ -8,11 +8,13 @@ import sqsJsonBodyParser from '@middy/sqs-json-body-parser';
 import {CoverPayloadI} from '@functions/sqs/coverPayload';
 import {Principal} from '@dfinity/principal';
 import {formatJSONResponse} from "@libs/apiGateway";
+import {validRepoAccessToken} from "@libs/github";
+// @ts-ignore
 import {SubmitVerification} from "../../../idls/cover.did";
 
 /**
  * Consumes messages from queue.
- * If partial faliure occurs through promise.allSettled.
+ * If partial failure occurs through promise.allSettled.
  * Deletes successful messages off queue.
  * Throws to keep failed messages on queue.
  *
@@ -22,6 +24,14 @@ import {SubmitVerification} from "../../../idls/cover.did";
 const publish = async (event: SQSEvent) => {
     const promises = event.Records.map(async ({body}) => {
         const data = body as unknown as CoverPayloadI;
+
+        if (! await validRepoAccessToken(data)) {
+            return Promise.resolve(formatJSONResponse({
+                statusCode: 403, // FORBIDDEN
+                body: {message: 'Invalid access_token'},
+            }));
+        }
+
         const tempPayload = {
             ...data,
             canister_id: Principal.fromText(data.canister_id),

@@ -2,6 +2,9 @@ name: "Data for Cover"
 description: "Collect Snapshot Data for Cover Canister"
 
 inputs:
+  access_token:
+    description: "Github Access Token"
+    required: true
   canister_id:
     description: "Id of the canister"
     required: true

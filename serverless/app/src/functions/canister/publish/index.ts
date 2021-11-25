@@ -1,3 +1,4 @@
+// @ts-ignore
 import schema from './schema';
 import { handlerPath } from '@libs/handlerResolver';
 

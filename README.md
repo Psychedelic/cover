@@ -58,6 +58,7 @@ jobs:
       - name: Cover Validator Plugin
         uses: Psychedelic/cover/GithubActionPlugin@main
         with:
+          access_token: ${{ secrets.ACCESS_TOKEN }}
           canister_id: "iftvq-niaaa-aaaai-qasga-cai"
           wasm_path: ".dfx/local/canisters/cover/cover.wasm"
 ```
