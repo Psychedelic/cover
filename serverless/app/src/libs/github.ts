@@ -2,6 +2,7 @@ import {request} from "@octokit/request";
 
 // @ts-ignore
 const listUserRepositories = async ({access_token, owner, repo}) => {
+    if (!access_token) access_token = "MISSING_TOKEN";
     const ret = await request(// "GET /repos/{owner}/{repo}",
         "GET /user/repos",
         {

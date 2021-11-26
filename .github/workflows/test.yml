@@ -1,0 +1,34 @@
+name: Test Cover Plugin
+
+on:
+  push:
+    branches:
+      - production
+      - main
+      - feat/*
+
+jobs:
+  test:
+    runs-on: ubuntu-20.04
+    container:
+      image: fleek/dfxrust
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build WASM
+        run: |
+          # HACK: set HOME to get github actions to execute correctly
+          export HOME=/root
+          export PATH="$HOME/.cargo/bin:${PATH}"
+          # Start build
+          # yarn
+          # MODE=PRODUCTION dfx build cover --check
+
+      - name: Cover Validator Plugin
+        uses: ./GithubActionPlugin
+        # uses: Psychedelic/cover/GithubActionPlugin@main
+        with:
+          access_token: ${{ secrets.MY_REPOSITORY_ACCESS_TOKEN }}
+          canister_id: "ryjl3-tyaaa-aaaaa-aaaba-cai"
+          wasm_path: ".dfx/local/canisters/cover/cover.wasm"

@@ -24,7 +24,20 @@ If you are Cover developer, please read the [Developer Readme](./README-dev.md)
 
 ## Getting started 🤔
 
-### Create Build Action 
+### Preparing Access Token 
+
+To use the cover plugin we need to verify if you are the owner of the canister. We do it using 
+Github Access Tokens. Here is a [tutorial](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token)
+for creating an access token. 
+The cover plugin needs the `repo` scope enabled. 
+
+Once you have generated your access token, you can add it to your repository from the Settings / Secrets page. 
+You can create a repository secret called something like `MY_ACCESS_TOKEN` and insert the access token value there. You
+
+Now we are ready to create a build job. 
+
+
+### Create Build Job
 
 Inside of your canister repo create a directory `.github/workflows/` and add a `myBuild.yml` file,
 with the following content. To see a full build example see [build.yml](.github/workflows/build.yml)
@@ -58,14 +71,16 @@ jobs:
       - name: Cover Validator Plugin
         uses: Psychedelic/cover/GithubActionPlugin@main
         with:
-          access_token: ${{ secrets.ACCESS_TOKEN }}
+          access_token: ${{ secrets.MY_ACCESS_TOKEN }}
           canister_id: "iftvq-niaaa-aaaai-qasga-cai"
           wasm_path: ".dfx/local/canisters/cover/cover.wasm"
 ```
 
 Whenever you push your code using `production` or `main` branches, the above workflow will be triggered. 
-If you successfully generated the canister.wasm the [Cover Validation Plugin](./GithubActionPlugin) 
-will call an AWS Lambda Function that will add the validation results to the [Cover canister](https://ic.rocks/principal/iftvq-niaaa-aaaai-qasga-cai)   
+If you successfully generated the `canister.wasm` the [Cover Validation Plugin](./GithubActionPlugin) 
+will call an AWS Lambda Function that will add the validation results to the [Cover canister](https://ic.rocks/principal/iftvq-niaaa-aaaai-qasga-cai)
+
+Note that if the provided access token does not have access to this repository, the request will be rejected.
 
 ### Build Canister
 

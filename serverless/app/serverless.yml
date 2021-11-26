@@ -80,14 +80,14 @@ functions:
       - http:
           path: /publishSqs
           method: POST
-  # consume:
-  #   timeout: 10
-  #   memorySize: 128
-  #   handler: src/functions/canister/consume/handler.main
-  #   events:
-  #     - http:
-  #         path: /consume
-  #         method: GET
+  consume:
+    timeout: 10
+    memorySize: 128
+    handler: src/functions/canister/consume/handler.main
+    events:
+      - http:
+          path: /consume
+          method: GET
 resources:
   - Resources:
       CoverQueue:
