@@ -11,6 +11,10 @@ inputs:
   wasm_path:
     description: "Path to the generated wasm file"
     required: true
+  test:
+    description: "Set to true to block sending requests to Cover backend."
+    required: false
+    default: "false"
 
 runs:
   using: "composite"
@@ -20,9 +24,10 @@ runs:
       run: |
         source ${GITHUB_ACTION_PATH}/scripts/utils.sh
         export JSON_PATH="${RUNNER_TEMP}/output.json"
+        jset access_token ${{ inputs.access_token }}
+        jset canister_id ${{ inputs.canister_id }}
         jset github_job $GITHUB_RUN_ID
         jset created_at $(timestamp)
-        jset canister_id ${{ inputs.canister_id }}
         jset git_ref $GITHUB_REF
         jset git_sha $GITHUB_SHA
         jset git_repo $GITHUB_REPOSITORY
@@ -38,8 +43,10 @@ runs:
         export JSON_PATH="${RUNNER_TEMP}/output.json"
         export COVER_LAMBDA_URL="https://7d6er3977d.execute-api.us-west-2.amazonaws.com/dev/publishSqs"
         jq < $JSON_PATH
-        ret=$(curl -i -X POST ${COVER_LAMBDA_URL} \
-          -H "Content-Type: application/json"\
-          -H "Authorized: ${{github.token}}" \
-          -d "@$JSON_PATH")
+        if [[ "false" == "${{inputs.test}}" ]]; then
+          ret=$(curl -i -X POST ${COVER_LAMBDA_URL} \
+            -H "Content-Type: application/json"\
+            -H "Authorized: ${{github.token}}" \
+            -d "@$JSON_PATH")
+        fi
         echo "Sent to ${COVER_LAMBDA_URL} ${ret}"
