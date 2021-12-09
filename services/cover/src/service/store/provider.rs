@@ -9,17 +9,9 @@ use crate::service::store::error::ErrorKindStore;
 use crate::service::time_utils;
 use crate::service::types::{AddProvider, Provider, UpdateProvider};
 
-#[derive(CandidType, Deserialize)]
+#[derive(CandidType, Deserialize, Default)]
 pub struct ProviderStore {
     provider: BTreeMap<ProviderId, Provider>,
-}
-
-impl Default for ProviderStore {
-    fn default() -> Self {
-        Self {
-            provider: BTreeMap::default(),
-        }
-    }
 }
 
 impl ProviderStore {

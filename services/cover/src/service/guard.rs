@@ -19,7 +19,7 @@ pub fn is_valid_provider<T, F: FnOnce() -> Result<T, Error>>(
 ) -> Result<T, Error> {
     get_provider_store()
         .provider_exists(provider_id)
-        .then(|| f())
+        .then(f)
         .unwrap_or_else(|| Err(ErrorKindService::InvalidProvider.into()))
 }
 
@@ -45,7 +45,7 @@ pub async fn is_cover_owner<T, F: FnOnce() -> Result<T, Error>>(
                 s.settings
                     .controllers
                     .contains(caller_id)
-                    .then(|| f())
+                    .then(f)
                     .unwrap_or_else(|| Err(ErrorKindService::InvalidCoverController.into()))
             })
             .unwrap_or_else(|e| Err(ErrorKindApi::BlackholeCanisterStatus(e).into()))

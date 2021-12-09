@@ -10,18 +10,10 @@ use crate::service::store::error::ErrorKindStore;
 use crate::service::time_utils;
 use crate::service::types::{Progress, ProgressStatus, UpdateProgress};
 
-#[derive(CandidType, Deserialize)]
+#[derive(CandidType, Deserialize, Default)]
 pub struct ProgressStore {
     /// Request id is unique => single entry
     progress: BTreeMap<(ReqId, CanisterId), Progress>,
-}
-
-impl Default for ProgressStore {
-    fn default() -> Self {
-        Self {
-            progress: BTreeMap::default(),
-        }
-    }
 }
 
 impl ProgressStore {
