@@ -134,6 +134,19 @@ impl From<ErrorKindStore> for Error {
                 message: "Existed provider",
                 debug_log: None,
             },
+            //============================================================================
+            // Build Config - ERR_005_003_{SEQUENCE}
+            //============================================================================
+            ErrorKindStore::BuildConfigNotFound => Self {
+                code: "ERR_005_003_001",
+                message: "Build Config not found",
+                debug_log: None,
+            },
+            ErrorKindStore::BuildConfigExisted => Self {
+                code: "ERR_005_003_002",
+                message: "Existed Build Config",
+                debug_log: None,
+            },
         }
     }
 }
