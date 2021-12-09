@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "dfx": "0.8.3",
+  "dfx": "0.8.4",
   "canisters": {
     "cover": {
       "build": "node build.js --name cover",

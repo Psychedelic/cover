@@ -9,6 +9,8 @@ pub use caller_gen::*;
 #[cfg(test)]
 pub use canister::*;
 #[cfg(test)]
+pub use canister_build_config::*;
+#[cfg(test)]
 pub use create_request::*;
 #[cfg(test)]
 pub use provider_info::*;
@@ -24,6 +26,7 @@ mod add_verification;
 mod build_settings;
 mod caller_gen;
 mod canister;
+mod canister_build_config;
 mod create_request;
 mod provider_info;
 mod update_progress;
