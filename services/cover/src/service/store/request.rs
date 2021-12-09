@@ -11,7 +11,7 @@ use crate::service::types::{CreateRequest, ProviderInfo, Request};
 /// Batch request buffer
 const MAX_BATCH_REQ: ReqId = 10;
 
-#[derive(CandidType, Deserialize)]
+#[derive(CandidType, Deserialize, Default)]
 pub struct RequestStore {
     /// Request counter <=> last request id
     last_request_id: ReqId,
@@ -34,17 +34,6 @@ struct ConsumeRegistry {
     provider_info: ProviderInfo,
     batch: Vec<Option<Request>>,
     consumed_at: String,
-}
-
-impl Default for RequestStore {
-    fn default() -> Self {
-        Self {
-            last_request_id: 0,
-            consume_history: BTreeMap::default(),
-            request: VecDeque::default(),
-            last_consumed_request_id: 0,
-        }
-    }
 }
 
 // TODO: history api

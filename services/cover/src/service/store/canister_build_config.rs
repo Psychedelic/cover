@@ -7,17 +7,9 @@ use crate::service::store::error::ErrorKindStore;
 use crate::service::time_utils;
 use crate::CanisterId;
 
-#[derive(Debug)]
+#[derive(Default)]
 pub struct CanisterBuildConfigStore {
     configs: BTreeMap<(CallerId, CanisterId), CanisterBuildConfig>,
-}
-
-impl Default for CanisterBuildConfigStore {
-    fn default() -> Self {
-        Self {
-            configs: BTreeMap::default(),
-        }
-    }
 }
 
 impl CanisterBuildConfigStore {

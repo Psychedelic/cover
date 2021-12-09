@@ -9,17 +9,9 @@ use crate::service::store::error::ErrorKindStore;
 use crate::service::time_utils;
 use crate::service::types::{AddVerification, UpdateVerification, Verification};
 
-#[derive(CandidType, Deserialize)]
+#[derive(CandidType, Deserialize, Default)]
 pub struct VerificationStore {
     verification: BTreeMap<CanisterId, Verification>,
-}
-
-impl Default for VerificationStore {
-    fn default() -> Self {
-        Self {
-            verification: BTreeMap::default(),
-        }
-    }
 }
 
 impl VerificationStore {
