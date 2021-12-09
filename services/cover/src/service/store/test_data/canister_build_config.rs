@@ -1,4 +1,4 @@
-use crate::service::model::canister::CanisterBuildConfig;
+use crate::service::model::canister_build_config::CanisterBuildConfig;
 use crate::service::store::test_data::{fake_canister1, fake_canister2, fake_canister3};
 use crate::service::time_utils;
 use ic_kit::mock_principals;
