@@ -1,1 +1,1 @@
-pub mod canister;
+pub mod canister_build_config;

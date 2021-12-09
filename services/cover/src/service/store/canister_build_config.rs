@@ -2,7 +2,7 @@ use std::collections::BTreeMap;
 use std::ops::Not;
 
 use crate::common::types::CallerId;
-use crate::service::model::canister::CanisterBuildConfig;
+use crate::service::model::canister_build_config::CanisterBuildConfig;
 use crate::service::store::error::ErrorKindStore;
 use crate::service::time_utils;
 use crate::CanisterId;
