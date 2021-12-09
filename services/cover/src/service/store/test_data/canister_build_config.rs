@@ -15,6 +15,7 @@ pub fn fake_config1() -> CanisterBuildConfig {
         dfx_version: "0.8.3".into(),
         optimize_times: 0,
         created_at: time_utils::now_to_str(),
+        updated_at: time_utils::now_to_str(),
     }
 }
 
@@ -30,6 +31,7 @@ pub fn fake_config2() -> CanisterBuildConfig {
         dfx_version: "0.8.3".into(),
         optimize_times: 2,
         created_at: time_utils::now_to_str(),
+        updated_at: time_utils::now_to_str(),
     }
 }
 
@@ -45,6 +47,7 @@ pub fn fake_config3() -> CanisterBuildConfig {
         dfx_version: "0.8.3".into(),
         optimize_times: 1,
         created_at: time_utils::now_to_str(),
+        updated_at: time_utils::now_to_str(),
     }
 }
 
@@ -60,5 +63,6 @@ pub fn fake_config4() -> CanisterBuildConfig {
         dfx_version: "0.8.3".into(),
         optimize_times: 4,
         created_at: time_utils::now_to_str(),
+        updated_at: time_utils::now_to_str(),
     }
 }

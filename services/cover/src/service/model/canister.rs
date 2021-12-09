@@ -10,6 +10,7 @@ pub struct CanisterBuildConfig {
     pub commit_hash: String,
     pub rust_version: String,
     pub dfx_version: String,
-    pub optimize_times: i8,
+    pub optimize_times: u8,
     pub created_at: String,
+    pub updated_at: String,
 }

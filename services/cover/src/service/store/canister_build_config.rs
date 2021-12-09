@@ -60,7 +60,8 @@ impl CanisterBuildConfigStore {
                         rust_version: config.rust_version,
                         dfx_version: config.dfx_version,
                         optimize_times: config.optimize_times,
-                        created_at: now,
+                        created_at: now.clone(),
+                        updated_at: now,
                     },
                 );
             })
@@ -69,9 +70,9 @@ impl CanisterBuildConfigStore {
 
     pub fn update_config(
         &mut self,
-        config: CanisterBuildConfig,
         caller_id: &CallerId,
         canister_id: &CanisterId,
+        config: CanisterBuildConfig,
     ) -> Result<(), ErrorKindStore> {
         self.configs
             .get_mut(&(*caller_id, *canister_id))
@@ -82,7 +83,8 @@ impl CanisterBuildConfigStore {
                 c.commit_hash = config.commit_hash;
                 c.rust_version = config.rust_version;
                 c.dfx_version = config.dfx_version;
-                c.optimize_times = config.optimize_times
+                c.optimize_times = config.optimize_times;
+                c.updated_at = time_utils::now_to_str()
             })
             .ok_or(ErrorKindStore::BuildConfigNotFound)
     }
@@ -101,8 +103,7 @@ impl CanisterBuildConfigStore {
 
 #[cfg(test)]
 mod test {
-    use crate::service::store::canister_build_config::CanisterBuildConfigStore;
-    use crate::service::store::error::ErrorKindStore;
+    use super::*;
     use crate::service::store::test_data::*;
 
     fn init_test_data() -> CanisterBuildConfigStore {
@@ -161,9 +162,9 @@ mod test {
 
         assert_eq!(
             store.update_config(
-                fake_config2(),
                 &fake_config4().user_id,
-                &fake_config4().canister_id
+                &fake_config4().canister_id,
+                fake_config2()
             ),
             Ok(())
         );
@@ -179,9 +180,9 @@ mod test {
 
         assert_eq!(
             store.update_config(
-                fake_config1(),
                 &fake_config2().user_id,
                 &fake_config2().canister_id,
+                fake_config1(),
             ),
             Err(ErrorKindStore::BuildConfigNotFound)
         )
@@ -193,6 +194,10 @@ mod test {
         assert_eq!(
             store.delete_config(&fake_config1().user_id, &fake_config1().canister_id),
             Ok(())
+        );
+        assert_eq!(
+            store.delete_config(&fake_config1().user_id, &fake_config1().canister_id),
+            Err(ErrorKindStore::BuildConfigNotFound)
         );
         assert_eq!(
             store.delete_config(&fake_config2().user_id, &fake_config2().canister_id),
