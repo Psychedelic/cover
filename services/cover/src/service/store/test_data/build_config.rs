@@ -1,10 +1,10 @@
-use crate::service::model::canister_build_config::CanisterBuildConfig;
+use crate::service::model::build_config::BuildConfig;
 use crate::service::store::test_data::{fake_canister1, fake_canister2, fake_canister3};
 use crate::service::time_utils;
 use ic_kit::mock_principals;
 
-pub fn fake_config1() -> CanisterBuildConfig {
-    CanisterBuildConfig {
+pub fn fake_config1() -> BuildConfig {
+    BuildConfig {
         user_id: mock_principals::alice(),
         canister_id: fake_canister1(),
         canister_name: "Canister1".into(),
@@ -19,8 +19,8 @@ pub fn fake_config1() -> CanisterBuildConfig {
     }
 }
 
-pub fn fake_config2() -> CanisterBuildConfig {
-    CanisterBuildConfig {
+pub fn fake_config2() -> BuildConfig {
+    BuildConfig {
         user_id: mock_principals::bob(),
         canister_id: fake_canister2(),
         canister_name: "Canister2".into(),
@@ -35,8 +35,8 @@ pub fn fake_config2() -> CanisterBuildConfig {
     }
 }
 
-pub fn fake_config3() -> CanisterBuildConfig {
-    CanisterBuildConfig {
+pub fn fake_config3() -> BuildConfig {
+    BuildConfig {
         user_id: mock_principals::john(),
         canister_id: fake_canister1(),
         canister_name: "Canister1".into(),
@@ -51,8 +51,8 @@ pub fn fake_config3() -> CanisterBuildConfig {
     }
 }
 
-pub fn fake_config4() -> CanisterBuildConfig {
-    CanisterBuildConfig {
+pub fn fake_config4() -> BuildConfig {
+    BuildConfig {
         user_id: mock_principals::alice(),
         canister_id: fake_canister3(),
         canister_name: "Canister3".into(),
