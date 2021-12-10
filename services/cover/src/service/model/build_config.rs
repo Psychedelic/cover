@@ -4,7 +4,7 @@ use ic_kit::candid::CandidType;
 use serde::Deserialize;
 
 #[derive(PartialEq, CandidType, Deserialize, Debug)]
-pub struct CanisterBuildConfig {
+pub struct BuildConfig {
     pub user_id: CallerId,
     pub canister_id: CanisterId,
     pub canister_name: String,

@@ -4,19 +4,19 @@ use std::ops::Not;
 use serde::Deserialize;
 
 use crate::common::types::CallerId;
-use crate::service::model::canister_build_config::CanisterBuildConfig;
+use crate::service::model::build_config::BuildConfig;
 use crate::service::store::error::ErrorKindStore;
 use crate::service::time_utils;
 use crate::CanisterId;
 use ic_kit::candid::CandidType;
 
 #[derive(CandidType, Default, Deserialize)]
-pub struct CanisterBuildConfigStore {
-    configs: BTreeMap<(CallerId, CanisterId), CanisterBuildConfig>,
+pub struct BuildConfigStore {
+    configs: BTreeMap<(CallerId, CanisterId), BuildConfig>,
 }
 
-impl CanisterBuildConfigStore {
-    pub fn get_all_configs(&self, caller_id: &CallerId) -> Vec<&CanisterBuildConfig> {
+impl BuildConfigStore {
+    pub fn get_all_build_configs(&self, caller_id: &CallerId) -> Vec<&BuildConfig> {
         self.configs
             .iter()
             .filter(|((c, _), _)| c == caller_id)
@@ -24,29 +24,33 @@ impl CanisterBuildConfigStore {
             .collect()
     }
 
-    pub fn get_config_by_id(
+    pub fn get_build_config_by_id(
         &self,
         caller_id: &CallerId,
         canister_id: &CanisterId,
-    ) -> Result<&CanisterBuildConfig, ErrorKindStore> {
+    ) -> Result<&BuildConfig, ErrorKindStore> {
         self.configs
             .get(&(*caller_id, *canister_id))
             .ok_or(ErrorKindStore::BuildConfigNotFound)
     }
 
-    fn config_exists(&self, caller_id: &CallerId, canister_id: &CanisterId) -> bool {
+    fn build_config_exists(&self, caller_id: &CallerId, canister_id: &CanisterId) -> bool {
         self.configs.contains_key(&(*caller_id, *canister_id))
     }
 
-    pub fn add_config(&mut self, config: CanisterBuildConfig) -> Result<(), ErrorKindStore> {
-        self.config_exists(&config.user_id, &config.canister_id)
+    pub fn add_build_config(
+        &mut self,
+        caller_id: &CallerId,
+        config: BuildConfig,
+    ) -> Result<(), ErrorKindStore> {
+        self.build_config_exists(&config.user_id, &config.canister_id)
             .not()
             .then(|| {
                 let now = time_utils::now_to_str();
                 self.configs.insert(
-                    (config.user_id, config.canister_id),
-                    CanisterBuildConfig {
-                        user_id: config.user_id,
+                    (*caller_id, config.canister_id),
+                    BuildConfig {
+                        user_id: *caller_id,
                         canister_id: config.canister_id,
                         canister_name: config.canister_name,
                         repo_url: config.repo_url,
@@ -63,11 +67,11 @@ impl CanisterBuildConfigStore {
             .ok_or(ErrorKindStore::BuildConfigExisted)
     }
 
-    pub fn update_config(
+    pub fn update_build_config(
         &mut self,
         caller_id: &CallerId,
         canister_id: &CanisterId,
-        config: CanisterBuildConfig,
+        config: BuildConfig,
     ) -> Result<(), ErrorKindStore> {
         self.configs
             .get_mut(&(*caller_id, *canister_id))
@@ -84,7 +88,7 @@ impl CanisterBuildConfigStore {
             .ok_or(ErrorKindStore::BuildConfigNotFound)
     }
 
-    pub fn delete_config(
+    pub fn delete_build_config(
         &mut self,
         caller_id: &CallerId,
         canister_id: &CanisterId,
@@ -101,21 +105,31 @@ mod test {
     use super::*;
     use crate::service::store::test_data::*;
 
-    fn init_test_data() -> CanisterBuildConfigStore {
-        let mut store = CanisterBuildConfigStore::default();
-        store.add_config(fake_config1()).unwrap();
-        store.add_config(fake_config4()).unwrap();
+    fn init_test_data() -> BuildConfigStore {
+        let mut store = BuildConfigStore::default();
+        store
+            .add_build_config(&fake_config1().user_id, fake_config1())
+            .unwrap();
+        store
+            .add_build_config(&fake_config4().user_id, fake_config4())
+            .unwrap();
         store
     }
 
     #[test]
     fn add_config_ok() {
-        let mut store = CanisterBuildConfigStore::default();
+        let mut store = BuildConfigStore::default();
 
-        assert_eq!(store.add_config(fake_config1()), Ok(()));
-        assert_eq!(store.add_config(fake_config2()), Ok(()));
         assert_eq!(
-            store.add_config(fake_config1()),
+            store.add_build_config(&fake_config1().user_id, fake_config1()),
+            Ok(())
+        );
+        assert_eq!(
+            store.add_build_config(&fake_config2().user_id, fake_config2()),
+            Ok(())
+        );
+        assert_eq!(
+            store.add_build_config(&fake_config1().user_id, fake_config1()),
             Err(ErrorKindStore::BuildConfigExisted)
         );
     }
@@ -124,29 +138,32 @@ mod test {
     fn get_all_configs_ok() {
         let store = init_test_data();
         assert_eq!(
-            store.get_all_configs(&fake_config1().user_id),
+            store.get_all_build_configs(&fake_config1().user_id),
             vec![&fake_config4(), &fake_config1()]
         );
-        assert_eq!(store.get_all_configs(&fake_config2().user_id).len(), 0);
+        assert_eq!(
+            store.get_all_build_configs(&fake_config2().user_id).len(),
+            0
+        );
     }
 
     #[test]
     fn get_config_by_id_ok() {
         let store = init_test_data();
         assert_eq!(
-            store.get_config_by_id(&fake_config1().user_id, &fake_config1().canister_id),
+            store.get_build_config_by_id(&fake_config1().user_id, &fake_config1().canister_id),
             Ok(&fake_config1())
         );
         assert_eq!(
-            store.get_config_by_id(&fake_config2().user_id, &fake_config2().canister_id),
+            store.get_build_config_by_id(&fake_config2().user_id, &fake_config2().canister_id),
             Err(ErrorKindStore::BuildConfigNotFound)
         );
         assert_eq!(
-            store.get_config_by_id(&fake_config3().user_id, &fake_config3().canister_id),
+            store.get_build_config_by_id(&fake_config3().user_id, &fake_config3().canister_id),
             Err(ErrorKindStore::BuildConfigNotFound)
         );
         assert_eq!(
-            store.get_config_by_id(&fake_config4().user_id, &fake_config2().canister_id),
+            store.get_build_config_by_id(&fake_config4().user_id, &fake_config2().canister_id),
             Err(ErrorKindStore::BuildConfigNotFound)
         );
     }
@@ -156,7 +173,7 @@ mod test {
         let mut store = init_test_data();
 
         assert_eq!(
-            store.update_config(
+            store.update_build_config(
                 &fake_config4().user_id,
                 &fake_config4().canister_id,
                 fake_config2()
@@ -166,7 +183,7 @@ mod test {
 
         assert_eq!(
             store
-                .get_config_by_id(&fake_config4().user_id, &fake_config4().canister_id,)
+                .get_build_config_by_id(&fake_config4().user_id, &fake_config4().canister_id,)
                 .unwrap()
                 .canister_name
                 == fake_config2().canister_name,
@@ -174,7 +191,7 @@ mod test {
         );
 
         assert_eq!(
-            store.update_config(
+            store.update_build_config(
                 &fake_config2().user_id,
                 &fake_config2().canister_id,
                 fake_config1(),
@@ -187,15 +204,15 @@ mod test {
     fn delete_config_ok() {
         let mut store = init_test_data();
         assert_eq!(
-            store.delete_config(&fake_config1().user_id, &fake_config1().canister_id),
+            store.delete_build_config(&fake_config1().user_id, &fake_config1().canister_id),
             Ok(())
         );
         assert_eq!(
-            store.delete_config(&fake_config1().user_id, &fake_config1().canister_id),
+            store.delete_build_config(&fake_config1().user_id, &fake_config1().canister_id),
             Err(ErrorKindStore::BuildConfigNotFound)
         );
         assert_eq!(
-            store.delete_config(&fake_config2().user_id, &fake_config2().canister_id),
+            store.delete_build_config(&fake_config2().user_id, &fake_config2().canister_id),
             Err(ErrorKindStore::BuildConfigNotFound)
         );
     }
@@ -204,17 +221,17 @@ mod test {
     fn config_exists_ok() {
         let store = init_test_data();
         assert_eq!(
-            store.config_exists(&fake_config1().user_id, &fake_config1().canister_id),
+            store.build_config_exists(&fake_config1().user_id, &fake_config1().canister_id),
             true
         );
 
         assert_eq!(
-            store.config_exists(&fake_config4().user_id, &fake_config4().canister_id),
+            store.build_config_exists(&fake_config4().user_id, &fake_config4().canister_id),
             true
         );
 
         assert_eq!(
-            store.config_exists(&fake_config3().user_id, &fake_config3().canister_id),
+            store.build_config_exists(&fake_config3().user_id, &fake_config3().canister_id),
             false
         );
     }

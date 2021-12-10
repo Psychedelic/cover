@@ -1,13 +1,13 @@
 use ic_kit::ic::{get, get_mut};
 use ic_kit::ic::{stable_restore, stable_store, trap};
 
-use crate::service::store::canister_build_config::CanisterBuildConfigStore;
+use crate::service::store::build_config::BuildConfigStore;
 use crate::service::store::progress::ProgressStore;
 use crate::service::store::provider::ProviderStore;
 use crate::service::store::request::RequestStore;
 use crate::service::store::verification::VerificationStore;
 
-pub mod canister_build_config;
+pub mod build_config;
 pub mod cover;
 pub mod error_handler;
 pub mod guard;
@@ -58,12 +58,12 @@ fn get_provider_store() -> &'static ProviderStore {
 }
 
 #[inline]
-fn canister_build_config_mut() -> &'static mut CanisterBuildConfigStore {
+fn build_config_mut() -> &'static mut BuildConfigStore {
     get_mut()
 }
 
 #[inline]
-fn canister_build_config() -> &'static CanisterBuildConfigStore {
+fn build_config() -> &'static BuildConfigStore {
     get()
 }
 
@@ -75,7 +75,7 @@ type InternalStableStoreAsRef = (
     &'static ProgressStore,
     &'static VerificationStore,
     &'static ProviderStore,
-    &'static CanisterBuildConfigStore,
+    &'static BuildConfigStore,
 );
 
 pub fn pre_upgrade() {
@@ -84,7 +84,7 @@ pub fn pre_upgrade() {
         get_progress_store(),
         get_verification_store(),
         get_provider_store(),
-        canister_build_config(),
+        build_config(),
     )) {
         trap(&format!(
             "An error occurred when saving to stable memory (pre_upgrade): {:?}",
@@ -98,7 +98,7 @@ type InternalStableStore = (
     ProgressStore,
     VerificationStore,
     ProviderStore,
-    CanisterBuildConfigStore,
+    BuildConfigStore,
 );
 
 pub fn post_upgrade() {
@@ -115,7 +115,7 @@ pub fn post_upgrade() {
                 (*get_progress_store_mut()) = progress_store;
                 (*get_verification_store_mut()) = verification_store;
                 (*get_provider_store_mut()) = provider_store;
-                (*canister_build_config_mut()) = build_config_store;
+                (*build_config_mut()) = build_config_store;
             },
         )
         .unwrap_or_else(|e| {

@@ -2,9 +2,9 @@ use ic_kit::ic::caller;
 use ic_kit::macros::{query, update};
 
 use crate::common::types::{CanisterId, ProviderId, ReqId};
-use crate::service::canister_build_config;
+use crate::service::build_config;
 use crate::service::cover;
-use crate::service::model::canister_build_config::CanisterBuildConfig;
+use crate::service::model::build_config::BuildConfig;
 use crate::service::types::{
     AddProvider, AddVerification, CreateRequest, Error, Progress, Provider, ProviderInfo, Request,
     SubmitVerification, UpdateProgress, UpdateProvider, UpdateVerification, Verification,
@@ -109,26 +109,26 @@ fn get_all_providers() -> Vec<&'static Provider> {
 }
 
 #[query]
-fn get_all_configs() -> Vec<&'static CanisterBuildConfig> {
-    canister_build_config::get_all_configs(&caller())
+fn get_all_build_configs() -> Vec<&'static BuildConfig> {
+    build_config::get_all_build_configs(&caller())
 }
 
 #[query]
-fn get_config_by_id(canister_id: CanisterId) -> Result<&'static CanisterBuildConfig, Error> {
-    canister_build_config::get_config_by_id(&caller(), &canister_id)
+fn get_build_config_by_id(canister_id: CanisterId) -> Result<&'static BuildConfig, Error> {
+    build_config::get_build_config_by_id(&caller(), &canister_id)
 }
 
 #[update]
-fn update_config(canister_id: CanisterId, config: CanisterBuildConfig) -> Result<(), Error> {
-    canister_build_config::update_config(&caller(), &canister_id, config)
+fn update_build_config(canister_id: CanisterId, config: BuildConfig) -> Result<(), Error> {
+    build_config::update_build_config(&caller(), &canister_id, config)
 }
 
 #[update]
-fn delete_config(canister_id: CanisterId) -> Result<(), Error> {
-    canister_build_config::delete_config(&caller(), &canister_id)
+fn delete_build_config(canister_id: CanisterId) -> Result<(), Error> {
+    build_config::delete_build_config(&caller(), &canister_id)
 }
 
 #[update]
-fn add_config(config: CanisterBuildConfig) -> Result<(), Error> {
-    canister_build_config::add_config(config)
+fn add_build_config(config: BuildConfig) -> Result<(), Error> {
+    build_config::add_build_config(&caller(), config)
 }
