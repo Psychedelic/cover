@@ -4,7 +4,7 @@ use ic_kit::macros::{query, update};
 use crate::common::types::{CallerId, CanisterId, ProviderId, ReqId};
 use crate::service::canister_build_config;
 use crate::service::cover;
-use crate::service::model::canister::CanisterBuildConfig;
+use crate::service::model::canister_build_config::CanisterBuildConfig;
 use crate::service::types::{
     AddProvider, AddVerification, CreateRequest, Error, Progress, Provider, ProviderInfo, Request,
     SubmitVerification, UpdateProgress, UpdateProvider, UpdateVerification, Verification,
