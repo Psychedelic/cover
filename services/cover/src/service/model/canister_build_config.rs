@@ -3,7 +3,7 @@ use crate::CanisterId;
 use ic_kit::candid::CandidType;
 use serde::Deserialize;
 
-#[derive(Debug, PartialEq, CandidType, Deserialize)]
+#[derive(PartialEq, CandidType, Deserialize)]
 pub struct CanisterBuildConfig {
     pub user_id: CallerId,
     pub canister_id: CanisterId,
