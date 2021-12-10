@@ -121,7 +121,7 @@ fn get_config_by_id(
     canister_build_config::get_config_by_id(&caller_id, &canister_id)
 }
 
-#[query]
+#[update]
 fn update_config(
     caller_id: CallerId,
     canister_id: CanisterId,
@@ -130,12 +130,12 @@ fn update_config(
     canister_build_config::update_config(&caller_id, &canister_id, config)
 }
 
-#[query]
+#[update]
 fn delete_config(caller_id: CallerId, canister_id: CanisterId) -> Result<(), Error> {
     canister_build_config::delete_config(&caller_id, &canister_id)
 }
 
-#[query]
+#[update]
 fn add_config(config: CanisterBuildConfig) -> Result<(), Error> {
     canister_build_config::add_config(config)
 }
