@@ -1,13 +1,16 @@
 use std::collections::BTreeMap;
 use std::ops::Not;
 
+use serde::Deserialize;
+
 use crate::common::types::CallerId;
 use crate::service::model::canister_build_config::CanisterBuildConfig;
 use crate::service::store::error::ErrorKindStore;
 use crate::service::time_utils;
 use crate::CanisterId;
+use ic_kit::candid::CandidType;
 
-#[derive(Default)]
+#[derive(CandidType, Default, Deserialize)]
 pub struct CanisterBuildConfigStore {
     configs: BTreeMap<(CallerId, CanisterId), CanisterBuildConfig>,
 }
@@ -31,7 +34,7 @@ impl CanisterBuildConfigStore {
             .ok_or(ErrorKindStore::BuildConfigNotFound)
     }
 
-    pub fn config_exists(&self, caller_id: &CallerId, canister_id: &CanisterId) -> bool {
+    fn config_exists(&self, caller_id: &CallerId, canister_id: &CanisterId) -> bool {
         self.configs.contains_key(&(*caller_id, *canister_id))
     }
 

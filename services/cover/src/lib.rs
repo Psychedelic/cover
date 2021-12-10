@@ -1,8 +1,10 @@
 use ic_kit::ic::caller;
 use ic_kit::macros::{query, update};
 
-use crate::common::types::{CanisterId, ProviderId, ReqId};
+use crate::common::types::{CallerId, CanisterId, ProviderId, ReqId};
+use crate::service::canister_build_config;
 use crate::service::cover;
+use crate::service::model::canister::CanisterBuildConfig;
 use crate::service::types::{
     AddProvider, AddVerification, CreateRequest, Error, Progress, Provider, ProviderInfo, Request,
     SubmitVerification, UpdateProgress, UpdateProvider, UpdateVerification, Verification,
@@ -104,4 +106,36 @@ fn get_provider_by_id(provider_id: ProviderId) -> Option<&'static Provider> {
 #[query]
 fn get_all_providers() -> Vec<&'static Provider> {
     cover::get_all_providers()
+}
+
+#[query]
+fn get_all_configs(caller_id: CallerId) -> Vec<&'static CanisterBuildConfig> {
+    canister_build_config::get_all_configs(&caller_id)
+}
+
+#[query]
+fn get_config_by_id(
+    caller_id: CallerId,
+    canister_id: CanisterId,
+) -> Result<&'static CanisterBuildConfig, Error> {
+    canister_build_config::get_config_by_id(&caller_id, &canister_id)
+}
+
+#[query]
+fn update_config(
+    caller_id: CallerId,
+    canister_id: CanisterId,
+    config: CanisterBuildConfig,
+) -> Result<(), Error> {
+    canister_build_config::update_config(&caller_id, &canister_id, config)
+}
+
+#[query]
+fn delete_config(caller_id: CallerId, canister_id: CanisterId) -> Result<(), Error> {
+    canister_build_config::delete_config(&caller_id, &canister_id)
+}
+
+#[query]
+fn add_config(config: CanisterBuildConfig) -> Result<(), Error> {
+    canister_build_config::add_config(config)
 }
