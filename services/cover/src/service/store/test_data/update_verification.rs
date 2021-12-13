@@ -1,5 +1,5 @@
 use crate::common::types::CanisterId;
-use crate::service::types::UpdateVerification;
+use crate::service::model::verification::UpdateVerification;
 
 pub fn fake_update_verification1(canister_id: CanisterId) -> UpdateVerification {
     UpdateVerification {

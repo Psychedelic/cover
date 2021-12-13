@@ -1,8 +1,9 @@
 use crate::common::types::CallerId;
 use crate::service::guard::is_cover_owner;
-use crate::service::types::Error;
+use crate::service::model::error::Error;
+use crate::service::model::provider::{AddProvider, Provider, UpdateProvider};
 use crate::service::{get_provider_store, get_provider_store_mut};
-use crate::{AddProvider, Provider, ProviderId, UpdateProvider};
+use crate::ProviderId;
 
 pub async fn add_provider(caller_id: CallerId, add_provider: AddProvider) -> Result<(), Error> {
     is_cover_owner(&caller_id, || {

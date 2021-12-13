@@ -1,7 +1,8 @@
+use ic_kit::mock_principals;
+
 use crate::service::model::build_config::BuildConfig;
 use crate::service::store::test_data::{fake_canister1, fake_canister2, fake_canister3};
 use crate::service::time_utils;
-use ic_kit::mock_principals;
 
 pub fn fake_config1() -> BuildConfig {
     BuildConfig {

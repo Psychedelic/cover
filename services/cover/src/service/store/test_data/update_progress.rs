@@ -1,5 +1,5 @@
 use crate::common::types::{CanisterId, ReqId};
-use crate::service::types::{ProgressStatus, UpdateProgress};
+use crate::service::model::progress::{ProgressStatus, UpdateProgress};
 
 pub fn fake_update_progress_default(request_id: ReqId, canister_id: CanisterId) -> UpdateProgress {
     UpdateProgress {

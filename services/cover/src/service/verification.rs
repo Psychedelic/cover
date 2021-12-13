@@ -1,9 +1,10 @@
-use crate::common::types::CallerId;
+use crate::common::types::{CallerId, CanisterId};
 use crate::service::guard::is_valid_provider;
-use crate::service::types::Error;
+use crate::service::model::error::Error;
+use crate::service::model::verification::{
+    AddVerification, SubmitVerification, UpdateVerification, Verification,
+};
 use crate::service::{get_verification_store, get_verification_store_mut};
-
-use crate::{AddVerification, CanisterId, SubmitVerification, UpdateVerification, Verification};
 
 pub fn get_verification_by_canister_id(canister_id: &CanisterId) -> Option<&'static Verification> {
     get_verification_store().get_verification_by_canister_id(canister_id)

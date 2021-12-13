@@ -5,9 +5,9 @@ use ic_kit::candid::CandidType;
 use serde::Deserialize;
 
 use crate::common::types::{CallerId, ProviderId};
+use crate::service::model::provider::{AddProvider, Provider, UpdateProvider};
 use crate::service::store::error::ErrorKindStore;
 use crate::service::time_utils;
-use crate::service::types::{AddProvider, Provider, UpdateProvider};
 
 #[derive(CandidType, Deserialize, Default)]
 pub struct ProviderStore {

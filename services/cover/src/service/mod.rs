@@ -15,7 +15,6 @@ pub mod progress;
 pub mod provider;
 pub mod request;
 pub mod time_utils;
-pub mod types;
 pub mod verification;
 
 mod store;

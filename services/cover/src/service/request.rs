@@ -1,7 +1,8 @@
-use crate::common::types::CallerId;
-use crate::service::types::Error;
+use crate::common::types::{CallerId, ReqId};
+use crate::service::model::error::Error;
+use crate::service::model::provider::ProviderInfo;
+use crate::service::model::request::{CreateRequest, Request};
 use crate::service::{get_progress_store_mut, get_request_store, get_request_store_mut};
-use crate::{CreateRequest, ProviderInfo, ReqId, Request};
 
 pub fn get_request_by_id(request_id: ReqId) -> Option<&'static Request> {
     get_request_store().get_request_by_id(request_id)
