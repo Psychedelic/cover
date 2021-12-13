@@ -1,8 +1,7 @@
-use crate::common::types::CallerId;
+use crate::common::types::{CallerId, CanisterId};
 use crate::service::model::build_config::BuildConfig;
 use crate::service::model::error::Error;
 use crate::service::{build_config, build_config_mut};
-use crate::CanisterId;
 
 pub fn get_all_build_configs(caller_id: &CallerId) -> Vec<&'static BuildConfig> {
     build_config().get_all_build_configs(caller_id)
