@@ -1,6 +1,6 @@
-use super::{build_config, build_config_mut};
 use crate::common::types::CallerId;
 use crate::service::model::build_config::BuildConfig;
+use crate::service::{build_config, build_config_mut};
 use crate::{CanisterId, Error};
 
 pub fn get_all_build_configs(caller_id: &CallerId) -> Vec<&'static BuildConfig> {

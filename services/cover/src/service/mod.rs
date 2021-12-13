@@ -8,12 +8,15 @@ use crate::service::store::request::RequestStore;
 use crate::service::store::verification::VerificationStore;
 
 pub mod build_config;
-pub mod cover;
 pub mod error_handler;
 pub mod guard;
 pub mod model;
+pub mod progress;
+pub mod provider;
+pub mod request;
 pub mod time_utils;
 pub mod types;
+pub mod verification;
 
 mod store;
 
