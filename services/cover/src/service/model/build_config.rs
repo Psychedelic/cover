@@ -1,7 +1,7 @@
-use crate::common::types::CallerId;
-use crate::CanisterId;
 use ic_kit::candid::CandidType;
 use serde::Deserialize;
+
+use crate::common::types::{CallerId, CanisterId};
 
 #[derive(PartialEq, CandidType, Deserialize, Debug)]
 pub struct BuildConfig {

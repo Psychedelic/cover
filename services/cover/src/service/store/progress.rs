@@ -6,9 +6,9 @@ use ic_kit::candid::CandidType;
 use serde::Deserialize;
 
 use crate::common::types::{CanisterId, ReqId};
+use crate::service::model::progress::{Progress, ProgressStatus, UpdateProgress};
 use crate::service::store::error::ErrorKindStore;
 use crate::service::time_utils;
-use crate::service::types::{Progress, ProgressStatus, UpdateProgress};
 
 #[derive(CandidType, Deserialize, Default)]
 pub struct ProgressStore {

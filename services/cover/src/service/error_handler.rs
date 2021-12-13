@@ -1,7 +1,7 @@
 use ic_kit::RejectionCode;
 
+use crate::service::model::error::Error;
 use crate::service::store::error::ErrorKindStore;
-use crate::service::types::Error;
 
 // ERR_{MODULE}_{LEVEL}_{SEQUENCE}
 //      MODULE

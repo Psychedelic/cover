@@ -1,5 +1,5 @@
 use crate::common::types::CanisterId;
-use crate::service::types::{BuildSettings, CreateRequest};
+use crate::service::model::request::{BuildSettings, CreateRequest};
 
 pub fn fake_create_request(
     canister_id: CanisterId,

@@ -1,5 +1,5 @@
 use crate::common::types::ProviderId;
-use crate::service::types::UpdateProvider;
+use crate::service::model::provider::UpdateProvider;
 
 pub fn fake_update_provider1(id: ProviderId) -> UpdateProvider {
     UpdateProvider {

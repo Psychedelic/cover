@@ -3,9 +3,12 @@ use ic_kit::macros::{query, update};
 
 use crate::common::types::{CanisterId, ProviderId, ReqId};
 use crate::service::model::build_config::BuildConfig;
-use crate::service::types::{
-    AddProvider, AddVerification, CreateRequest, Error, Progress, Provider, ProviderInfo, Request,
-    SubmitVerification, UpdateProgress, UpdateProvider, UpdateVerification, Verification,
+use crate::service::model::error::Error;
+use crate::service::model::progress::{Progress, UpdateProgress};
+use crate::service::model::provider::{AddProvider, Provider, ProviderInfo, UpdateProvider};
+use crate::service::model::request::{CreateRequest, Request};
+use crate::service::model::verification::{
+    AddVerification, SubmitVerification, UpdateVerification, Verification,
 };
 use crate::service::{build_config, progress, provider, request, verification};
 

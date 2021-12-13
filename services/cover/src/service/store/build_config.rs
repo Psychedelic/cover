@@ -1,14 +1,13 @@
 use std::collections::BTreeMap;
 use std::ops::Not;
 
+use ic_kit::candid::CandidType;
 use serde::Deserialize;
 
-use crate::common::types::CallerId;
+use crate::common::types::{CallerId, CanisterId};
 use crate::service::model::build_config::BuildConfig;
 use crate::service::store::error::ErrorKindStore;
 use crate::service::time_utils;
-use crate::CanisterId;
-use ic_kit::candid::CandidType;
 
 #[derive(CandidType, Default, Deserialize)]
 pub struct BuildConfigStore {
@@ -102,8 +101,9 @@ impl BuildConfigStore {
 
 #[cfg(test)]
 mod test {
-    use super::*;
     use crate::service::store::test_data::*;
+
+    use super::*;
 
     fn init_test_data() -> BuildConfigStore {
         let mut store = BuildConfigStore::default();
@@ -176,14 +176,14 @@ mod test {
             store.update_build_config(
                 &fake_config4().user_id,
                 &fake_config4().canister_id,
-                fake_config2()
+                fake_config2(),
             ),
             Ok(())
         );
 
         assert_eq!(
             store
-                .get_build_config_by_id(&fake_config4().user_id, &fake_config4().canister_id,)
+                .get_build_config_by_id(&fake_config4().user_id, &fake_config4().canister_id)
                 .unwrap()
                 .canister_name
                 == fake_config2().canister_name,

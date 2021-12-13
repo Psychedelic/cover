@@ -1,4 +1,4 @@
-use crate::service::types::BuildSettings;
+use crate::service::model::request::BuildSettings;
 
 pub fn fake_build_settings1() -> BuildSettings {
     BuildSettings {

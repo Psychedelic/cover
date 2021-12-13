@@ -1,6 +1,7 @@
-use crate::service::types::Error;
+use crate::common::types::{CanisterId, ReqId};
+use crate::service::model::error::Error;
+use crate::service::model::progress::{Progress, UpdateProgress};
 use crate::service::{get_progress_store, get_progress_store_mut};
-use crate::{CanisterId, Progress, ReqId, UpdateProgress};
 
 pub fn get_progress_by_request_id(request_id: ReqId) -> Option<&'static Progress> {
     get_progress_store().get_progress_by_request_id(request_id)

@@ -4,9 +4,10 @@ use ic_kit::candid::CandidType;
 use serde::Deserialize;
 
 use crate::common::types::{CallerId, ReqId};
+use crate::service::model::provider::ProviderInfo;
+use crate::service::model::request::{CreateRequest, Request};
 use crate::service::store::error::ErrorKindStore;
 use crate::service::time_utils;
-use crate::service::types::{CreateRequest, ProviderInfo, Request};
 
 /// Batch request buffer
 const MAX_BATCH_REQ: ReqId = 10;

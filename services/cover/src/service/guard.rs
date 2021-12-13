@@ -9,7 +9,7 @@ use crate::common::types::{CallerId, ProviderId};
 #[cfg(not(feature = "local_replica"))]
 use crate::service::error_handler::ErrorKindApi;
 use crate::service::error_handler::ErrorKindService;
-use crate::service::types::Error;
+use crate::service::model::error::Error;
 
 use super::get_provider_store;
 
