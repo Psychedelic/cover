@@ -4,11 +4,10 @@ use std::ops::Not;
 use ic_kit::candid::CandidType;
 use serde::Deserialize;
 
-use crate::common::types::CallerId;
+use crate::common::types::{CallerId, CanisterId};
 use crate::service::model::build_config::BuildConfig;
 use crate::service::store::error::ErrorKindStore;
 use crate::service::time_utils;
-use crate::CanisterId;
 
 #[derive(CandidType, Default, Deserialize)]
 pub struct BuildConfigStore {
