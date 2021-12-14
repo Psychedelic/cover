@@ -1,176 +1,113 @@
-type BuildSettings = record {
-    git_ref: text;
-    git_repo: text;
-    git_sha: text;
-};
-
-type ProgressStatus = variant { Init; InProgress; Finished; Error };
-
-type AddProvider = record {
-    id: principal;
-    name: text;
-    memo: opt text;
-};
-
-type UpdateProvider = record {
-    id: principal;
-    name: text;
-    memo: opt text;
-};
-
+type AddProvider = record { id : principal; memo : opt text; name : text };
 type AddVerification = record {
-    canister_id: principal;
-    git_sha: text;
-    git_ref: text;
-    git_repo: text;
-    wasm_checksum: text;
-    build_log_url: text;
-    source_snapshot_url: text;
+  wasm_checksum : text;
+  source_snapshot_url : text;
+  canister_id : principal;
+  git_repo : text;
+  git_ref : text;
+  git_sha : text;
+  build_log_url : text;
 };
-
-type UpdateVerification = record {
-    canister_id: principal;
-    git_sha: text;
-    git_ref: text;
-    git_repo: text;
-    wasm_checksum: text;
-    build_log_url: text;
-    source_snapshot_url: text;
+type BuildConfig = record {
+  updated_at : text;
+  user_repo_token : text;
+  canister_id : principal;
+  created_at : text;
+  user_id : principal;
+  dfx_version : text;
+  optimize_times : nat8;
+  canister_name : text;
+  commit_hash : text;
+  repo_url : text;
+  rust_version : text;
 };
-
-type SubmitVerification = record {
-    canister_id: principal;
-    git_sha: text;
-    git_ref: text;
-    git_repo: text;
-    wasm_checksum: text;
-    build_log_url: text;
-    source_snapshot_url: text;
-};
-
-type UpdateProgress = record {
-    request_id: nat64;
-    canister_id: principal;
-    git_sha: opt text;
-    git_ref: opt text;
-    git_repo: opt text;
-    wasm_checksum: opt text;
-    build_log_url: opt text;
-    source_snapshot_url: opt text;
-    percentage: opt float32;
-    status: ProgressStatus;
-};
-
+type BuildSettings = record { git_repo : text; git_ref : text; git_sha : text };
 type CreateRequest = record {
-    canister_id: principal;
-    build_settings: BuildSettings;
+  canister_id : principal;
+  build_settings : BuildSettings;
 };
-
-type Provider = record {
-    id: principal;
-    name: text;
-    memo: opt text;
-    created_by: principal;
-    created_at: text;
-    updated_by: principal;
-    updated_at: text;
-};
-
-type Verification = record {
-    canister_id: principal;
-    git_sha: text;
-    git_ref: text;
-    git_repo: text;
-    wasm_checksum: text;
-    build_log_url: text;
-    source_snapshot_url: text;
-    created_by: principal;
-    created_at: text;
-    updated_by: principal;
-    updated_at: text;
-};
-
+type Error = record { debug_log : opt text; code : text; message : text };
 type Progress = record {
-    request_id: nat64;
-    canister_id: principal;
-    started_at: text;
-    updated_at: opt text;
-    git_sha: opt text;
-    git_ref: opt text;
-    git_repo: opt text;
-    wasm_checksum: opt text;
-    build_log_url: opt text;
-    source_snapshot_url: opt text;
-    percentage: opt float32;
-    status: ProgressStatus;
+  request_id : nat64;
+  status : ProgressStatus;
+  wasm_checksum : opt text;
+  updated_at : opt text;
+  source_snapshot_url : opt text;
+  canister_id : principal;
+  git_repo : opt text;
+  git_ref : opt text;
+  git_sha : opt text;
+  build_log_url : opt text;
+  percentage : opt float32;
+  started_at : text;
 };
-
+type ProgressStatus = variant { Error; Init; Finished; InProgress };
+type Provider = record {
+  id : principal;
+  updated_at : text;
+  updated_by : principal;
+  memo : opt text;
+  name : text;
+  created_at : text;
+  created_by : principal;
+};
 type Request = record {
-    request_id: nat64;
-    canister_id: principal;
-    build_settings: BuildSettings;
-    created_by: principal;
-    created_at: text;
+  request_id : nat64;
+  canister_id : principal;
+  created_at : text;
+  created_by : principal;
+  build_settings : BuildSettings;
 };
-
-type ProviderInfo = record {};
-
-type Error = record {
-    code: text;
-    message: text;
-    debug_log: opt text;
+type Result = variant { Ok; Err : Error };
+type Result_1 = variant { Ok : vec Request; Err : Error };
+type Result_2 = variant { Ok : BuildConfig; Err : Error };
+type UpdateProgress = record {
+  request_id : nat64;
+  status : ProgressStatus;
+  wasm_checksum : opt text;
+  source_snapshot_url : opt text;
+  canister_id : principal;
+  git_repo : opt text;
+  git_ref : opt text;
+  git_sha : opt text;
+  build_log_url : opt text;
+  percentage : opt float32;
 };
-
-service: {
-    //====================================================================================================
-    // General - Query API
-    // Mainly use for general purpose:
-    // - Requested users see/verify their actual requests are in waiting-list
-    // - Providers see what they are about to consume
-    // - Normal users see ... requests
-    // get_request_by_id: (request_id: nat64) -> (opt Request);
-    // get_all_requests: () -> (vec Request);
-
-    // Progress
-    // get_progress_by_request_id: (request_id: nat64) -> (opt Progress);
-    // get_progresses_by_canister_id: (canister_id: principal) -> (vec Progress);
-    // get_all_progresses: () -> (vec Progress);
-
-    // Verification
-    get_verification_by_canister_id: (canister_id: principal) -> (opt Verification);
-    get_all_verifications: () -> (vec Verification);
-
-    // History
-    // get_request_history_by_id: (request_id: nat64) -> ();
-    // get_all_requests_history: () -> ();
-    // get_progress_history_by_request_id: (request_id: nat64) -> ();
-    // get_progresses_history_by_canister_id: (canister_id: principal) -> ();
-    // get_all_progresses_history: () -> ();
-    //====================================================================================================
-
-
-    //====================================================================================================
-    // Provider API - Update API
-    // consume_requests: (ProviderInfo) -> (variant { Ok: vec Request; Err: Error });
-    // update_progress: (UpdateProgress) -> (variant { Ok: null; Err: Error });
-    // add_verification: (AddVerification) -> (variant { Ok: null; Err: Error });
-    // update_verification: (UpdateVerification) -> (variant { Ok: null; Err: Error });
-    submit_verification: (SubmitVerification) -> (variant { Ok: null; Err: Error });
-    //====================================================================================================
-
-
-    //====================================================================================================
-    // User API - Update API
-    // create_request: (CreateRequest) -> (variant { Ok: null; Err: Error });
-    //====================================================================================================
-
-
-    //====================================================================================================
-    // Owner API - Query|Update API
-    add_provider: (AddProvider) -> (variant { Ok: null; Err: Error });
-    update_provider: (UpdateProvider) -> (variant { Ok: null; Err: Error });
-    delete_provider: (provider_id: principal) -> (variant { Ok: null; Err: Error });
-    get_provider_by_id: (provider_id: principal) -> (opt Provider);
-    get_all_providers: () -> (vec Provider);
-    //====================================================================================================
+type Verification = record {
+  wasm_checksum : text;
+  updated_at : text;
+  updated_by : principal;
+  source_snapshot_url : text;
+  canister_id : principal;
+  created_at : text;
+  created_by : principal;
+  git_repo : text;
+  git_ref : text;
+  git_sha : text;
+  build_log_url : text;
+};
+service : {
+  addBuildConfig : (BuildConfig) -> (Result);
+  addProvider : (AddProvider) -> (Result);
+  addVerification : (AddVerification) -> (Result);
+  consumeRequests : (record {}) -> (Result_1);
+  createRequest : (CreateRequest) -> (Result);
+  deleteBuildConfig : (principal) -> (Result);
+  deleteProvider : (principal) -> (Result);
+  getAllBuildConfigs : () -> (vec BuildConfig) query;
+  getAllProgresses : () -> (vec Progress) query;
+  getAllProviders : () -> (vec Provider) query;
+  getAllRequests : () -> (vec Request) query;
+  getAllVerifications : () -> (vec Verification) query;
+  getBuildConfigById : (principal) -> (Result_2) query;
+  getProgressByCanisterId : (principal) -> (vec Progress) query;
+  getProgressByRequestId : (nat64) -> (opt Progress) query;
+  getProviderById : (principal) -> (opt Provider) query;
+  getRequestById : (nat64) -> (opt Request) query;
+  getVerificationByCanisterId : (principal) -> (opt Verification) query;
+  submitVerification : (AddVerification) -> (Result);
+  updateBuildConfig : (principal, BuildConfig) -> (Result);
+  updateProgress : (UpdateProgress) -> (Result);
+  updateProvider : (AddProvider) -> (Result);
+  updateVerification : (AddVerification) -> (Result);
 }
