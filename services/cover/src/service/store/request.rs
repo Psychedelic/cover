@@ -167,12 +167,12 @@ mod test {
                         mock_principals::alice()
                     },
                     if i % 2 == 0 {
-                        test_data::fake_create_request(
+                        test_data::fake_add_request(
                             test_data::fake_canister1(),
                             test_data::fake_build_settings1(),
                         )
                     } else {
-                        test_data::fake_create_request(
+                        test_data::fake_add_request(
                             test_data::fake_canister2(),
                             test_data::fake_build_settings2(),
                         )
