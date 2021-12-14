@@ -21,9 +21,9 @@ fn get_all_progresses() -> Vec<&'static Progress> {
 #[update(name = "updateProgress")]
 #[candid_method(update, rename = "updateProgress")]
 fn update_progress(
-    _update_progress: UpdateProgress, // TODO: cdk bug????? param can not be same with fn!!!!!
+    progress: UpdateProgress, // TODO: cdk bug????? param can not be same with fn!!!!!
 ) -> Result<(), Error> {
-    progress::update_progress(_update_progress)
+    progress::update_progress(progress)
 }
 
 #[query(name = "getProgressByRequestId")]
