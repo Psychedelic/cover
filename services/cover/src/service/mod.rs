@@ -20,52 +20,52 @@ pub mod verification;
 mod store;
 
 #[inline]
-fn get_request_store_mut() -> &'static mut RequestStore {
+fn request_store_mut() -> &'static mut RequestStore {
     get_mut()
 }
 
 #[inline]
-fn get_request_store() -> &'static RequestStore {
+fn request_store() -> &'static RequestStore {
     get()
 }
 
 #[inline]
-fn get_progress_store_mut() -> &'static mut ProgressStore {
+fn progress_store_mut() -> &'static mut ProgressStore {
     get_mut()
 }
 
 #[inline]
-fn get_progress_store() -> &'static ProgressStore {
+fn progress_store() -> &'static ProgressStore {
     get()
 }
 
 #[inline]
-fn get_verification_store_mut() -> &'static mut VerificationStore {
+fn verification_store_mut() -> &'static mut VerificationStore {
     get_mut()
 }
 
 #[inline]
-fn get_verification_store() -> &'static VerificationStore {
+fn verification_store() -> &'static VerificationStore {
     get()
 }
 
 #[inline]
-fn get_provider_store_mut() -> &'static mut ProviderStore {
+fn provider_store_mut() -> &'static mut ProviderStore {
     get_mut()
 }
 
 #[inline]
-fn get_provider_store() -> &'static ProviderStore {
+fn provider_store() -> &'static ProviderStore {
     get()
 }
 
 #[inline]
-fn build_config_mut() -> &'static mut BuildConfigStore {
+fn build_config_store_mut() -> &'static mut BuildConfigStore {
     get_mut()
 }
 
 #[inline]
-fn build_config() -> &'static BuildConfigStore {
+fn build_config_store() -> &'static BuildConfigStore {
     get()
 }
 
@@ -82,11 +82,11 @@ type InternalStableStoreAsRef = (
 
 pub fn pre_upgrade() {
     if let Err(e) = stable_store::<InternalStableStoreAsRef>((
-        get_request_store(),
-        get_progress_store(),
-        get_verification_store(),
-        get_provider_store(),
-        build_config(),
+        request_store(),
+        progress_store(),
+        verification_store(),
+        provider_store(),
+        build_config_store(),
     )) {
         trap(&format!(
             "An error occurred when saving to stable memory (pre_upgrade): {:?}",
@@ -113,11 +113,11 @@ pub fn post_upgrade() {
                 provider_store,
                 build_config_store,
             )| {
-                (*get_request_store_mut()) = request_store;
-                (*get_progress_store_mut()) = progress_store;
-                (*get_verification_store_mut()) = verification_store;
-                (*get_provider_store_mut()) = provider_store;
-                (*build_config_mut()) = build_config_store;
+                (*request_store_mut()) = request_store;
+                (*progress_store_mut()) = progress_store;
+                (*verification_store_mut()) = verification_store;
+                (*provider_store_mut()) = provider_store;
+                (*build_config_store_mut()) = build_config_store;
             },
         )
         .unwrap_or_else(|e| {
