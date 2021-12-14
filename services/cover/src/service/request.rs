@@ -1,7 +1,7 @@
 use crate::common::types::{CallerId, ReqId};
 use crate::service::model::error::Error;
 use crate::service::model::provider::ProviderInfo;
-use crate::service::model::request::{CreateRequest, Request};
+use crate::service::model::request::{AddRequest, Request};
 use crate::service::{progress_store_mut, request_store, request_store_mut};
 
 pub fn get_request_by_id(request_id: ReqId) -> Option<&'static Request> {
@@ -25,8 +25,8 @@ pub fn consume_requests(provider_info: ProviderInfo) -> Result<Vec<&'static Requ
         .map_err(|e| e.into())
 }
 
-pub fn create_request(caller_id: CallerId, create_request: CreateRequest) -> Result<(), Error> {
+pub fn add_request(caller_id: CallerId, create_request: AddRequest) -> Result<(), Error> {
     // TODO: handle canister's owner properly
-    request_store_mut().create_request(caller_id, create_request);
+    request_store_mut().add_request(caller_id, create_request);
     Ok(())
 }

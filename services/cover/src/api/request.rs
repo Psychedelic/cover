@@ -5,7 +5,7 @@ use ic_kit::macros::{query, update};
 use crate::common::types::ReqId;
 use crate::service::model::error::Error;
 use crate::service::model::provider::ProviderInfo;
-use crate::service::model::request::{CreateRequest, Request};
+use crate::service::model::request::{AddRequest, Request};
 use crate::service::request;
 
 #[query(name = "getRequestById")]
@@ -26,8 +26,8 @@ fn consume_requests(request: ProviderInfo) -> Result<Vec<&'static Request>, Erro
     request::consume_requests(request)
 }
 
-#[update(name = "createRequest")]
-#[candid_method(update, rename = "createRequest")]
-fn create_request(request: CreateRequest) -> Result<(), Error> {
-    request::create_request(caller(), request)
+#[update(name = "addRequest")]
+#[candid_method(update, rename = "addRequest")]
+fn add_request(request: AddRequest) -> Result<(), Error> {
+    request::add_request(caller(), request)
 }
