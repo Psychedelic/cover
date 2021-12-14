@@ -25,8 +25,8 @@ pub fn consume_requests(provider_info: ProviderInfo) -> Result<Vec<&'static Requ
         .map_err(|e| e.into())
 }
 
-pub fn add_request(caller_id: CallerId, create_request: AddRequest) -> Result<(), Error> {
+pub fn add_request(caller_id: CallerId, request: AddRequest) -> Result<(), Error> {
     // TODO: handle canister's owner properly
-    request_store_mut().add_request(caller_id, create_request);
+    request_store_mut().add_request(caller_id, request);
     Ok(())
 }

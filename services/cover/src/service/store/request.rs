@@ -77,16 +77,16 @@ impl RequestStore {
             .then(|| self.request.push_back(Default::default()));
     }
 
-    /// Create new request
-    pub fn add_request(&mut self, caller_id: CallerId, create_request: AddRequest) {
+    /// Add new request
+    pub fn add_request(&mut self, caller_id: CallerId, request: AddRequest) {
         self.check_if_create_new_batch();
         let index = self.current_request_index();
         let last_batch = self.request.back_mut().unwrap();
         self.last_request_id += 1;
         last_batch[index as usize] = Some(Request {
             request_id: self.last_request_id,
-            canister_id: create_request.canister_id,
-            build_settings: create_request.build_settings,
+            canister_id: request.canister_id,
+            build_settings: request.build_settings,
             created_by: caller_id,
             created_at: time_utils::now_to_str(),
         });
@@ -224,7 +224,7 @@ mod test {
     }
 
     #[test]
-    fn create_request_ok() {
+    fn add_request_ok() {
         let mut store = RequestStore::default();
         store.fake_store_with_offset(0, 11);
         assert_eq!(store.last_request_id, 11);
