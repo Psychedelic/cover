@@ -4,14 +4,14 @@ use crate::service::model::error::Error;
 use crate::service::model::verification::{
     AddVerification, SubmitVerification, UpdateVerification, Verification,
 };
-use crate::service::{get_verification_store, get_verification_store_mut};
+use crate::service::{verification_store, verification_store_mut};
 
 pub fn get_verification_by_canister_id(canister_id: &CanisterId) -> Option<&'static Verification> {
-    get_verification_store().get_verification_by_canister_id(canister_id)
+    verification_store().get_verification_by_canister_id(canister_id)
 }
 
 pub fn get_all_verifications() -> Vec<&'static Verification> {
-    get_verification_store().get_all_verifications()
+    verification_store().get_all_verifications()
 }
 
 pub fn add_verification(
@@ -19,7 +19,7 @@ pub fn add_verification(
     add_verification: AddVerification,
 ) -> Result<(), Error> {
     is_valid_provider(&caller_id, || {
-        get_verification_store_mut()
+        verification_store_mut()
             .add_verification(caller_id, add_verification)
             .map_err(|e| e.into())
     })
@@ -30,7 +30,7 @@ pub fn update_verification(
     update_verification: UpdateVerification,
 ) -> Result<(), Error> {
     is_valid_provider(&caller_id, || {
-        get_verification_store_mut()
+        verification_store_mut()
             .update_verification(caller_id, update_verification)
             .map_err(|e| e.into())
     })
@@ -41,8 +41,8 @@ pub fn submit_verification(
     submit_verification: SubmitVerification,
 ) -> Result<(), Error> {
     is_valid_provider(&caller_id, || {
-        match get_verification_store().verification_exists(&submit_verification.canister_id) {
-            true => get_verification_store_mut()
+        match verification_store().verification_exists(&submit_verification.canister_id) {
+            true => verification_store_mut()
                 .update_verification(
                     caller_id,
                     UpdateVerification {
@@ -56,7 +56,7 @@ pub fn submit_verification(
                     },
                 )
                 .map_err(|e| e.into()),
-            false => get_verification_store_mut()
+            false => verification_store_mut()
                 .add_verification(
                     caller_id,
                     AddVerification {

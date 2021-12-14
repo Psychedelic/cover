@@ -23,18 +23,18 @@ fn get_all_verifications() -> Vec<&'static Verification> {
 
 #[update(name = "addVerification")]
 #[candid_method(update, rename = "addVerification")]
-fn add_verification(_add_verification: AddVerification) -> Result<(), Error> {
-    verification::add_verification(caller(), _add_verification)
+fn add_verification(verification: AddVerification) -> Result<(), Error> {
+    verification::add_verification(caller(), verification)
 }
 
 #[update(name = "updateVerification")]
 #[candid_method(update, rename = "updateVerification")]
-fn update_verification(_update_verification: UpdateVerification) -> Result<(), Error> {
-    verification::update_verification(caller(), _update_verification)
+fn update_verification(verification: UpdateVerification) -> Result<(), Error> {
+    verification::update_verification(caller(), verification)
 }
 
 #[update(name = "submitVerification")]
 #[candid_method(update, rename = "submitVerification")]
-fn submit_verification(_submit_verification: SubmitVerification) -> Result<(), Error> {
-    verification::submit_verification(caller(), _submit_verification)
+fn submit_verification(verification: SubmitVerification) -> Result<(), Error> {
+    verification::submit_verification(caller(), verification)
 }

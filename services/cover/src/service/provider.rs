@@ -2,11 +2,11 @@ use crate::common::types::{CallerId, ProviderId};
 use crate::service::guard::is_cover_owner;
 use crate::service::model::error::Error;
 use crate::service::model::provider::{AddProvider, Provider, UpdateProvider};
-use crate::service::{get_provider_store, get_provider_store_mut};
+use crate::service::{provider_store, provider_store_mut};
 
 pub async fn add_provider(caller_id: CallerId, add_provider: AddProvider) -> Result<(), Error> {
     is_cover_owner(&caller_id, || {
-        get_provider_store_mut()
+        provider_store_mut()
             .add_provider(caller_id, add_provider)
             .map_err(|e| e.into())
     })
@@ -18,7 +18,7 @@ pub async fn update_provider(
     update_provider: UpdateProvider,
 ) -> Result<(), Error> {
     is_cover_owner(&caller_id, || {
-        get_provider_store_mut()
+        provider_store_mut()
             .update_provider(caller_id, update_provider)
             .map_err(|e| e.into())
     })
@@ -27,7 +27,7 @@ pub async fn update_provider(
 
 pub async fn delete_provider(caller_id: &CallerId, provider_id: &ProviderId) -> Result<(), Error> {
     is_cover_owner(caller_id, || {
-        get_provider_store_mut()
+        provider_store_mut()
             .delete_provider(provider_id)
             .map_err(|e| e.into())
     })
@@ -35,9 +35,9 @@ pub async fn delete_provider(caller_id: &CallerId, provider_id: &ProviderId) -> 
 }
 
 pub fn get_provider_by_id(provider_id: &ProviderId) -> Option<&'static Provider> {
-    get_provider_store().get_provider_by_id(provider_id)
+    provider_store().get_provider_by_id(provider_id)
 }
 
 pub fn get_all_providers() -> Vec<&'static Provider> {
-    get_provider_store().get_all_providers()
+    provider_store().get_all_providers()
 }

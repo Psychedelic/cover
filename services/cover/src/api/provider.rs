@@ -9,14 +9,14 @@ use crate::service::provider;
 
 #[update(name = "addProvider")]
 #[candid_method(update, rename = "addProvider")]
-async fn add_provider(_add_provider: AddProvider) -> Result<(), Error> {
-    provider::add_provider(caller(), _add_provider).await
+async fn add_provider(provider: AddProvider) -> Result<(), Error> {
+    provider::add_provider(caller(), provider).await
 }
 
 #[update(name = "updateProvider")]
 #[candid_method(update, rename = "updateProvider")]
-async fn update_provider(_update_provider: UpdateProvider) -> Result<(), Error> {
-    provider::update_provider(caller(), _update_provider).await
+async fn update_provider(provider: UpdateProvider) -> Result<(), Error> {
+    provider::update_provider(caller(), provider).await
 }
 
 #[update(name = "deleteProvider")]

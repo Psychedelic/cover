@@ -1,4 +1,8 @@
 type AddProvider = record { id : principal; memo : opt text; name : text };
+type AddRequest = record {
+  canister_id : principal;
+  build_settings : BuildSettings;
+};
 type AddVerification = record {
   wasm_checksum : text;
   source_snapshot_url : text;
@@ -22,10 +26,6 @@ type BuildConfig = record {
   rust_version : text;
 };
 type BuildSettings = record { git_repo : text; git_ref : text; git_sha : text };
-type CreateRequest = record {
-  canister_id : principal;
-  build_settings : BuildSettings;
-};
 type Error = record { debug_log : opt text; code : text; message : text };
 type Progress = record {
   request_id : nat64;
@@ -89,9 +89,9 @@ type Verification = record {
 service : {
   addBuildConfig : (BuildConfig) -> (Result);
   addProvider : (AddProvider) -> (Result);
+  addRequest : (AddRequest) -> (Result);
   addVerification : (AddVerification) -> (Result);
   consumeRequests : (record {}) -> (Result_1);
-  createRequest : (CreateRequest) -> (Result);
   deleteBuildConfig : (principal) -> (Result);
   deleteProvider : (principal) -> (Result);
   getAllBuildConfigs : () -> (vec BuildConfig) query;

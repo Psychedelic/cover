@@ -5,7 +5,7 @@ use serde::Deserialize;
 
 use crate::common::types::{CallerId, ReqId};
 use crate::service::model::provider::ProviderInfo;
-use crate::service::model::request::{CreateRequest, Request};
+use crate::service::model::request::{AddRequest, Request};
 use crate::service::store::error::ErrorKindStore;
 use crate::service::time_utils;
 
@@ -77,16 +77,16 @@ impl RequestStore {
             .then(|| self.request.push_back(Default::default()));
     }
 
-    /// Create new request
-    pub fn create_request(&mut self, caller_id: CallerId, create_request: CreateRequest) {
+    /// Add new request
+    pub fn add_request(&mut self, caller_id: CallerId, request: AddRequest) {
         self.check_if_create_new_batch();
         let index = self.current_request_index();
         let last_batch = self.request.back_mut().unwrap();
         self.last_request_id += 1;
         last_batch[index as usize] = Some(Request {
             request_id: self.last_request_id,
-            canister_id: create_request.canister_id,
-            build_settings: create_request.build_settings,
+            canister_id: request.canister_id,
+            build_settings: request.build_settings,
             created_by: caller_id,
             created_at: time_utils::now_to_str(),
         });
@@ -160,19 +160,19 @@ mod test {
             self.last_request_id += offset;
             self.last_consumed_request_id += offset;
             for i in 0..size {
-                self.create_request(
+                self.add_request(
                     if i % 2 == 0 {
                         mock_principals::bob()
                     } else {
                         mock_principals::alice()
                     },
                     if i % 2 == 0 {
-                        test_data::fake_create_request(
+                        test_data::fake_add_request(
                             test_data::fake_canister1(),
                             test_data::fake_build_settings1(),
                         )
                     } else {
-                        test_data::fake_create_request(
+                        test_data::fake_add_request(
                             test_data::fake_canister2(),
                             test_data::fake_build_settings2(),
                         )
@@ -224,7 +224,7 @@ mod test {
     }
 
     #[test]
-    fn create_request_ok() {
+    fn add_request_ok() {
         let mut store = RequestStore::default();
         store.fake_store_with_offset(0, 11);
         assert_eq!(store.last_request_id, 11);

@@ -13,7 +13,7 @@ pub struct Request {
 }
 
 #[derive(CandidType, Deserialize)]
-pub struct CreateRequest {
+pub struct AddRequest {
     pub canister_id: CanisterId,
     pub build_settings: BuildSettings,
 }
