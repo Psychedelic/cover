@@ -1,4 +1,6 @@
 #[cfg(test)]
+pub use add_build_config::*;
+#[cfg(test)]
 pub use add_provider::*;
 #[cfg(test)]
 pub use add_request::*;
@@ -15,12 +17,15 @@ pub use canister::*;
 #[cfg(test)]
 pub use provider_info::*;
 #[cfg(test)]
+pub use update_build_config::*;
+#[cfg(test)]
 pub use update_progress::*;
 #[cfg(test)]
 pub use update_provider::*;
 #[cfg(test)]
 pub use update_verification::*;
 
+mod add_build_config;
 mod add_provider;
 mod add_request;
 mod add_verification;
@@ -29,6 +34,7 @@ mod build_settings;
 mod caller_gen;
 mod canister;
 mod provider_info;
+mod update_build_config;
 mod update_progress;
 mod update_provider;
 mod update_verification;

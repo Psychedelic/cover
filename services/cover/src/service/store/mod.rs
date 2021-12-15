@@ -6,4 +6,4 @@ pub mod request;
 pub mod verification;
 
 #[cfg(test)]
-mod test_data;
+pub mod test_data;

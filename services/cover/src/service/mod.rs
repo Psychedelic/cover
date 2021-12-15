@@ -17,7 +17,11 @@ pub mod request;
 pub mod time_utils;
 pub mod verification;
 
+#[cfg(not(test))]
 mod store;
+
+#[cfg(test)]
+pub mod store;
 
 #[inline]
 fn request_store_mut() -> &'static mut RequestStore {
