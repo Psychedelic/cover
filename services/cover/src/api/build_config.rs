@@ -37,33 +37,134 @@ fn add_build_config(config: AddBuildConfig) -> Result<(), Error> {
     build_config::add_build_config(&caller(), config)
 }
 
-// #[cfg(test)]
-// mod tests {
-//     use ic_kit::*;
-//
-//     use crate::service::store::test_data::*;
-//
-//     use super::*;
-//
-//     #[test]
-//     fn add_build_config_ok() {
-//         MockContext::new()
-//             .with_caller(mock_principals::john())
-//             .inject();
-//
-//         assert_eq!(add_build_config(fake_add_build_config1()), Ok(()));
-//
-//         println!("{:?}", get_all_build_configs());
-//         assert_eq!(
-//             add_build_config(fake_add_build_config1()),
-//             Err(Error {
-//                 code: "ERR_005_003_002",
-//                 message: "Existed Build Config",
-//                 debug_log: None,
-//             })
-//         );
-//     }
-//
-//     #[test]
-//     fn delete_build_config_ok() {}
-// }
+#[cfg(test)]
+mod tests {
+    use ic_kit::*;
+
+    use crate::service::store::test_data::*;
+
+    use super::*;
+
+    fn init_test_data() {
+        MockContext::new()
+            .with_caller(mock_principals::bob())
+            .inject();
+
+        assert_eq!(add_build_config(fake_add_build_config1()), Ok(()));
+
+        assert_eq!(add_build_config(fake_add_build_config2()), Ok(()));
+    }
+
+    #[test]
+    fn add_build_config_ok() {
+        MockContext::new()
+            .with_caller(mock_principals::john())
+            .inject();
+
+        assert_eq!(get_all_build_configs().len(), 0);
+
+        assert_eq!(add_build_config(fake_add_build_config1()), Ok(()));
+
+        assert_eq!(get_all_build_configs().len(), 1);
+
+        assert_eq!(
+            add_build_config(fake_add_build_config1()),
+            Err(Error {
+                code: "ERR_005_003_002",
+                message: "Existed build config",
+                debug_log: None,
+            })
+        );
+
+        assert_eq!(get_all_build_configs().len(), 1);
+
+        assert_eq!(add_build_config(fake_add_build_config2()), Ok(()));
+
+        assert_eq!(get_all_build_configs().len(), 2);
+    }
+
+    #[test]
+    fn delete_build_config_ok() {
+        init_test_data();
+
+        assert_eq!(get_all_build_configs().len(), 2);
+
+        assert_eq!(delete_build_config(fake_canister1()), Ok(()));
+
+        assert_eq!(get_all_build_configs().len(), 1);
+
+        assert_eq!(
+            delete_build_config(fake_canister1()),
+            Err(Error {
+                code: "ERR_005_003_001",
+                message: "Build config not found",
+                debug_log: None,
+            })
+        );
+        assert_eq!(get_all_build_configs().len(), 1);
+
+        assert_eq!(delete_build_config(fake_canister2()), Ok(()));
+
+        assert_eq!(get_all_build_configs().len(), 0);
+    }
+
+    #[test]
+    fn get_all_build_configs_ok() {
+        init_test_data();
+
+        assert_eq!(
+            get_all_build_configs(),
+            vec![&fake_build_config2(), &fake_build_config1()]
+        );
+    }
+
+    #[test]
+    fn get_build_config_by_id_ok() {
+        init_test_data();
+
+        assert_eq!(
+            get_build_config_by_id(fake_canister1()),
+            Ok(&fake_build_config1())
+        );
+
+        assert_eq!(
+            get_build_config_by_id(fake_canister3()),
+            Err(Error {
+                code: "ERR_005_003_001",
+                message: "Build config not found",
+                debug_log: None,
+            })
+        );
+    }
+
+    #[test]
+    fn update_build_config_ok() {
+        init_test_data();
+
+        assert_eq!(get_all_build_configs().len(), 2);
+
+        assert_eq!(
+            update_build_config(fake_canister1(), fake_update_build_config2()),
+            Ok(())
+        );
+
+        assert_eq!(get_all_build_configs().len(), 2);
+
+        assert_eq!(
+            get_build_config_by_id(fake_canister1())
+                .unwrap()
+                .canister_name
+                == fake_update_build_config2().canister_name,
+            true
+        );
+
+        assert_eq!(
+            update_build_config(fake_canister3(), fake_update_build_config2()),
+            Err(Error {
+                code: "ERR_005_003_001",
+                message: "Build config not found",
+                debug_log: None,
+            })
+        );
+    }
+}

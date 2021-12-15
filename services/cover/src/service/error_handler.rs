@@ -139,12 +139,12 @@ impl From<ErrorKindStore> for Error {
             //============================================================================
             ErrorKindStore::BuildConfigNotFound => Self {
                 code: "ERR_005_003_001",
-                message: "Build Config not found",
+                message: "Build config not found",
                 debug_log: None,
             },
             ErrorKindStore::BuildConfigExisted => Self {
                 code: "ERR_005_003_002",
-                message: "Existed Build Config",
+                message: "Existed build config",
                 debug_log: None,
             },
         }
