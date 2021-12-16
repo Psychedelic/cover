@@ -25,17 +25,17 @@ fn get_all_verifications() -> Vec<&'static Verification> {
 #[update(name = "addVerification", guard = "is_provider")]
 #[candid_method(update, rename = "addVerification")]
 fn add_verification(verification: AddVerification) -> Result<(), Error> {
-    verification::add_verification(caller(), verification)
+    verification::add_verification(&caller(), verification)
 }
 
 #[update(name = "updateVerification", guard = "is_provider")]
 #[candid_method(update, rename = "updateVerification")]
 fn update_verification(verification: UpdateVerification) -> Result<(), Error> {
-    verification::update_verification(caller(), verification)
+    verification::update_verification(&caller(), verification)
 }
 
 #[update(name = "submitVerification", guard = "is_provider")]
 #[candid_method(update, rename = "submitVerification")]
 fn submit_verification(verification: SubmitVerification) -> Result<(), Error> {
-    verification::submit_verification(caller(), verification)
+    verification::submit_verification(&caller(), verification)
 }

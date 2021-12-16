@@ -21,7 +21,7 @@ impl VerificationStore {
 
     pub fn add_verification(
         &mut self,
-        caller_id: CallerId,
+        caller_id: &CallerId,
         add_verification: AddVerification,
     ) -> Result<(), ErrorKindStore> {
         self.verification_exists(&add_verification.canister_id)
@@ -38,9 +38,9 @@ impl VerificationStore {
                         wasm_checksum: add_verification.wasm_checksum,
                         build_log_url: add_verification.build_log_url,
                         source_snapshot_url: add_verification.source_snapshot_url,
-                        created_by: caller_id,
+                        created_by: *caller_id,
                         created_at: now.clone(),
-                        updated_by: caller_id,
+                        updated_by: *caller_id,
                         updated_at: now,
                     },
                 );
@@ -50,7 +50,7 @@ impl VerificationStore {
 
     pub fn update_verification(
         &mut self,
-        caller_id: CallerId,
+        caller_id: &CallerId,
         update_verification: UpdateVerification,
     ) -> Result<(), ErrorKindStore> {
         self.verification
@@ -63,7 +63,7 @@ impl VerificationStore {
                 verification.wasm_checksum = update_verification.wasm_checksum;
                 verification.build_log_url = update_verification.build_log_url;
                 verification.source_snapshot_url = update_verification.source_snapshot_url;
-                verification.updated_by = caller_id;
+                verification.updated_by = *caller_id;
                 verification.updated_at = now;
             })
             .ok_or(ErrorKindStore::VerificationNotFound)
@@ -89,28 +89,28 @@ mod test {
 
     fn update_verification_gen(seed: u8) -> UpdateVerification {
         if seed % 3 == 0 {
-            test_data::fake_update_verification1(test_data::fake_canister1())
+            test_data::fake_update_verification1(&test_data::fake_canister1())
         } else if seed % 3 == 1 {
-            test_data::fake_update_verification2(test_data::fake_canister2())
+            test_data::fake_update_verification2(&test_data::fake_canister2())
         } else {
-            test_data::fake_update_verification3(test_data::fake_canister3())
+            test_data::fake_update_verification3(&test_data::fake_canister3())
         }
     }
 
     fn add_verification_gen(seed: u8) -> AddVerification {
         if seed % 3 == 0 {
-            test_data::fake_add_verification1(test_data::fake_canister1())
+            test_data::fake_add_verification1(&test_data::fake_canister1())
         } else if seed % 3 == 1 {
-            test_data::fake_add_verification2(test_data::fake_canister2())
+            test_data::fake_add_verification2(&test_data::fake_canister2())
         } else {
-            test_data::fake_add_verification3(test_data::fake_canister3())
+            test_data::fake_add_verification3(&test_data::fake_canister3())
         }
     }
 
     fn init_test_data(len: u8) -> VerificationStore {
         let mut store = VerificationStore::default();
         for i in 0..len {
-            let result = store.add_verification(test_data::caller_gen(i), add_verification_gen(i));
+            let result = store.add_verification(&test_data::caller_gen(i), add_verification_gen(i));
             assert_eq!(result, Ok(()));
         }
         store
@@ -122,7 +122,7 @@ mod test {
         assert_eq!(store.verification.len(), 3);
         for i in 0..store.verification.len() {
             let result = store.add_verification(
-                test_data::caller_gen(i as u8),
+                &test_data::caller_gen(i as u8),
                 add_verification_gen(i as u8),
             );
             assert_eq!(result, Err(ErrorKindStore::ExistedVerification));
@@ -135,14 +135,14 @@ mod test {
         for i in 0..3 {
             let update_verification = update_verification_gen(i as u8);
             let caller_id = test_data::caller_gen(i as u8);
-            let result = store.update_verification(caller_id, update_verification);
+            let result = store.update_verification(&caller_id, update_verification);
             assert_eq!(result, Err(ErrorKindStore::VerificationNotFound));
         }
         let mut store = init_test_data(3);
         for i in 0..store.verification.len() {
             let update_verification = update_verification_gen(i as u8);
             let caller_id = test_data::caller_gen(i as u8);
-            let result = store.update_verification(caller_id, update_verification);
+            let result = store.update_verification(&caller_id, update_verification);
             assert_eq!(result, Ok(()));
         }
         for i in 0..store.verification.len() {

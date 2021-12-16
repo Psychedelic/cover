@@ -1,10 +1,10 @@
 use crate::common::types::{CanisterId, ReqId};
 use crate::service::model::progress::{ProgressStatus, UpdateProgress};
 
-pub fn fake_update_progress_default(request_id: ReqId, canister_id: CanisterId) -> UpdateProgress {
+pub fn fake_update_progress_default(request_id: ReqId, canister_id: &CanisterId) -> UpdateProgress {
     UpdateProgress {
         request_id,
-        canister_id,
+        canister_id: *canister_id,
         git_sha: None,
         git_ref: None,
         git_repo: None,
@@ -16,10 +16,10 @@ pub fn fake_update_progress_default(request_id: ReqId, canister_id: CanisterId) 
     }
 }
 
-pub fn fake_update_progress_init(request_id: ReqId, canister_id: CanisterId) -> UpdateProgress {
+pub fn fake_update_progress_init(request_id: ReqId, canister_id: &CanisterId) -> UpdateProgress {
     UpdateProgress {
         request_id,
-        canister_id,
+        canister_id: *canister_id,
         git_sha: Some("git_sha0".into()),
         git_ref: Some("git_ref0".into()),
         git_repo: Some("Psychedelic/cover0".into()),
@@ -33,11 +33,11 @@ pub fn fake_update_progress_init(request_id: ReqId, canister_id: CanisterId) -> 
 
 pub fn fake_update_progress_in_progress(
     request_id: ReqId,
-    canister_id: CanisterId,
+    canister_id: &CanisterId,
 ) -> UpdateProgress {
     UpdateProgress {
         request_id,
-        canister_id,
+        canister_id: *canister_id,
         git_sha: Some("git_sha1".into()),
         git_ref: Some("git_ref1".into()),
         git_repo: Some("Psychedelic/cover1".into()),
@@ -49,10 +49,13 @@ pub fn fake_update_progress_in_progress(
     }
 }
 
-pub fn fake_update_progress_finished(request_id: ReqId, canister_id: CanisterId) -> UpdateProgress {
+pub fn fake_update_progress_finished(
+    request_id: ReqId,
+    canister_id: &CanisterId,
+) -> UpdateProgress {
     UpdateProgress {
         request_id,
-        canister_id,
+        canister_id: *canister_id,
         git_sha: Some("git_sha2".into()),
         git_ref: Some("git_ref2".into()),
         git_repo: Some("Psychedelic/cover2".into()),
@@ -64,10 +67,10 @@ pub fn fake_update_progress_finished(request_id: ReqId, canister_id: CanisterId)
     }
 }
 
-pub fn fake_update_progress_error(request_id: ReqId, canister_id: CanisterId) -> UpdateProgress {
+pub fn fake_update_progress_error(request_id: ReqId, canister_id: &CanisterId) -> UpdateProgress {
     UpdateProgress {
         request_id,
-        canister_id,
+        canister_id: *canister_id,
         git_sha: Some("git_sha3".into()),
         git_ref: Some("git_ref3".into()),
         git_repo: Some("Psychedelic/cover3".into()),

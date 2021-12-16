@@ -14,7 +14,7 @@ pub fn get_all_verifications() -> Vec<&'static Verification> {
 }
 
 pub fn add_verification(
-    caller_id: CallerId,
+    caller_id: &CallerId,
     add_verification: AddVerification,
 ) -> Result<(), Error> {
     verification_store_mut()
@@ -23,7 +23,7 @@ pub fn add_verification(
 }
 
 pub fn update_verification(
-    caller_id: CallerId,
+    caller_id: &CallerId,
     update_verification: UpdateVerification,
 ) -> Result<(), Error> {
     verification_store_mut()
@@ -32,7 +32,7 @@ pub fn update_verification(
 }
 
 pub fn submit_verification(
-    caller_id: CallerId,
+    caller_id: &CallerId,
     submit_verification: SubmitVerification,
 ) -> Result<(), Error> {
     match verification_store().verification_exists(&submit_verification.canister_id) {

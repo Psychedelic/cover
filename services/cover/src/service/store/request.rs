@@ -78,7 +78,7 @@ impl RequestStore {
     }
 
     /// Add new request
-    pub fn add_request(&mut self, caller_id: CallerId, request: AddRequest) {
+    pub fn add_request(&mut self, caller_id: &CallerId, request: AddRequest) {
         self.check_if_create_new_batch();
         let index = self.current_request_index();
         let last_batch = self.request.back_mut().unwrap();
@@ -87,7 +87,7 @@ impl RequestStore {
             request_id: self.last_request_id,
             canister_id: request.canister_id,
             build_settings: request.build_settings,
-            created_by: caller_id,
+            created_by: *caller_id,
             created_at: time_utils::now_to_str(),
         });
     }
@@ -161,19 +161,19 @@ mod test {
             self.last_consumed_request_id += offset;
             for i in 0..size {
                 self.add_request(
-                    if i % 2 == 0 {
+                    &(if i % 2 == 0 {
                         mock_principals::bob()
                     } else {
                         mock_principals::alice()
-                    },
+                    }),
                     if i % 2 == 0 {
                         test_data::fake_add_request(
-                            test_data::fake_canister1(),
+                            &test_data::fake_canister1(),
                             test_data::fake_build_settings1(),
                         )
                     } else {
                         test_data::fake_add_request(
-                            test_data::fake_canister2(),
+                            &test_data::fake_canister2(),
                             test_data::fake_build_settings2(),
                         )
                     },

@@ -52,7 +52,7 @@ mod tests {
             .inject();
 
         assert_eq!(
-            add_provider(fake_add_provider1(mock_principals::bob())),
+            add_provider(fake_add_provider1(&mock_principals::bob())),
             Ok(())
         );
     }
@@ -64,14 +64,14 @@ mod tests {
         assert_eq!(get_all_providers().len(), 1);
 
         assert_eq!(
-            add_provider(fake_add_provider1(mock_principals::alice())),
+            add_provider(fake_add_provider1(&mock_principals::alice())),
             Ok(())
         );
 
         assert_eq!(get_all_providers().len(), 2);
 
         assert_eq!(
-            add_provider(fake_add_provider1(mock_principals::alice())),
+            add_provider(fake_add_provider1(&mock_principals::alice())),
             Err(Error {
                 code: "ERR_004_003_002",
                 message: "Existed provider",
@@ -82,7 +82,7 @@ mod tests {
         assert_eq!(get_all_providers().len(), 2);
 
         assert_eq!(
-            add_provider(fake_add_provider1(mock_principals::john())),
+            add_provider(fake_add_provider1(&mock_principals::john())),
             Ok(())
         );
 
@@ -137,20 +137,20 @@ mod tests {
         assert_eq!(get_all_providers().len(), 1);
 
         assert_eq!(
-            update_provider(fake_update_provider2(mock_principals::bob())),
+            update_provider(fake_update_provider2(&mock_principals::bob())),
             Ok(())
         );
 
         assert_eq!(
             get_provider_by_id(mock_principals::bob()).unwrap().name
-                == fake_update_provider2(mock_principals::bob()).name,
+                == fake_update_provider2(&mock_principals::bob()).name,
             true
         );
 
         assert_eq!(get_all_providers().len(), 1);
 
         assert_eq!(
-            update_provider(fake_update_provider2(mock_principals::alice())),
+            update_provider(fake_update_provider2(&mock_principals::alice())),
             Err(Error {
                 code: "ERR_004_003_001",
                 message: "Provider not found",

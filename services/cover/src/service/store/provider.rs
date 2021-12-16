@@ -84,21 +84,21 @@ mod test {
 
     fn update_provider_gen(seed: u8) -> UpdateProvider {
         if seed % 3 == 0 {
-            test_data::fake_update_provider1(test_data::fake_canister1())
+            test_data::fake_update_provider1(&test_data::fake_canister1())
         } else if seed % 3 == 1 {
-            test_data::fake_update_provider2(test_data::fake_canister2())
+            test_data::fake_update_provider2(&test_data::fake_canister2())
         } else {
-            test_data::fake_update_provider3(test_data::fake_canister3())
+            test_data::fake_update_provider3(&test_data::fake_canister3())
         }
     }
 
     fn add_provider_gen(seed: u8) -> AddProvider {
         if seed % 3 == 0 {
-            test_data::fake_add_provider1(test_data::fake_canister1())
+            test_data::fake_add_provider1(&test_data::fake_canister1())
         } else if seed % 3 == 1 {
-            test_data::fake_add_provider2(test_data::fake_canister2())
+            test_data::fake_add_provider2(&test_data::fake_canister2())
         } else {
-            test_data::fake_add_provider3(test_data::fake_canister3())
+            test_data::fake_add_provider3(&test_data::fake_canister3())
         }
     }
 

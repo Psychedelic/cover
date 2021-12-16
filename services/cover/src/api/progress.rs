@@ -9,7 +9,7 @@ use crate::service::progress;
 #[query(name = "getProgressByCanisterId")]
 #[candid_method(query, rename = "getProgressByCanisterId")]
 fn get_progresses_by_canister_id(canister_id: CanisterId) -> Vec<&'static Progress> {
-    progress::get_progresses_by_canister_id(canister_id)
+    progress::get_progresses_by_canister_id(&canister_id)
 }
 
 #[query(name = "getAllProgresses")]

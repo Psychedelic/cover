@@ -18,14 +18,14 @@ pub fn consume_requests(provider_info: ProviderInfo) -> Result<Vec<&'static Requ
         .consume_requests(provider_info)
         .and_then(|requests| {
             for request in requests.iter() {
-                progress_store_mut().init_progress(request.request_id, request.canister_id)?;
+                progress_store_mut().init_progress(request.request_id, &request.canister_id)?;
             }
             Ok(requests)
         })
         .map_err(|e| e.into())
 }
 
-pub fn add_request(caller_id: CallerId, request: AddRequest) -> Result<(), Error> {
+pub fn add_request(caller_id: &CallerId, request: AddRequest) -> Result<(), Error> {
     // TODO: handle canister's owner properly
     request_store_mut().add_request(caller_id, request);
     Ok(())
