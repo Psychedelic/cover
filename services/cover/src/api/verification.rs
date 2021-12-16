@@ -10,13 +10,13 @@ use crate::service::model::verification::{
 };
 use crate::service::verification;
 
-#[query(name = "getVerificationByCanisterId", guard = "is_provider")]
+#[query(name = "getVerificationByCanisterId")]
 #[candid_method(query, rename = "getVerificationByCanisterId")]
 fn get_verification_by_canister_id(canister_id: CanisterId) -> Option<&'static Verification> {
     verification::get_verification_by_canister_id(&canister_id)
 }
 
-#[query(name = "getAllVerifications", guard = "is_provider")]
+#[query(name = "getAllVerifications")]
 #[candid_method(query, rename = "getAllVerifications")]
 fn get_all_verifications() -> Vec<&'static Verification> {
     verification::get_all_verifications()

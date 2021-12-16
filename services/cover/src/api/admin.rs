@@ -35,6 +35,7 @@ mod tests {
             .with_caller(mock_principals::bob())
             .inject();
 
+        //Bob is an admin so he should be present in Admin store
         assert_eq!(add_admin(mock_principals::bob()), Ok(()));
     }
 

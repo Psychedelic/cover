@@ -3,35 +3,36 @@ use ic_kit::ic::caller;
 use ic_kit::macros::{query, update};
 
 use crate::common::types::ProviderId;
+use crate::service::guard::is_admin;
 use crate::service::model::error::Error;
 use crate::service::model::provider::{AddProvider, Provider, UpdateProvider};
 use crate::service::provider;
 
-#[update(name = "addProvider")]
+#[update(name = "addProvider", guard = "is_admin")]
 #[candid_method(update, rename = "addProvider")]
 fn add_provider(provider: AddProvider) -> Result<(), Error> {
     provider::add_provider(caller(), provider)
 }
 
-#[update(name = "updateProvider")]
+#[update(name = "updateProvider", guard = "is_admin")]
 #[candid_method(update, rename = "updateProvider")]
 fn update_provider(provider: UpdateProvider) -> Result<(), Error> {
     provider::update_provider(caller(), provider)
 }
 
-#[update(name = "deleteProvider")]
+#[update(name = "deleteProvider", guard = "is_admin")]
 #[candid_method(update, rename = "deleteProvider")]
 fn delete_provider(provider_id: ProviderId) -> Result<(), Error> {
     provider::delete_provider(&provider_id)
 }
 
-#[query(name = "getProviderById")]
+#[query(name = "getProviderById", guard = "is_admin")]
 #[candid_method(query, rename = "getProviderById")]
 fn get_provider_by_id(provider_id: ProviderId) -> Option<&'static Provider> {
     provider::get_provider_by_id(&provider_id)
 }
 
-#[query(name = "getAllProviders")]
+#[query(name = "getAllProviders", guard = "is_admin")]
 #[candid_method(query, rename = "getAllProviders")]
 fn get_all_providers() -> Vec<&'static Provider> {
     provider::get_all_providers()

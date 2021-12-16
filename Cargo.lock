@@ -361,7 +361,6 @@ dependencies = [
 name = "cover"
 version = "0.0.1"
 dependencies = [
- "async-std",
  "chrono",
  "ic-cdk",
  "ic-cdk-macros",
