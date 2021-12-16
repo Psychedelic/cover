@@ -111,7 +111,6 @@ service : {
   addProvider : (AddProvider) -> (Result);
   addRequest : (AddRequest) -> (Result);
   addVerification : (AddVerification) -> (Result);
-  adminExisted : (principal) -> (bool) query;
   consumeRequests : (record {}) -> (Result_1);
   deleteAdmin : (principal) -> (Result);
   deleteBuildConfig : (principal) -> (Result);

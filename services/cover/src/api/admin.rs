@@ -6,12 +6,6 @@ use crate::service::admin;
 use crate::service::guard::is_authorized;
 use crate::service::model::error::Error;
 
-#[query(name = "adminExisted", guard = "is_authorized")]
-#[candid_method(query, rename = "adminExisted")]
-fn admin_existed(admin_id: AdminId) -> bool {
-    admin::admin_existed(&admin_id)
-}
-
 #[update(name = "addAdmin", guard = "is_authorized")]
 #[candid_method(update, rename = "addAdmin")]
 fn add_admin(admin_id: AdminId) -> Result<(), Error> {
@@ -56,7 +50,7 @@ mod tests {
         assert_eq!(
             add_admin(mock_principals::john()),
             Err(Error {
-                code: "ERR_0056_003_002",
+                code: "ERR_006_003_002",
                 message: "Existed admin",
                 debug_log: None,
             })
@@ -89,14 +83,5 @@ mod tests {
         init_test_data();
 
         assert_eq!(get_all_admins().len(), 1);
-    }
-
-    #[test]
-    fn admin_existed_ok() {
-        init_test_data();
-
-        assert_eq!(admin_existed(mock_principals::bob()), true);
-
-        assert_eq!(admin_existed(mock_principals::john()), false);
     }
 }

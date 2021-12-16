@@ -156,7 +156,7 @@ impl From<ErrorKindStore> for Error {
                 debug_log: None,
             },
             ErrorKindStore::AdminExisted => Self {
-                code: "ERR_0056_003_002",
+                code: "ERR_006_003_002",
                 message: "Existed admin",
                 debug_log: None,
             },
