@@ -1,12 +1,14 @@
 use ic_kit::ic::{get, get_mut};
 use ic_kit::ic::{stable_restore, stable_store, trap};
 
+use crate::service::store::admin::AdminStore;
 use crate::service::store::build_config::BuildConfigStore;
 use crate::service::store::progress::ProgressStore;
 use crate::service::store::provider::ProviderStore;
 use crate::service::store::request::RequestStore;
 use crate::service::store::verification::VerificationStore;
 
+pub mod admin;
 pub mod build_config;
 pub mod error_handler;
 pub mod guard;
@@ -73,6 +75,16 @@ fn build_config_store() -> &'static BuildConfigStore {
     get()
 }
 
+#[inline]
+fn admin_store_mut() -> &'static mut AdminStore {
+    get_mut()
+}
+
+#[inline]
+fn admin_store() -> &'static AdminStore {
+    get()
+}
+
 /// These steps are atomic: If canister_pre_upgrade or canister_post_upgrade trap, the upgrade has failed, and the canister is reverted to the previous state. Otherwise, the upgrade has succeeded, and the old instance is discarded.
 /// fyi: https://sdk.dfinity.org/docs/interface-spec/index.html#system-api
 
@@ -82,6 +94,7 @@ type InternalStableStoreAsRef = (
     &'static VerificationStore,
     &'static ProviderStore,
     &'static BuildConfigStore,
+    &'static AdminStore,
 );
 
 pub fn pre_upgrade() {
@@ -91,6 +104,7 @@ pub fn pre_upgrade() {
         verification_store(),
         provider_store(),
         build_config_store(),
+        admin_store(),
     )) {
         trap(&format!(
             "An error occurred when saving to stable memory (pre_upgrade): {:?}",
@@ -105,6 +119,7 @@ type InternalStableStore = (
     VerificationStore,
     ProviderStore,
     BuildConfigStore,
+    AdminStore,
 );
 
 pub fn post_upgrade() {
@@ -116,12 +131,14 @@ pub fn post_upgrade() {
                 verification_store,
                 provider_store,
                 build_config_store,
+                admin_store,
             )| {
                 (*request_store_mut()) = request_store;
                 (*progress_store_mut()) = progress_store;
                 (*verification_store_mut()) = verification_store;
                 (*provider_store_mut()) = provider_store;
                 (*build_config_store_mut()) = build_config_store;
+                (*admin_store_mut()) = admin_store;
             },
         )
         .unwrap_or_else(|e| {

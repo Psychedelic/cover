@@ -1,3 +1,4 @@
+use ic_cdk::caller;
 #[cfg(not(feature = "local_replica"))]
 use ic_kit::ic::{call, id};
 #[cfg(not(feature = "local_replica"))]
@@ -6,6 +7,7 @@ use ic_kit::interfaces::management::CanisterStatusResponse;
 #[cfg(not(feature = "local_replica"))]
 use crate::common::types::CanisterId;
 use crate::common::types::{CallerId, ProviderId};
+use crate::service::admin_store;
 #[cfg(not(feature = "local_replica"))]
 use crate::service::error_handler::ErrorKindApi;
 use crate::service::error_handler::ErrorKindService;
@@ -59,4 +61,11 @@ pub async fn is_cover_owner<T, F: FnOnce() -> Result<T, Error>>(
     f: F,
 ) -> Result<T, Error> {
     f()
+}
+
+pub fn is_authorized() -> Result<(), String> {
+    admin_store()
+        .admin_existed(&caller())
+        .then(|| ())
+        .ok_or_else(|| "Caller is not authorized".into())
 }

@@ -147,6 +147,19 @@ impl From<ErrorKindStore> for Error {
                 message: "Existed build config",
                 debug_log: None,
             },
+            //============================================================================
+            // Admin - ERR_006_003_{SEQUENCE}
+            //============================================================================
+            ErrorKindStore::AdminNotFound => Self {
+                code: "ERR_006_003_001",
+                message: "Admin not found",
+                debug_log: None,
+            },
+            ErrorKindStore::AdminExisted => Self {
+                code: "ERR_0056_003_002",
+                message: "Existed admin",
+                debug_log: None,
+            },
         }
     }
 }

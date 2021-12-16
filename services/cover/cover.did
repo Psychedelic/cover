@@ -106,13 +106,17 @@ type Verification = record {
   build_log_url : text;
 };
 service : {
+  addAdmin : (principal) -> (Result);
   addBuildConfig : (AddBuildConfig) -> (Result);
   addProvider : (AddProvider) -> (Result);
   addRequest : (AddRequest) -> (Result);
   addVerification : (AddVerification) -> (Result);
+  adminExisted : (principal) -> (bool) query;
   consumeRequests : (record {}) -> (Result_1);
+  deleteAdmin : (principal) -> (Result);
   deleteBuildConfig : (principal) -> (Result);
   deleteProvider : (principal) -> (Result);
+  getAllAdmins : () -> (vec principal) query;
   getAllBuildConfigs : () -> (vec BuildConfig) query;
   getAllProgresses : () -> (vec Progress) query;
   getAllProviders : () -> (vec Provider) query;
