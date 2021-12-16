@@ -207,7 +207,7 @@ mod test {
             store.update_build_config(
                 &mock_principals::john(),
                 &fake_canister1(),
-                fake_update_build_config3(),
+                fake_update_build_config1(),
             ),
             Err(ErrorKindStore::BuildConfigNotFound)
         )

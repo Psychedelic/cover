@@ -51,19 +51,3 @@ pub fn fake_build_config3() -> BuildConfig {
         updated_at: time_utils::now_to_str(),
     }
 }
-
-pub fn fake_build_config4() -> BuildConfig {
-    BuildConfig {
-        user_id: mock_principals::john(),
-        canister_id: fake_canister2(),
-        canister_name: "Canister2".into(),
-        repo_url: "https://github.com/something2".into(),
-        user_repo_token: "thisistoke2".into(),
-        commit_hash: "2345".into(),
-        rust_version: "".into(),
-        dfx_version: "0.8.4".into(),
-        optimize_times: 2,
-        created_at: time_utils::now_to_str(),
-        updated_at: time_utils::now_to_str(),
-    }
-}

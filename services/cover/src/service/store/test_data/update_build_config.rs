@@ -23,15 +23,3 @@ pub fn fake_update_build_config2() -> UpdateBuildConfig {
         optimize_times: 2,
     }
 }
-
-pub fn fake_update_build_config3() -> UpdateBuildConfig {
-    UpdateBuildConfig {
-        canister_name: "AnotherName3".into(),
-        repo_url: "https://github.com/another3".into(),
-        user_repo_token: "thisistoken3".into(),
-        commit_hash: "345666".into(),
-        rust_version: "1.2.3".into(),
-        dfx_version: "0.8.4".into(),
-        optimize_times: 3,
-    }
-}

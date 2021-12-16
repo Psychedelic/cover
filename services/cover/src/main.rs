@@ -8,9 +8,9 @@ fn main() {}
 
 #[cfg(not(any(target_arch = "wasm32", test)))]
 fn main() {
-    use crate::common::types::{CanisterId, ProviderId, ReqId};
+    use crate::common::types::*;
     use crate::service::model::build_config::*;
-    use crate::service::model::error::Error;
+    use crate::service::model::error::*;
     use crate::service::model::progress::*;
     use crate::service::model::provider::*;
     use crate::service::model::request::*;
@@ -19,3 +19,8 @@ fn main() {
     ic_kit::candid::export_service!();
     std::print!("{}", __export_service());
 }
+
+// #[init]
+// fn init() {
+//     HashSet
+// }
