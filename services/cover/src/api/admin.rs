@@ -3,22 +3,22 @@ use ic_kit::macros::{query, update};
 
 use crate::common::types::AdminId;
 use crate::service::admin;
-use crate::service::guard::is_authorized;
+use crate::service::guard::is_admin;
 use crate::service::model::error::Error;
 
-#[update(name = "addAdmin", guard = "is_authorized")]
+#[update(name = "addAdmin", guard = "is_admin")]
 #[candid_method(update, rename = "addAdmin")]
 fn add_admin(admin_id: AdminId) -> Result<(), Error> {
     admin::add_admin(&admin_id)
 }
 
-#[update(name = "deleteAdmin", guard = "is_authorized")]
+#[update(name = "deleteAdmin", guard = "is_admin")]
 #[candid_method(update, rename = "deleteAdmin")]
 fn delete_admin(admin_id: AdminId) -> Result<(), Error> {
     admin::delete_admin(&admin_id)
 }
 
-#[query(name = "getAllAdmins", guard = "is_authorized")]
+#[query(name = "getAllAdmins", guard = "is_admin")]
 #[candid_method(query, rename = "getAllAdmins")]
 fn get_all_admins() -> Vec<&'static AdminId> {
     admin::get_all_admins()
@@ -32,9 +32,10 @@ mod tests {
 
     fn init_test_data() {
         MockContext::new()
-            .with_caller(mock_principals::john())
+            .with_caller(mock_principals::bob())
             .inject();
 
+        //Bob is an admin so he should be present in Admin store
         assert_eq!(add_admin(mock_principals::bob()), Ok(()));
     }
 

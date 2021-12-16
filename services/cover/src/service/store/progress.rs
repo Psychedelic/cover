@@ -27,11 +27,11 @@ impl ProgressStore {
             .next()
     }
 
-    pub fn get_progresses_by_canister_id(&self, canister_id: CanisterId) -> Vec<&Progress> {
+    pub fn get_progresses_by_canister_id(&self, canister_id: &CanisterId) -> Vec<&Progress> {
         self.progress
             .range((
-                Included((ReqId::MIN, canister_id)),
-                Included((ReqId::MAX, canister_id)),
+                Included((ReqId::MIN, *canister_id)),
+                Included((ReqId::MAX, *canister_id)),
             ))
             .map(|(_, v)| v)
             .collect()
@@ -44,18 +44,18 @@ impl ProgressStore {
     pub fn init_progress(
         &mut self,
         request_id: ReqId,
-        canister_id: CanisterId,
+        canister_id: &CanisterId,
     ) -> Result<(), ErrorKindStore> {
         self.progress
-            .get(&(request_id, canister_id))
+            .get(&(request_id, *canister_id))
             .is_some()
             .not()
             .then(|| {
                 self.progress.insert(
-                    (request_id, canister_id),
+                    (request_id, *canister_id),
                     Progress {
                         request_id,
-                        canister_id,
+                        canister_id: *canister_id,
                         started_at: time_utils::now_to_str(),
                         updated_at: None,
                         git_sha: None,
@@ -128,7 +128,7 @@ mod test {
         let len = 15;
         let mut store = ProgressStore::default();
         for i in 1..len + 1 {
-            let result = store.init_progress(i, test_data::fake_canister1());
+            let result = store.init_progress(i, &test_data::fake_canister1());
             assert_eq!(result, Ok(()));
             store
                 .progress
@@ -151,7 +151,7 @@ mod test {
         }
         assert_eq!(store.progress.len(), len as usize);
         for i in 1..len + 1 {
-            let result = store.init_progress(i, test_data::fake_canister1());
+            let result = store.init_progress(i, &test_data::fake_canister1());
             assert_eq!(result, Err(ErrorKindStore::InitExistedProgress));
         }
         assert_eq!(store.progress.len(), len as usize);
@@ -162,24 +162,24 @@ mod test {
         let len = 15;
         let mut store = ProgressStore::default();
         for i in 1..len + 1 {
-            let result = store.init_progress(i, test_data::fake_canister1());
+            let result = store.init_progress(i, &test_data::fake_canister1());
             assert_eq!(result, Ok(()));
         }
         assert_eq!(store.progress.len(), len as usize);
         for i in 1..len + 1 {
             let result = store.update_progress(test_data::fake_update_progress_default(
                 i,
-                test_data::fake_canister2(),
+                &test_data::fake_canister2(),
             ));
             assert_eq!(result, Err(ErrorKindStore::ProgressNotFound));
             let update_progress = if i % 4 == 0 {
-                test_data::fake_update_progress_init(i, test_data::fake_canister1())
+                test_data::fake_update_progress_init(i, &test_data::fake_canister1())
             } else if i % 4 == 1 {
-                test_data::fake_update_progress_in_progress(i, test_data::fake_canister1())
+                test_data::fake_update_progress_in_progress(i, &test_data::fake_canister1())
             } else if i % 4 == 2 {
-                test_data::fake_update_progress_finished(i, test_data::fake_canister1())
+                test_data::fake_update_progress_finished(i, &test_data::fake_canister1())
             } else {
-                test_data::fake_update_progress_error(i, test_data::fake_canister1())
+                test_data::fake_update_progress_error(i, &test_data::fake_canister1())
             };
             let result = store.update_progress(update_progress);
             assert_eq!(
@@ -204,7 +204,7 @@ mod test {
                         p,
                         &test_data::fake_update_progress_default(
                             request_id as ReqId,
-                            test_data::fake_canister1(),
+                            &test_data::fake_canister1(),
                         ),
                     );
                 } else if request_id % 4 == 1 {
@@ -213,7 +213,7 @@ mod test {
                         p,
                         &test_data::fake_update_progress_in_progress(
                             request_id as ReqId,
-                            test_data::fake_canister1(),
+                            &test_data::fake_canister1(),
                         ),
                     );
                 } else if request_id % 4 == 2 {
@@ -222,7 +222,7 @@ mod test {
                         p,
                         &test_data::fake_update_progress_finished(
                             request_id as ReqId,
-                            test_data::fake_canister1(),
+                            &test_data::fake_canister1(),
                         ),
                     );
                 } else {
@@ -231,7 +231,7 @@ mod test {
                         p,
                         &test_data::fake_update_progress_error(
                             request_id as ReqId,
-                            test_data::fake_canister1(),
+                            &test_data::fake_canister1(),
                         ),
                     );
                 }

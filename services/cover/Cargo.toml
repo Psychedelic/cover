@@ -10,9 +10,3 @@ ic-cdk = "0.3.2"
 ic-kit = "0.4.3"
 serde = { version = "1.0.130", features = ["derive"] }
 chrono = "0.4.19"
-
-[target.'cfg(not(target_family = "wasm"))'.dependencies]
-async-std = { version = "1.10.0", features = ["attributes"] }
-
-[features]
-local_replica = []

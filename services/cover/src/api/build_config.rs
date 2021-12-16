@@ -15,7 +15,7 @@ fn get_all_build_configs() -> Vec<&'static BuildConfig> {
 
 #[query(name = "getBuildConfigById")]
 #[candid_method(query, rename = "getBuildConfigById")]
-fn get_build_config_by_id(canister_id: CanisterId) -> Result<&'static BuildConfig, Error> {
+fn get_build_config_by_id(canister_id: CanisterId) -> Option<&'static BuildConfig> {
     build_config::get_build_config_by_id(&caller(), &canister_id)
 }
 
@@ -124,17 +124,10 @@ mod tests {
 
         assert_eq!(
             get_build_config_by_id(fake_canister1()),
-            Ok(&fake_build_config1())
+            Some(&fake_build_config1())
         );
 
-        assert_eq!(
-            get_build_config_by_id(fake_canister3()),
-            Err(Error {
-                code: "ERR_005_003_001",
-                message: "Build config not found",
-                debug_log: None,
-            })
-        );
+        assert_eq!(get_build_config_by_id(fake_canister3()), None);
     }
 
     #[test]

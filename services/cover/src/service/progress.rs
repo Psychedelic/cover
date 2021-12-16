@@ -7,7 +7,7 @@ pub fn get_progress_by_request_id(request_id: ReqId) -> Option<&'static Progress
     progress_store().get_progress_by_request_id(request_id)
 }
 
-pub fn get_progresses_by_canister_id(canister_id: CanisterId) -> Vec<&'static Progress> {
+pub fn get_progresses_by_canister_id(canister_id: &CanisterId) -> Vec<&'static Progress> {
     progress_store().get_progresses_by_canister_id(canister_id)
 }
 

@@ -29,5 +29,5 @@ fn consume_requests(request: ProviderInfo) -> Result<Vec<&'static Request>, Erro
 #[update(name = "addRequest")]
 #[candid_method(update, rename = "addRequest")]
 fn add_request(request: AddRequest) -> Result<(), Error> {
-    request::add_request(caller(), request)
+    request::add_request(&caller(), request)
 }
