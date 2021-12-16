@@ -11,13 +11,13 @@ use crate::service::provider;
 #[update(name = "addProvider", guard = "is_admin")]
 #[candid_method(update, rename = "addProvider")]
 fn add_provider(provider: AddProvider) -> Result<(), Error> {
-    provider::add_provider(caller(), provider)
+    provider::add_provider(&caller(), provider)
 }
 
 #[update(name = "updateProvider", guard = "is_admin")]
 #[candid_method(update, rename = "updateProvider")]
 fn update_provider(provider: UpdateProvider) -> Result<(), Error> {
-    provider::update_provider(caller(), provider)
+    provider::update_provider(&caller(), provider)
 }
 
 #[update(name = "deleteProvider", guard = "is_admin")]

@@ -21,7 +21,7 @@ impl ProviderStore {
 
     pub fn add_provider(
         &mut self,
-        caller_id: CallerId,
+        caller_id: &CallerId,
         add_provider: AddProvider,
     ) -> Result<(), ErrorKindStore> {
         self.provider_exists(&add_provider.id)
@@ -34,9 +34,9 @@ impl ProviderStore {
                         id: add_provider.id,
                         name: add_provider.name,
                         memo: add_provider.memo,
-                        created_by: caller_id,
+                        created_by: *caller_id,
                         created_at: now.clone(),
-                        updated_by: caller_id,
+                        updated_by: *caller_id,
                         updated_at: now,
                     },
                 );
@@ -46,7 +46,7 @@ impl ProviderStore {
 
     pub fn update_provider(
         &mut self,
-        caller_id: CallerId,
+        caller_id: &CallerId,
         update_provider: UpdateProvider,
     ) -> Result<(), ErrorKindStore> {
         self.provider
@@ -54,7 +54,7 @@ impl ProviderStore {
             .map(|provider| {
                 provider.name = update_provider.name;
                 provider.memo = update_provider.memo;
-                provider.updated_by = caller_id;
+                provider.updated_by = *caller_id;
                 provider.updated_at = time_utils::now_to_str();
             })
             .ok_or(ErrorKindStore::ProviderNotFound)
@@ -105,7 +105,7 @@ mod test {
     fn init_test_data(len: u8) -> ProviderStore {
         let mut store = ProviderStore::default();
         for i in 0..len {
-            let result = store.add_provider(test_data::caller_gen(i), add_provider_gen(i));
+            let result = store.add_provider(&test_data::caller_gen(i), add_provider_gen(i));
             assert_eq!(result, Ok(()));
         }
         store
@@ -117,7 +117,7 @@ mod test {
         assert_eq!(store.provider.len(), 3);
         for i in 0..store.provider.len() {
             let result =
-                store.add_provider(test_data::caller_gen(i as u8), add_provider_gen(i as u8));
+                store.add_provider(&test_data::caller_gen(i as u8), add_provider_gen(i as u8));
             assert_eq!(result, Err(ErrorKindStore::ExistedProvider));
         }
     }
@@ -128,14 +128,14 @@ mod test {
         for i in 0..3 {
             let update_provider = update_provider_gen(i as u8);
             let caller_id = test_data::caller_gen(i as u8);
-            let result = store.update_provider(caller_id, update_provider);
+            let result = store.update_provider(&caller_id, update_provider);
             assert_eq!(result, Err(ErrorKindStore::ProviderNotFound));
         }
         let mut store = init_test_data(3);
         for i in 0..store.provider.len() {
             let update_provider = update_provider_gen(i as u8);
             let caller_id = test_data::caller_gen(i as u8);
-            let result = store.update_provider(caller_id, update_provider);
+            let result = store.update_provider(&caller_id, update_provider);
             assert_eq!(result, Ok(()));
         }
         for i in 0..store.provider.len() {
