@@ -17,7 +17,7 @@ pub struct UpdateProvider {
     pub memo: Option<String>,
 }
 
-#[derive(CandidType, Deserialize, PartialEq)]
+#[derive(CandidType, Deserialize, PartialEq, Debug)]
 pub struct Provider {
     pub id: ProviderId,
     pub name: String,

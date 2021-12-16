@@ -27,10 +27,8 @@ impl BuildConfigStore {
         &self,
         caller_id: &CallerId,
         canister_id: &CanisterId,
-    ) -> Result<&BuildConfig, ErrorKindStore> {
-        self.configs
-            .get(&(*caller_id, *canister_id))
-            .ok_or(ErrorKindStore::BuildConfigNotFound)
+    ) -> Option<&BuildConfig> {
+        self.configs.get(&(*caller_id, *canister_id))
     }
 
     fn build_config_exists(&self, caller_id: &CallerId, canister_id: &CanisterId) -> bool {
@@ -167,17 +165,17 @@ mod test {
 
         assert_eq!(
             store.get_build_config_by_id(&mock_principals::alice(), &fake_canister3()),
-            Ok(&fake_build_config3())
+            Some(&fake_build_config3())
         );
 
         assert_eq!(
             store.get_build_config_by_id(&mock_principals::alice(), &fake_canister2()),
-            Err(ErrorKindStore::BuildConfigNotFound)
+            None
         );
 
         assert_eq!(
             store.get_build_config_by_id(&mock_principals::bob(), &fake_canister3()),
-            Err(ErrorKindStore::BuildConfigNotFound)
+            None
         );
     }
 

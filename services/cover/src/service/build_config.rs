@@ -10,10 +10,8 @@ pub fn get_all_build_configs(caller_id: &CallerId) -> Vec<&'static BuildConfig> 
 pub fn get_build_config_by_id(
     caller_id: &CallerId,
     canister_id: &CanisterId,
-) -> Result<&'static BuildConfig, Error> {
-    build_config_store()
-        .get_build_config_by_id(caller_id, canister_id)
-        .map_err(|e| e.into())
+) -> Option<&'static BuildConfig> {
+    build_config_store().get_build_config_by_id(caller_id, canister_id)
 }
 
 pub fn update_build_config(

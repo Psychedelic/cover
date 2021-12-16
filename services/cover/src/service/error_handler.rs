@@ -1,5 +1,3 @@
-use ic_kit::RejectionCode;
-
 use crate::service::model::error::Error;
 use crate::service::store::error::ErrorKindStore;
 
@@ -14,69 +12,50 @@ use crate::service::store::error::ErrorKindStore;
 //          Api                   001       (inter-canister, external api...)
 //          Service               002
 //          Store                 003
-pub enum ErrorKindApi {
-    //============================================================================
-    // General
-    //============================================================================
-    InterCanister((RejectionCode, String)),
-    BlackholeCanisterStatus(String),
-}
+// pub enum ErrorKindApi {
+// //============================================================================
+// // General
+// //============================================================================
+// }
 
 // ERR_{MODULE}_001_{SEQUENCE}
-impl From<ErrorKindApi> for Error {
-    fn from(kind: ErrorKindApi) -> Self {
-        match kind {
-            //============================================================================
-            // General - ERR_000_001_{SEQUENCE}
-            //============================================================================
-            ErrorKindApi::InterCanister(e) => Self {
-                code: "ERR_000_001_001",
-                message: "An error occurred when calling inter-canister",
-                debug_log: Some(format!("RejectionCode: {:?}\n{}", e.0, e.1)),
-            },
-            ErrorKindApi::BlackholeCanisterStatus(e) => Self {
-                code: "ERR_000_001_002",
-                message: "An error occurred when get status from blackhole canister",
-                debug_log: Some(e),
-            },
-        }
-    }
-}
+// impl From<ErrorKindApi> for Error {
+//     fn from(kind: ErrorKindApi) -> Self {
+//         match kind {
+//             //============================================================================
+//             // General - ERR_000_001_{SEQUENCE}
+//             //============================================================================
+//
+//         }
+//     }
+// }
 
-pub enum ErrorKindService {
-    //============================================================================
-    // Verification
-    //============================================================================
-    InvalidProvider,
-    //============================================================================
-    // Provider
-    //============================================================================
-    InvalidCoverController,
-}
+// pub enum ErrorKindService {
+// //============================================================================
+// // Verification
+// //============================================================================
+// //
+// //============================================================================
+// // Provider
+// //============================================================================
+// //
+// }
 
 // ERR_{MODULE}_002_{SEQUENCE}
-impl From<ErrorKindService> for Error {
-    fn from(kind: ErrorKindService) -> Self {
-        match kind {
-            //============================================================================
-            // Verification - ERR_003_002_{SEQUENCE}
-            //============================================================================
-            ErrorKindService::InvalidProvider => Self {
-                code: "ERR_003_002_001",
-                message: "Invalid provider",
-                debug_log: None,
-            },
-            //============================================================================
-            // Provider - ERR_004_002_{SEQUENCE}
-            //============================================================================
-            ErrorKindService::InvalidCoverController => Self {
-                code: "ERR_004_002_001",
-                message: "Invalid controller",
-                debug_log: None,
-            },
-        }
-    }
-}
+// impl From<ErrorKindService> for Error {
+//     fn from(kind: ErrorKindService) -> Self {
+//         match kind {
+//             //============================================================================
+//             // Verification - ERR_003_002_{SEQUENCE}
+//             //============================================================================
+//             //
+//             //============================================================================
+//             // Provider - ERR_004_002_{SEQUENCE}
+//             //============================================================================
+//             //
+//         }
+//     }
+// }
 
 // ERR_{MODULE}_003_{SEQUENCE}
 impl From<ErrorKindStore> for Error {
