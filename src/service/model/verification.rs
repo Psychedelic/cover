@@ -36,7 +36,7 @@ pub struct SubmitVerification {
     pub source_snapshot_url: String,
 }
 
-#[derive(CandidType, Deserialize, PartialEq)]
+#[derive(CandidType, Deserialize, PartialEq, Debug)]
 pub struct Verification {
     pub canister_id: CanisterId,
     pub git_sha: String,

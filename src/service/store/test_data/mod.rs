@@ -19,6 +19,8 @@ pub use provider::*;
 #[cfg(test)]
 pub use provider_info::*;
 #[cfg(test)]
+pub use submit_verification::*;
+#[cfg(test)]
 pub use update_build_config::*;
 #[cfg(test)]
 pub use update_progress::*;
@@ -26,6 +28,8 @@ pub use update_progress::*;
 pub use update_provider::*;
 #[cfg(test)]
 pub use update_verification::*;
+#[cfg(test)]
+pub use verification::*;
 
 mod add_build_config;
 mod add_provider;
@@ -37,7 +41,9 @@ mod caller_gen;
 mod canister;
 mod provider;
 mod provider_info;
+mod submit_verification;
 mod update_build_config;
 mod update_progress;
 mod update_provider;
 mod update_verification;
+mod verification;
