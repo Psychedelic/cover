@@ -135,7 +135,10 @@ mod test {
 
         assert_eq!(
             store.get_all_build_configs(&mock_principals::bob()),
-            vec![&fake_build_config2(), &fake_build_config1()]
+            vec![
+                &fake_build_config_use_add_model(&mock_principals::bob(), fake_add_build_config2()),
+                &fake_build_config_use_add_model(&mock_principals::bob(), fake_add_build_config1())
+            ]
         );
 
         assert_eq!(
@@ -150,7 +153,10 @@ mod test {
 
         assert_eq!(
             store.get_all_build_configs(&mock_principals::alice()),
-            vec![&fake_build_config3()]
+            vec![&fake_build_config_use_add_model(
+                &mock_principals::alice(),
+                fake_add_build_config3()
+            )]
         );
 
         assert_eq!(
@@ -165,7 +171,10 @@ mod test {
 
         assert_eq!(
             store.get_build_config_by_id(&mock_principals::alice(), &fake_canister3()),
-            Some(&fake_build_config3())
+            Some(&fake_build_config_use_add_model(
+                &mock_principals::alice(),
+                fake_add_build_config3()
+            ))
         );
 
         assert_eq!(
@@ -193,12 +202,12 @@ mod test {
         );
 
         assert_eq!(
-            store
-                .get_build_config_by_id(&mock_principals::john(), &fake_canister2())
-                .unwrap()
-                .canister_name
-                == fake_update_build_config2().canister_name,
-            true
+            store.get_build_config_by_id(&mock_principals::john(), &fake_canister2()),
+            Some(&fake_build_config_use_update_model(
+                &mock_principals::john(),
+                &fake_canister2(),
+                fake_update_build_config2()
+            ))
         );
 
         assert_eq!(

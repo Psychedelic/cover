@@ -114,7 +114,10 @@ mod tests {
 
         assert_eq!(
             get_all_build_configs(),
-            vec![&fake_build_config2(), &fake_build_config1()]
+            vec![
+                &fake_build_config_use_add_model(&mock_principals::bob(), fake_add_build_config2()),
+                &fake_build_config_use_add_model(&mock_principals::bob(), fake_add_build_config1())
+            ]
         );
     }
 
@@ -124,7 +127,10 @@ mod tests {
 
         assert_eq!(
             get_build_config_by_id(fake_canister1()),
-            Some(&fake_build_config1())
+            Some(&fake_build_config_use_add_model(
+                &mock_principals::bob(),
+                fake_add_build_config1()
+            ))
         );
 
         assert_eq!(get_build_config_by_id(fake_canister3()), None);

@@ -93,7 +93,12 @@ mod tests {
     fn get_all_providers_ok() {
         init_test_data();
 
-        assert_eq!(get_all_providers(), vec![&fake_provider1()]);
+        assert_eq!(
+            get_all_providers(),
+            vec![&fake_provider_use_add_model(fake_add_provider1(
+                &mock_principals::bob()
+            ))]
+        );
     }
 
     #[test]
@@ -102,7 +107,9 @@ mod tests {
 
         assert_eq!(
             get_provider_by_id(mock_principals::bob()),
-            Some(&fake_provider1())
+            Some(&fake_provider_use_add_model(fake_add_provider1(
+                &mock_principals::bob()
+            )))
         );
 
         assert_eq!(get_provider_by_id(mock_principals::alice()), None);
@@ -142,9 +149,10 @@ mod tests {
         );
 
         assert_eq!(
-            get_provider_by_id(mock_principals::bob()).unwrap().name
-                == fake_update_provider2(&mock_principals::bob()).name,
-            true
+            get_provider_by_id(mock_principals::bob()),
+            Some(&fake_provider_use_update_model(fake_update_provider2(
+                &mock_principals::bob()
+            )))
         );
 
         assert_eq!(get_all_providers().len(), 1);
