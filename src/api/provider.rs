@@ -52,7 +52,7 @@ mod tests {
             .inject();
 
         assert_eq!(
-            add_provider(fake_add_provider1(&mock_principals::bob())),
+            add_provider(fake_add_provider1(&mock_principals::alice())),
             Ok(())
         );
     }
@@ -64,14 +64,14 @@ mod tests {
         assert_eq!(get_all_providers().len(), 1);
 
         assert_eq!(
-            add_provider(fake_add_provider1(&mock_principals::alice())),
+            add_provider(fake_add_provider1(&mock_principals::john())),
             Ok(())
         );
 
         assert_eq!(get_all_providers().len(), 2);
 
         assert_eq!(
-            add_provider(fake_add_provider1(&mock_principals::alice())),
+            add_provider(fake_add_provider1(&mock_principals::john())),
             Err(Error {
                 code: "ERR_004_003_002",
                 message: "Existed provider",
@@ -80,13 +80,6 @@ mod tests {
         );
 
         assert_eq!(get_all_providers().len(), 2);
-
-        assert_eq!(
-            add_provider(fake_add_provider1(&mock_principals::john())),
-            Ok(())
-        );
-
-        assert_eq!(get_all_providers().len(), 3);
     }
 
     #[test]
@@ -95,9 +88,10 @@ mod tests {
 
         assert_eq!(
             get_all_providers(),
-            vec![&fake_provider_use_add_model(fake_add_provider1(
-                &mock_principals::bob()
-            ))]
+            vec![&fake_provider_use_add_model(
+                &mock_principals::bob(),
+                fake_add_provider1(&mock_principals::alice())
+            )]
         );
     }
 
@@ -106,13 +100,14 @@ mod tests {
         init_test_data();
 
         assert_eq!(
-            get_provider_by_id(mock_principals::bob()),
-            Some(&fake_provider_use_add_model(fake_add_provider1(
-                &mock_principals::bob()
-            )))
+            get_provider_by_id(mock_principals::alice()),
+            Some(&fake_provider_use_add_model(
+                &mock_principals::bob(),
+                fake_add_provider1(&mock_principals::alice())
+            ))
         );
 
-        assert_eq!(get_provider_by_id(mock_principals::alice()), None);
+        assert_eq!(get_provider_by_id(mock_principals::john()), None);
     }
 
     #[test]
@@ -121,12 +116,12 @@ mod tests {
 
         assert_eq!(get_all_providers().len(), 1);
 
-        assert_eq!(delete_provider(mock_principals::bob()), Ok(()));
+        assert_eq!(delete_provider(mock_principals::alice()), Ok(()));
 
         assert_eq!(get_all_providers().len(), 0);
 
         assert_eq!(
-            delete_provider(mock_principals::bob()),
+            delete_provider(mock_principals::alice()),
             Err(Error {
                 code: "ERR_004_003_001",
                 message: "Provider not found",
@@ -144,21 +139,22 @@ mod tests {
         assert_eq!(get_all_providers().len(), 1);
 
         assert_eq!(
-            update_provider(fake_update_provider2(&mock_principals::bob())),
+            update_provider(fake_update_provider2(&mock_principals::alice())),
             Ok(())
         );
 
         assert_eq!(
-            get_provider_by_id(mock_principals::bob()),
-            Some(&fake_provider_use_update_model(fake_update_provider2(
-                &mock_principals::bob()
-            )))
+            get_provider_by_id(mock_principals::alice()),
+            Some(&fake_provider_use_update_model(
+                &mock_principals::bob(),
+                fake_update_provider2(&mock_principals::alice())
+            ))
         );
 
         assert_eq!(get_all_providers().len(), 1);
 
         assert_eq!(
-            update_provider(fake_update_provider2(&mock_principals::alice())),
+            update_provider(fake_update_provider2(&mock_principals::john())),
             Err(Error {
                 code: "ERR_004_003_001",
                 message: "Provider not found",
