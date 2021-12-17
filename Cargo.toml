@@ -1,8 +1,12 @@
-[workspace]
-members = [
-  "services/cover",
-]
+[package]
+name = "cover"
+version = "0.0.1"
+edition = "2018"
+authors = ["Fleek Team <support@fleek.co>"]
 
-[profile.release]
-lto = true
-opt-level = 'z'
+[dependencies]
+ic-cdk-macros = "0.3.2"
+ic-cdk = "0.3.2"
+ic-kit = "0.4.3"
+serde = "1.0.132"
+chrono = "0.4.19"

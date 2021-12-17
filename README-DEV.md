@@ -14,7 +14,8 @@ $ dfx deploy
 
 ```
 $ cd $COVER_ROOT
-$ MODE=PRODUCTION dfx build
+$ <create canister on Local/IC>
+$ dfx build
 ```
 
 ## IC Deployment
@@ -35,9 +36,11 @@ $ dfx canister --network ic install cover -m upgrade
 
 ```
 # 1. create a branch
-# 2. commits
+# 2. contributes
+$ cargo run > cover.did
 $ cargo build
 $ cargo test
 $ cargo fmt --all
 $ cargo clippy
+# 3. commits
 ```
