@@ -90,7 +90,10 @@ mod tests {
 
         assert_eq!(
             get_all_verifications(),
-            vec![&fake_verification1(&mock_principals::alice())]
+            vec![&fake_verification_use_add_model(
+                &mock_principals::alice(),
+                fake_add_verification1(&fake_canister1())
+            )]
         );
     }
 
@@ -100,7 +103,10 @@ mod tests {
 
         assert_eq!(
             get_verification_by_canister_id(fake_canister1()),
-            Some(&fake_verification1(&mock_principals::alice()))
+            Some(&fake_verification_use_add_model(
+                &mock_principals::alice(),
+                fake_add_verification1(&fake_canister1())
+            ))
         );
 
         assert_eq!(get_verification_by_canister_id(fake_canister2()), None);
@@ -118,11 +124,11 @@ mod tests {
         );
 
         assert_eq!(
-            get_verification_by_canister_id(fake_canister1())
-                .unwrap()
-                .git_sha
-                == fake_update_verification1(&fake_canister1()).git_sha,
-            true
+            get_verification_by_canister_id(fake_canister1()),
+            Some(&fake_verification_use_update_model(
+                &mock_principals::alice(),
+                fake_update_verification1(&fake_canister1())
+            ))
         );
 
         assert_eq!(
@@ -149,11 +155,11 @@ mod tests {
         assert_eq!(get_all_verifications().len(), 1);
 
         assert_eq!(
-            get_verification_by_canister_id(fake_canister1())
-                .unwrap()
-                .git_sha
-                == fake_submit_verification1(&fake_canister1()).git_sha,
-            true
+            get_verification_by_canister_id(fake_canister1()),
+            Some(&fake_verification_use_submit_model(
+                &mock_principals::alice(),
+                fake_submit_verification1(&fake_canister1())
+            ))
         );
 
         assert_eq!(
