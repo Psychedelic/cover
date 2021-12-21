@@ -33,7 +33,10 @@ jobs:
       - name: Format Check
         run: cargo fmt --all -- --check
       - name: Clippy Check
-        run: cargo clippy --all-targets --all-features -- -D warnings -D clippy::all
+        uses: actions-rs/clippy-check@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          args: --all-targets --all-features -- -D warnings -D clippy::all
       - name: Test
         run: cargo test
       - name: Build wasm
