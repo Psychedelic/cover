@@ -1,17 +1,45 @@
-name: Rust
+name: Rust - PR check
 
 on:
   pull_request:
     branches: [ main ]
 
 jobs:
-  Format_Clippy_Test:
+  Format_Clippy_Test_Build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: Format Check
-      run: cargo fmt --all -- --check
-    - name: Clippy Check
-      run: cargo clippy --all-targets --all-features -- -D warnings -D clippy::all
-    - name: Run Tests
-      run: cargo test --verbose
+      - uses: actions/checkout@v2
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      - name: Setup toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          components: rustfmt, clippy
+          default: true
+          override: true
+          target: wasm32-unknown-unknown
+      - name: Format Check
+        run: cargo fmt --all -- --check
+      - name: Clippy Check
+        run: cargo clippy --all-targets --all-features -- -D warnings -D clippy::all
+      - name: Test
+        run: cargo test
+      - name: Build wasm
+        run: cargo build --target wasm32-unknown-unknown --package cover --release
+      - name: Build bin
+        run: cargo build --package cover --release --bin cover
+      - name: Output Debug
+        run: ls -al target/debug
+      - name: Output Release
+        run: ls -al target/release
+      - name: Output Wasm
+        run: ls -al target/wasm32-unknown-unknown/release

@@ -243,19 +243,10 @@ mod test {
     #[test]
     fn config_exists_ok() {
         let store = init_test_data();
-        assert_eq!(
-            store.build_config_exists(&mock_principals::john(), &fake_canister2()),
-            true
-        );
+        assert!(store.build_config_exists(&mock_principals::john(), &fake_canister2()));
 
-        assert_eq!(
-            store.build_config_exists(&mock_principals::alice(), &fake_canister3()),
-            true
-        );
+        assert!(store.build_config_exists(&mock_principals::alice(), &fake_canister3()));
 
-        assert_eq!(
-            store.build_config_exists(&mock_principals::alice(), &fake_canister1()),
-            false
-        );
+        assert!(!store.build_config_exists(&mock_principals::alice(), &fake_canister1()));
     }
 }

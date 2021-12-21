@@ -216,9 +216,9 @@ mod test {
     fn verification_exists_ok() {
         let store = init_test_data();
 
-        assert_eq!(store.verification_exists(&fake_canister1()), true);
+        assert!(store.verification_exists(&fake_canister1()));
 
-        assert_eq!(store.verification_exists(&fake_canister3()), false);
+        assert!(!store.verification_exists(&fake_canister3()));
 
         assert_eq!(store.get_all_verifications().len(), 2);
     }

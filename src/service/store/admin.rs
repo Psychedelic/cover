@@ -99,9 +99,9 @@ mod test {
     fn admin_existed_ok() {
         let store = init_test_data();
 
-        assert_eq!(store.admin_existed(&mock_principals::alice()), true);
+        assert!(store.admin_existed(&mock_principals::alice()));
 
-        assert_eq!(store.admin_existed(&mock_principals::john()), false);
+        assert!(!store.admin_existed(&mock_principals::john()));
     }
 
     #[test]
