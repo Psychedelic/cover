@@ -3,6 +3,9 @@ name: Rust - PR check
 on:
   pull_request:
     branches: [ main ]
+    paths:
+      - 'src/**.rs'
+      - 'Cargo.*'
 
 jobs:
   Format_Clippy_Test_Build:
