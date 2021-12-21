@@ -5,10 +5,8 @@ on:
     branches: [ main ]
 
 jobs:
-  Test:
-
+  Format_Clippy_Test:
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
     - name: Format Check
@@ -16,4 +14,4 @@ jobs:
     - name: Clippy Check
       run: cargo clippy --all-targets --all-features -- -D warnings -D clippy::all
     - name: Run Tests
-      run: cargo test --verbose  
+      run: cargo test --verbose
