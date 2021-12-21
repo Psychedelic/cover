@@ -137,7 +137,7 @@ mod test {
                 .for_each(|(index, (_, p))| {
                     assert_eq!(p.request_id, (index + 1) as ReqId);
                     assert_eq!(p.canister_id, test_data::fake_canister1());
-                    assert_eq!(p.started_at.is_empty(), false);
+                    assert!(!p.started_at.is_empty());
                     assert_eq!(p.updated_at, None);
                     assert_eq!(p.git_sha, None);
                     assert_eq!(p.git_ref, None);
@@ -197,9 +197,9 @@ mod test {
             .enumerate()
             .for_each(|(index, (_, p))| {
                 let request_id = index + 1;
-                assert_eq!(p.started_at.is_empty(), false);
+                assert!(!p.started_at.is_empty());
                 if request_id % 4 == 0 {
-                    assert_eq!(p.updated_at.is_some(), false);
+                    assert!(!p.updated_at.is_some());
                     assert_progress_utils(
                         p,
                         &test_data::fake_update_progress_default(
@@ -208,7 +208,7 @@ mod test {
                         ),
                     );
                 } else if request_id % 4 == 1 {
-                    assert_eq!(p.updated_at.is_some(), true);
+                    assert!(p.updated_at.is_some());
                     assert_progress_utils(
                         p,
                         &test_data::fake_update_progress_in_progress(
@@ -217,7 +217,7 @@ mod test {
                         ),
                     );
                 } else if request_id % 4 == 2 {
-                    assert_eq!(p.updated_at.is_some(), true);
+                    assert!(p.updated_at.is_some());
                     assert_progress_utils(
                         p,
                         &test_data::fake_update_progress_finished(
@@ -226,7 +226,7 @@ mod test {
                         ),
                     );
                 } else {
-                    assert_eq!(p.updated_at.is_some(), true);
+                    assert!(p.updated_at.is_some());
                     assert_progress_utils(
                         p,
                         &test_data::fake_update_progress_error(

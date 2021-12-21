@@ -147,15 +147,16 @@ mod tests {
             Ok(())
         );
 
-        assert_eq!(get_all_build_configs().len(), 2);
-
         assert_eq!(
-            get_build_config_by_id(fake_canister1())
-                .unwrap()
-                .canister_name
-                == fake_update_build_config2().canister_name,
-            true
+            get_build_config_by_id(fake_canister1()),
+            Some(&fake_build_config_use_update_model(
+                &mock_principals::bob(),
+                &fake_canister1(),
+                fake_update_build_config2()
+            ))
         );
+
+        assert_eq!(get_all_build_configs().len(), 2);
 
         assert_eq!(
             update_build_config(fake_canister3(), fake_update_build_config2()),
