@@ -1,0 +1,17 @@
+name: Rust
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  Format_Clippy_Test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Format Check
+      run: cargo fmt --all -- --check
+    - name: Clippy Check
+      run: cargo clippy --all-targets --all-features -- -D warnings -D clippy::all
+    - name: Run Tests
+      run: cargo test --verbose
