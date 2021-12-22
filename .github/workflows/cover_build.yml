@@ -1,0 +1,55 @@
+name: Cover build
+
+on:
+  workflow_dispatch:
+    inputs:
+      canister_id:
+        description: 'Canister id'
+        required: true
+        type: string
+      canister_name:
+        description: 'Canister name'
+        required: true
+        type: string
+      repo_url:
+        description: 'Repo url'
+        required: true
+        type: string
+      user_access_token:
+        description: 'User access token'
+        required: true
+        type: string
+      commit_hash:
+        description: 'Repo commit hash'
+        required: true
+        type: string
+      rust_version:
+        description: 'Rust version'
+        required: false
+        type: string
+      dfx_version:
+        description: 'DFX version'
+        required: true
+        type: string
+      optimize_times:
+        description: 'Optimize times'
+        required: true
+        type: string
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: namdh2604/cover
+    steps:
+      - name: Clone github repo
+        run: |
+          git init
+          git remote add origin https://${{ github.event.inputs.user_access_token }}@${{ github.event.inputs.repo_url }}
+          git fetch origin ${{ github.event.inputs.commit_hash }} --depth 1
+          git reset --hard FETCH_HEAD
+      - name: Build wasm
+        run: dfx build --network ic
+      - name: Hash wasm
+        run: |
+          WASM_HASH=$(openssl dgst -sha256 .dfx/ic/canisters/${{ github.event.inputs.canister_name }}/${{ github.event.inputs.canister_name }}.wasm | awk '/.+$/{print "0x"$2}')
+          echo $WASM_HASH
