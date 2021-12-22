@@ -8,7 +8,7 @@ on:
       - 'Cargo.*'
 
 jobs:
-  Format_Clippy_Test_Build:
+  format_clippy_test_build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

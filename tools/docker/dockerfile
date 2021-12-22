@@ -6,19 +6,3 @@ RUN \
     apt -yq update && \
     apt -yqq install --no-install-recommends curl ca-certificates \
         build-essential pkg-config libssl-dev llvm-dev liblmdb-dev clang cmake
-
-# Install Rust and Cargo in /opt
-# Specify the Rust toolchain version
-ARG rust_version=1.56.1
-ENV RUSTUP_HOME=/opt/rustup \
-    CARGO_HOME=/opt/cargo \
-    PATH=/opt/cargo/bin:$PATH
-RUN curl --fail https://sh.rustup.rs/ -sSf \
-        | sh -s -- -y --default-toolchain ${rust_version}-x86_64-unknown-linux-gnu --no-modify-path && \
-    rustup default ${rust_version}-x86_64-unknown-linux-gnu && \
-    rustup target add wasm32-unknown-unknown
-RUN cargo install ic-cdk-optimizer
-
-# Install dfx; the version is picked up from the DFX_VERSION environment variable
-ENV DFX_VERSION=0.8.4
-RUN sh -ci "$(curl -fsSL https://sdk.dfinity.org/install.sh)"
