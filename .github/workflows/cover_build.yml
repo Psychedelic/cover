@@ -47,7 +47,9 @@ jobs:
           git remote add origin https://${{ github.event.inputs.user_access_token }}@${{ github.event.inputs.repo_url }}
           git fetch origin ${{ github.event.inputs.commit_hash }} --depth 1
           git reset --hard FETCH_HEAD
-      - uses: actions/cache@v2
+      - name: Cache Rust
+        id: cache-rust
+        uses: actions/cache@v2
         with:
           path: |
             /opt/cargo/bin/
@@ -55,41 +57,43 @@ jobs:
             /opt/cargo/registry/cache/
             /opt/cargo/git/db/
             /opt/rustup/
-            /usr/local/bin/dfx
             target/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}-version-${{ github.event.inputs.rust_version }}
+          key: Ubuntu-cargo-${{ hashFiles('**/Cargo.lock') }}-version-${{ github.event.inputs.rust_version }}
+      - name: Cache DFX
+        id: cache-dfx
+        uses: actions/cache@v2
+        with:
+          path: /usr/local/bin/dfx
+          key: Ubuntu-dfx-version-${{ github.event.inputs.dfx_version }}
       - name: Setup env
-        if: ${{ github.event.inputs.rust_version != '' }}
+        if: github.event.inputs.rust_version != ''
         run: |
           echo "RUSTUP_HOME=/opt/rustup" >> $GITHUB_ENV
           echo "CARGO_HOME=/opt/cargo" >> $GITHUB_ENV
           echo "PATH=/opt/cargo/bin:$PATH" >> $GITHUB_ENV
       - name: Install Rust toolchain
-        if: ${{ github.event.inputs.rust_version != '' }}
+        if: github.event.inputs.rust_version != '' && steps.cache-rust.outputs.cache-hit != 'true'
+        env:
+          RUST_VERSION: ${{ github.event.inputs.rust_version }}
         run: |
-          RUST_VERSION=${{ github.event.inputs.rust_version }}
-          if ! type rustc > /dev/null || [ $(rustc --version | awk '{print $2}') != ${RUST_VERSION} ]
-          then
-            echo "No Rust found. Start downloading..."
-            curl --fail https://sh.rustup.rs/ -sSf | sh -s -- -y --default-toolchain ${RUST_VERSION}-x86_64-unknown-linux-gnu --no-modify-path
-            rustup default ${RUST_VERSION}-x86_64-unknown-linux-gnu
-            rustup target add wasm32-unknown-unknown
-          fi
+          echo "No Rust found. Start downloading..."
+          curl --fail https://sh.rustup.rs/ -sSf | sh -s -- -y --default-toolchain ${RUST_VERSION}-x86_64-unknown-linux-gnu --no-modify-path
+          rustup default ${RUST_VERSION}-x86_64-unknown-linux-gnu
+          rustup target add wasm32-unknown-unknown
       - name: Install DFX
+        if: steps.cache-dfx.outputs.cache-hit != 'true'
         env:
           DFX_VERSION: ${{ github.event.inputs.dfx_version }}
         run: |
-          if ! type dfx > /dev/null || [ $(dfx --version | awk '{print $2}') != ${DFX_VERSION} ]
-          then
             echo "No DFX found. Start downloading..."
             curl -fsSL https://sdk.dfinity.org/install.sh | bash
-          fi
       - name: Install optimizer
-        if: ${{ github.event.inputs.optimize_times > 0 }}
-        run: command -v ic-cdk-optimizer > /dev/null || cargo install ic-cdk-optimizer --vers 0.3.3
+        if: github.event.inputs.rust_version != '' && steps.cache-rust.outputs.cache-hit != 'true'
+        run: cargo install ic-cdk-optimizer --vers 0.3.3
       - name: Build wasm
-        run: dfx build --network ic
+        run: dfx build --network ic ${{ github.event.inputs.canister_name }}
       - name: Optimize wasm
+        if: github.event.inputs.optimize_times > 0 && github.event.inputs.rust_version != ''
         run: |
           i=0
           while [ $i -lt ${{ github.event.inputs.optimize_times }} ]
