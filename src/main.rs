@@ -19,8 +19,3 @@ fn main() {
     ic_kit::candid::export_service!();
     std::print!("{}", __export_service());
 }
-
-// #[init]
-// fn init() {
-//     HashSet
-// }
