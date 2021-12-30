@@ -47,6 +47,17 @@ jobs:
           git remote add origin https://${{ github.event.inputs.user_access_token }}@${{ github.event.inputs.repo_url }}
           git fetch origin ${{ github.event.inputs.commit_hash }} --depth 1
           git reset --hard FETCH_HEAD
+      - name: Validate dfx build type
+        run: |
+          case  $(jq '.canisters.${{ github.event.inputs.canister_name }}.type' < dfx.json) in 
+            (\"rust\" | \"motoko\") 
+              echo "Passed" 
+              ;;
+            (*) 
+              echo "Only support DFX build type \"rust\" or \"motoko\""
+              exit 1
+              ;;
+          esac
       - name: Cache Rust
         id: cache-rust
         uses: actions/cache@v2
@@ -85,8 +96,8 @@ jobs:
         env:
           DFX_VERSION: ${{ github.event.inputs.dfx_version }}
         run: |
-            echo "No DFX found. Start downloading..."
-            curl -fsSL https://sdk.dfinity.org/install.sh | bash
+          echo "No DFX found. Start downloading..."
+          curl -fsSL https://sdk.dfinity.org/install.sh | bash
       - name: Install optimizer
         if: github.event.inputs.rust_version != '' && steps.cache-rust.outputs.cache-hit != 'true'
         run: cargo install ic-cdk-optimizer --vers 0.3.3
