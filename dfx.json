@@ -3,13 +3,9 @@
   "dfx": "0.8.4",
   "canisters": {
     "cover": {
-      "build": [
-        "cargo build --target wasm32-unknown-unknown --package cover --release --bin cover",
-        "ic-cdk-optimizer target/wasm32-unknown-unknown/release/cover.wasm -o target/wasm32-unknown-unknown/release/opt.wasm"
-      ],
       "candid": "cover.did",
-      "wasm": "target/wasm32-unknown-unknown/release/opt.wasm",
-      "type": "custom"
+      "type": "rust",
+      "package": "cover"
     }
   },
   "defaults": {
