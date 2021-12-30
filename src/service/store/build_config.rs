@@ -51,7 +51,7 @@ impl BuildConfigStore {
                         canister_id: config.canister_id,
                         canister_name: config.canister_name,
                         repo_url: config.repo_url,
-                        user_repo_token: config.user_repo_token,
+                        user_access_token: config.user_access_token,
                         commit_hash: config.commit_hash,
                         rust_version: config.rust_version,
                         dfx_version: config.dfx_version,
@@ -75,7 +75,7 @@ impl BuildConfigStore {
             .map(|c| {
                 c.canister_name = config.canister_name;
                 c.repo_url = config.repo_url;
-                c.user_repo_token = config.user_repo_token;
+                c.user_access_token = config.user_access_token;
                 c.commit_hash = config.commit_hash;
                 c.rust_version = config.rust_version;
                 c.dfx_version = config.dfx_version;

@@ -1,6 +1,6 @@
 type AddBuildConfig = record {
-  user_repo_token : text;
   canister_id : principal;
+  user_access_token : text;
   dfx_version : text;
   optimize_times : nat8;
   canister_name : text;
@@ -24,10 +24,10 @@ type AddVerification = record {
 };
 type BuildConfig = record {
   updated_at : text;
-  user_repo_token : text;
   canister_id : principal;
   created_at : text;
   user_id : principal;
+  user_access_token : text;
   dfx_version : text;
   optimize_times : nat8;
   canister_name : text;
@@ -71,7 +71,7 @@ type Request = record {
 type Result = variant { Ok; Err : Error };
 type Result_1 = variant { Ok : vec Request; Err : Error };
 type UpdateBuildConfig = record {
-  user_repo_token : text;
+  user_access_token : text;
   dfx_version : text;
   optimize_times : nat8;
   canister_name : text;
