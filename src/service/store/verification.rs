@@ -21,7 +21,7 @@ impl VerificationStore {
 
     pub fn add_verification(
         &mut self,
-        caller_id: &CallerId,
+        owner_id: &CallerId,
         add_verification: AddVerification,
     ) -> Result<(), ErrorKindStore> {
         self.verification_exists(&add_verification.canister_id)
@@ -32,15 +32,16 @@ impl VerificationStore {
                     add_verification.canister_id,
                     Verification {
                         canister_id: add_verification.canister_id,
-                        git_sha: add_verification.git_sha,
-                        git_ref: add_verification.git_ref,
-                        git_repo: add_verification.git_repo,
-                        wasm_checksum: add_verification.wasm_checksum,
-                        build_log_url: add_verification.build_log_url,
-                        source_snapshot_url: add_verification.source_snapshot_url,
-                        created_by: *caller_id,
+                        canister_name: add_verification.canister_name,
+                        repo_url: add_verification.repo_url,
+                        commit_hash: add_verification.commit_hash,
+                        wasm_hash: add_verification.wasm_hash,
+                        rust_version: add_verification.rust_version,
+                        dfx_version: add_verification.dfx_version,
+                        optimize_count: add_verification.optimize_count,
+                        created_by: *owner_id,
                         created_at: now.clone(),
-                        updated_by: *caller_id,
+                        updated_by: *owner_id,
                         updated_at: now,
                     },
                 );
@@ -50,20 +51,21 @@ impl VerificationStore {
 
     pub fn update_verification(
         &mut self,
-        caller_id: &CallerId,
+        owner_id: &CallerId,
         update_verification: UpdateVerification,
     ) -> Result<(), ErrorKindStore> {
         self.verification
             .get_mut(&update_verification.canister_id)
             .map(|verification| {
                 let now = time_utils::now_to_str();
-                verification.git_sha = update_verification.git_sha;
-                verification.git_ref = update_verification.git_ref;
-                verification.git_repo = update_verification.git_repo;
-                verification.wasm_checksum = update_verification.wasm_checksum;
-                verification.build_log_url = update_verification.build_log_url;
-                verification.source_snapshot_url = update_verification.source_snapshot_url;
-                verification.updated_by = *caller_id;
+                verification.canister_name = update_verification.canister_name;
+                verification.repo_url = update_verification.repo_url;
+                verification.wasm_hash = update_verification.wasm_hash;
+                verification.rust_version = update_verification.rust_version;
+                verification.dfx_version = update_verification.dfx_version;
+                verification.commit_hash = update_verification.commit_hash;
+                verification.optimize_count = update_verification.optimize_count;
+                verification.updated_by = *owner_id;
                 verification.updated_at = now;
             })
             .ok_or(ErrorKindStore::VerificationNotFound)
@@ -144,7 +146,7 @@ mod test {
 
         assert_eq!(
             store.update_verification(
-                &mock_principals::alice(),
+                &mock_principals::bob(),
                 fake_update_verification1(&fake_canister1())
             ),
             Ok(())
@@ -154,6 +156,7 @@ mod test {
             store.get_verification_by_canister_id(&fake_canister1()),
             Some(&fake_verification_use_update_model(
                 &mock_principals::alice(),
+                &mock_principals::bob(),
                 fake_update_verification1(&fake_canister1())
             ))
         );

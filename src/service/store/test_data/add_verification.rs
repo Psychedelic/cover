@@ -4,35 +4,38 @@ use crate::service::model::verification::AddVerification;
 pub fn fake_add_verification1(canister_id: &CanisterId) -> AddVerification {
     AddVerification {
         canister_id: *canister_id,
-        git_sha: "git_sha1".into(),
-        git_ref: "git_ref1".into(),
-        git_repo: "user/repo1".to_string(),
-        wasm_checksum: "wasm_checksum1".into(),
-        build_log_url: "build_log_url1".into(),
-        source_snapshot_url: "source_snapshot_url1".into(),
+        canister_name: "add_canister_name_1".to_string(),
+        repo_url: "add_repo_1".to_string(),
+        commit_hash: "add_commit_1".to_string(),
+        wasm_hash: "add_wasm1".to_string(),
+        rust_version: "1.0.0".to_string(),
+        dfx_version: "0.8.4".to_string(),
+        optimize_count: 1,
     }
 }
 
 pub fn fake_add_verification2(canister_id: &CanisterId) -> AddVerification {
     AddVerification {
         canister_id: *canister_id,
-        git_sha: "git_sha2".into(),
-        git_ref: "git_ref2".into(),
-        git_repo: "user/repo2".to_string(),
-        wasm_checksum: "wasm_checksum2".into(),
-        build_log_url: "build_log_url2".into(),
-        source_snapshot_url: "source_snapshot_url2".into(),
+        canister_name: "add_canister_name_2".to_string(),
+        repo_url: "add_repo_2".to_string(),
+        commit_hash: "add_commit_2".to_string(),
+        wasm_hash: "add_wasm2".to_string(),
+        rust_version: "2.0.0".to_string(),
+        dfx_version: "0.8.4".to_string(),
+        optimize_count: 2,
     }
 }
 
 pub fn fake_add_verification3(canister_id: &CanisterId) -> AddVerification {
     AddVerification {
         canister_id: *canister_id,
-        git_sha: "git_sha3".into(),
-        git_ref: "git_ref3".into(),
-        git_repo: "user/repo3".to_string(),
-        wasm_checksum: "wasm_checksum3".into(),
-        build_log_url: "build_log_url3".into(),
-        source_snapshot_url: "source_snapshot_url3".into(),
+        canister_name: "add_canister_name_3".to_string(),
+        repo_url: "add_repo_3".to_string(),
+        commit_hash: "add_commit_3".to_string(),
+        wasm_hash: "add_wasm3".to_string(),
+        rust_version: "3.0.0".to_string(),
+        dfx_version: "0.8.4".to_string(),
+        optimize_count: 0,
     }
 }

@@ -1,8 +1,7 @@
 use ic_kit::candid::candid_method;
-use ic_kit::ic::caller;
 use ic_kit::macros::{query, update};
 
-use crate::common::types::CanisterId;
+use crate::common::types::{CallerId, CanisterId};
 use crate::service::guard::is_provider;
 use crate::service::model::error::Error;
 use crate::service::model::verification::{
@@ -24,20 +23,20 @@ fn get_all_verifications() -> Vec<&'static Verification> {
 
 #[update(name = "addVerification", guard = "is_provider")]
 #[candid_method(update, rename = "addVerification")]
-fn add_verification(verification: AddVerification) -> Result<(), Error> {
-    verification::add_verification(&caller(), verification)
+fn add_verification(owner_id: CallerId, verification: AddVerification) -> Result<(), Error> {
+    verification::add_verification(&owner_id, verification)
 }
 
 #[update(name = "updateVerification", guard = "is_provider")]
 #[candid_method(update, rename = "updateVerification")]
-fn update_verification(verification: UpdateVerification) -> Result<(), Error> {
-    verification::update_verification(&caller(), verification)
+fn update_verification(owner_id: CallerId, verification: UpdateVerification) -> Result<(), Error> {
+    verification::update_verification(&owner_id, verification)
 }
 
 #[update(name = "submitVerification", guard = "is_provider")]
 #[candid_method(update, rename = "submitVerification")]
-fn submit_verification(verification: SubmitVerification) -> Result<(), Error> {
-    verification::submit_verification(&caller(), verification)
+fn submit_verification(owner_id: CallerId, verification: SubmitVerification) -> Result<(), Error> {
+    verification::submit_verification(&owner_id, verification)
 }
 
 #[cfg(test)]
@@ -50,11 +49,14 @@ mod tests {
 
     fn init_test_data() {
         MockContext::new()
-            .with_caller(mock_principals::alice())
+            .with_caller(mock_principals::john())
             .inject();
 
         assert_eq!(
-            add_verification(fake_add_verification1(&fake_canister1())),
+            add_verification(
+                mock_principals::alice(),
+                fake_add_verification1(&fake_canister1())
+            ),
             Ok(())
         );
     }
@@ -66,14 +68,20 @@ mod tests {
         assert_eq!(get_all_verifications().len(), 1);
 
         assert_eq!(
-            add_verification(fake_add_verification2(&fake_canister2())),
+            add_verification(
+                mock_principals::bob(),
+                fake_add_verification2(&fake_canister2())
+            ),
             Ok(())
         );
 
         assert_eq!(get_all_verifications().len(), 2);
 
         assert_eq!(
-            add_verification(fake_add_verification2(&fake_canister2())),
+            add_verification(
+                mock_principals::alice(),
+                fake_add_verification2(&fake_canister2())
+            ),
             Err(Error {
                 code: "ERR_003_003_002",
                 message: "Existed verification",
@@ -119,7 +127,10 @@ mod tests {
         assert_eq!(get_all_verifications().len(), 1);
 
         assert_eq!(
-            update_verification(fake_update_verification1(&fake_canister1())),
+            update_verification(
+                mock_principals::bob(),
+                fake_update_verification1(&fake_canister1())
+            ),
             Ok(())
         );
 
@@ -127,12 +138,16 @@ mod tests {
             get_verification_by_canister_id(fake_canister1()),
             Some(&fake_verification_use_update_model(
                 &mock_principals::alice(),
+                &mock_principals::bob(),
                 fake_update_verification1(&fake_canister1())
             ))
         );
 
         assert_eq!(
-            update_verification(fake_update_verification1(&fake_canister2())),
+            update_verification(
+                mock_principals::alice(),
+                fake_update_verification1(&fake_canister2())
+            ),
             Err(Error {
                 code: "ERR_003_003_001",
                 message: "Verification not found",
@@ -148,7 +163,10 @@ mod tests {
         assert_eq!(get_all_verifications().len(), 1);
 
         assert_eq!(
-            submit_verification(fake_submit_verification1(&fake_canister1())),
+            submit_verification(
+                mock_principals::bob(),
+                fake_submit_verification1(&fake_canister1())
+            ),
             Ok(())
         );
 
@@ -158,12 +176,16 @@ mod tests {
             get_verification_by_canister_id(fake_canister1()),
             Some(&fake_verification_use_submit_model(
                 &mock_principals::alice(),
+                &mock_principals::bob(),
                 fake_submit_verification1(&fake_canister1())
             ))
         );
 
         assert_eq!(
-            submit_verification(fake_submit_verification1(&fake_canister2())),
+            submit_verification(
+                mock_principals::bob(),
+                fake_submit_verification1(&fake_canister2())
+            ),
             Ok(())
         );
 

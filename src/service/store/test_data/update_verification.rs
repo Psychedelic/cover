@@ -4,11 +4,12 @@ use crate::service::model::verification::UpdateVerification;
 pub fn fake_update_verification1(canister_id: &CanisterId) -> UpdateVerification {
     UpdateVerification {
         canister_id: *canister_id,
-        git_sha: "update_git_sha1".into(),
-        git_ref: "update_git_ref1".into(),
-        git_repo: "Psychedelic/cover1".into(),
-        wasm_checksum: "update_wasm_checksum1".into(),
-        build_log_url: "update_build_log_url1".into(),
-        source_snapshot_url: "source_snapshot_url1".into(),
+        canister_name: "updated_canister_name_1".to_string(),
+        repo_url: "updated_repo_1".to_string(),
+        commit_hash: "updated_commit_1".to_string(),
+        wasm_hash: "updated_wasm1".to_string(),
+        rust_version: "1.1.1".to_string(),
+        dfx_version: "0.8.4".to_string(),
+        optimize_count: 0,
     }
 }
