@@ -13,24 +13,6 @@ pub fn get_all_verifications() -> Vec<&'static Verification> {
     verification_store().get_all_verifications()
 }
 
-pub fn add_verification(
-    owner_id: &CallerId,
-    add_verification: AddVerification,
-) -> Result<(), Error> {
-    verification_store_mut()
-        .add_verification(owner_id, add_verification)
-        .map_err(|e| e.into())
-}
-
-pub fn update_verification(
-    owner_id: &CallerId,
-    update_verification: UpdateVerification,
-) -> Result<(), Error> {
-    verification_store_mut()
-        .update_verification(owner_id, update_verification)
-        .map_err(|e| e.into())
-}
-
 pub fn submit_verification(
     owner_id: &CallerId,
     submit_verification: SubmitVerification,

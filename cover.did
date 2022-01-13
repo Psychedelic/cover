@@ -12,16 +12,6 @@ type AddRequest = record {
   canister_id : principal;
   build_settings : BuildSettings;
 };
-type AddVerification = record {
-  wasm_checksum : text;
-  canister_id : principal;
-  dfx_version : text;
-  optimize_times : nat8;
-  canister_name : text;
-  commit_hash : text;
-  repo_url : text;
-  rust_version : text;
-};
 type BuildConfig = record {
   updated_at : text;
   canister_id : principal;
@@ -69,6 +59,16 @@ type Request = record {
 };
 type Result = variant { Ok; Err : Error };
 type Result_1 = variant { Ok : vec Request; Err : Error };
+type SubmitVerification = record {
+  canister_id : principal;
+  dfx_version : text;
+  canister_name : text;
+  commit_hash : text;
+  repo_url : text;
+  rust_version : text;
+  optimize_count : nat8;
+  wasm_hash : text;
+};
 type UpdateBuildConfig = record {
   dfx_version : text;
   optimize_times : nat8;
@@ -90,25 +90,24 @@ type UpdateProgress = record {
   percentage : opt float32;
 };
 type Verification = record {
-  wasm_checksum : text;
   updated_at : text;
   updated_by : principal;
   canister_id : principal;
   created_at : text;
   created_by : principal;
   dfx_version : text;
-  optimize_times : nat8;
   canister_name : text;
   commit_hash : text;
   repo_url : text;
   rust_version : text;
+  optimize_count : nat8;
+  wasm_hash : text;
 };
 service : {
   addAdmin : (principal) -> (Result);
   addBuildConfig : (AddBuildConfig) -> (Result);
   addProvider : (AddProvider) -> (Result);
   addRequest : (AddRequest) -> (Result);
-  addVerification : (principal, AddVerification) -> (Result);
   consumeRequests : (record {}) -> (Result_1);
   deleteAdmin : (principal) -> (Result);
   deleteBuildConfig : (principal) -> (Result);
@@ -126,9 +125,8 @@ service : {
   getProviderById : (principal) -> (opt Provider) query;
   getRequestById : (nat64) -> (opt Request) query;
   getVerificationByCanisterId : (principal) -> (opt Verification) query;
-  submitVerification : (principal, AddVerification) -> (Result);
+  submitVerification : (principal, SubmitVerification) -> (Result);
   updateBuildConfig : (principal, UpdateBuildConfig) -> (Result);
   updateProgress : (UpdateProgress) -> (Result);
   updateProvider : (AddProvider) -> (Result);
-  updateVerification : (principal, AddVerification) -> (Result);
 }
