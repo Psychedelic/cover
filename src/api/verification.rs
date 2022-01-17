@@ -53,7 +53,7 @@ mod tests {
 
         assert_eq!(
             get_all_verifications(),
-            vec![&fake_verification_use_submit_model(
+            vec![&fake_verification(
                 &mock_principals::alice(),
                 &mock_principals::alice(),
                 fake_submit_verification1(&fake_canister1())
@@ -67,7 +67,7 @@ mod tests {
 
         assert_eq!(
             get_verification_by_canister_id(fake_canister1()),
-            Some(&fake_verification_use_submit_model(
+            Some(&fake_verification(
                 &mock_principals::alice(),
                 &mock_principals::alice(),
                 fake_submit_verification1(&fake_canister1())
@@ -95,7 +95,7 @@ mod tests {
 
         assert_eq!(
             get_verification_by_canister_id(fake_canister1()),
-            Some(&fake_verification_use_submit_model(
+            Some(&fake_verification(
                 &mock_principals::alice(),
                 &mock_principals::bob(),
                 fake_submit_verification1(&fake_canister1())
@@ -113,12 +113,12 @@ mod tests {
         assert_eq!(
             get_all_verifications(),
             vec![
-                &fake_verification_use_submit_model(
+                &fake_verification(
                     &mock_principals::bob(),
                     &mock_principals::bob(),
                     fake_submit_verification1(&fake_canister2())
                 ),
-                &fake_verification_use_submit_model(
+                &fake_verification(
                     &mock_principals::alice(),
                     &mock_principals::bob(),
                     fake_submit_verification1(&fake_canister1())

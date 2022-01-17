@@ -5,7 +5,7 @@ use ic_kit::candid::CandidType;
 use serde::Deserialize;
 
 use crate::common::types::{CallerId, CanisterId};
-use crate::service::model::verification::{AddVerification, UpdateVerification, Verification};
+use crate::service::model::verification::{SubmitVerification, Verification};
 use crate::service::store::error::ErrorKindStore;
 use crate::service::time_utils;
 
@@ -22,23 +22,23 @@ impl VerificationStore {
     pub fn add_verification(
         &mut self,
         owner_id: &CallerId,
-        add_verification: AddVerification,
+        new_verification: SubmitVerification,
     ) -> Result<(), ErrorKindStore> {
-        self.verification_exists(&add_verification.canister_id)
+        self.verification_exists(&new_verification.canister_id)
             .not()
             .then(|| {
                 let now = time_utils::now_to_str();
                 self.verification.insert(
-                    add_verification.canister_id,
+                    new_verification.canister_id,
                     Verification {
-                        canister_id: add_verification.canister_id,
-                        canister_name: add_verification.canister_name,
-                        repo_url: add_verification.repo_url,
-                        commit_hash: add_verification.commit_hash,
-                        wasm_hash: add_verification.wasm_hash,
-                        rust_version: add_verification.rust_version,
-                        dfx_version: add_verification.dfx_version,
-                        optimize_count: add_verification.optimize_count,
+                        canister_id: new_verification.canister_id,
+                        canister_name: new_verification.canister_name,
+                        repo_url: new_verification.repo_url,
+                        commit_hash: new_verification.commit_hash,
+                        wasm_hash: new_verification.wasm_hash,
+                        rust_version: new_verification.rust_version,
+                        dfx_version: new_verification.dfx_version,
+                        optimize_count: new_verification.optimize_count,
                         created_by: *owner_id,
                         created_at: now.clone(),
                         updated_by: *owner_id,
@@ -52,19 +52,19 @@ impl VerificationStore {
     pub fn update_verification(
         &mut self,
         owner_id: &CallerId,
-        update_verification: UpdateVerification,
+        updated_verification: SubmitVerification,
     ) -> Result<(), ErrorKindStore> {
         self.verification
-            .get_mut(&update_verification.canister_id)
+            .get_mut(&updated_verification.canister_id)
             .map(|verification| {
                 let now = time_utils::now_to_str();
-                verification.canister_name = update_verification.canister_name;
-                verification.repo_url = update_verification.repo_url;
-                verification.wasm_hash = update_verification.wasm_hash;
-                verification.rust_version = update_verification.rust_version;
-                verification.dfx_version = update_verification.dfx_version;
-                verification.commit_hash = update_verification.commit_hash;
-                verification.optimize_count = update_verification.optimize_count;
+                verification.canister_name = updated_verification.canister_name;
+                verification.repo_url = updated_verification.repo_url;
+                verification.wasm_hash = updated_verification.wasm_hash;
+                verification.rust_version = updated_verification.rust_version;
+                verification.dfx_version = updated_verification.dfx_version;
+                verification.commit_hash = updated_verification.commit_hash;
+                verification.optimize_count = updated_verification.optimize_count;
                 verification.updated_by = *owner_id;
                 verification.updated_at = now;
             })
@@ -97,14 +97,14 @@ mod test {
         store
             .add_verification(
                 &mock_principals::alice(),
-                fake_add_verification1(&fake_canister1()),
+                fake_submit_verification1(&fake_canister1()),
             )
             .unwrap();
 
         store
             .add_verification(
                 &mock_principals::bob(),
-                fake_add_verification2(&fake_canister2()),
+                fake_submit_verification2(&fake_canister2()),
             )
             .unwrap();
 
@@ -120,7 +120,7 @@ mod test {
         assert_eq!(
             store.add_verification(
                 &mock_principals::alice(),
-                fake_add_verification3(&fake_canister3())
+                fake_submit_verification3(&fake_canister3())
             ),
             Ok(())
         );
@@ -130,7 +130,7 @@ mod test {
         assert_eq!(
             store.add_verification(
                 &mock_principals::alice(),
-                fake_add_verification2(&fake_canister2())
+                fake_submit_verification2(&fake_canister2())
             ),
             Err(ErrorKindStore::ExistedVerification)
         );
@@ -147,17 +147,17 @@ mod test {
         assert_eq!(
             store.update_verification(
                 &mock_principals::bob(),
-                fake_update_verification1(&fake_canister1())
+                fake_submit_verification3(&fake_canister1())
             ),
             Ok(())
         );
 
         assert_eq!(
             store.get_verification_by_canister_id(&fake_canister1()),
-            Some(&fake_verification_use_update_model(
+            Some(&fake_verification(
                 &mock_principals::alice(),
                 &mock_principals::bob(),
-                fake_update_verification1(&fake_canister1())
+                fake_submit_verification3(&fake_canister1())
             ))
         );
 
@@ -166,7 +166,7 @@ mod test {
         assert_eq!(
             store.update_verification(
                 &mock_principals::bob(),
-                fake_update_verification1(&fake_canister3())
+                fake_submit_verification1(&fake_canister3())
             ),
             Err(ErrorKindStore::VerificationNotFound)
         );
@@ -182,9 +182,10 @@ mod test {
 
         assert_eq!(
             store.get_verification_by_canister_id(&fake_canister2()),
-            Some(&fake_verification_use_add_model(
+            Some(&fake_verification(
                 &mock_principals::bob(),
-                fake_add_verification2(&fake_canister2())
+                &mock_principals::bob(),
+                fake_submit_verification2(&fake_canister2())
             ))
         );
 
@@ -203,13 +204,15 @@ mod test {
         assert_eq!(
             store.get_all_verifications(),
             vec![
-                &fake_verification_use_add_model(
+                &fake_verification(
                     &mock_principals::bob(),
-                    fake_add_verification2(&fake_canister2())
+                    &mock_principals::bob(),
+                    fake_submit_verification2(&fake_canister2())
                 ),
-                &fake_verification_use_add_model(
+                &fake_verification(
                     &mock_principals::alice(),
-                    fake_add_verification1(&fake_canister1()),
+                    &mock_principals::alice(),
+                    fake_submit_verification1(&fake_canister1()),
                 )
             ]
         );

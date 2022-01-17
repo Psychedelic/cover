@@ -4,30 +4,6 @@ use serde::Deserialize;
 use crate::common::types::{CallerId, CanisterId};
 
 #[derive(CandidType, Deserialize)]
-pub struct AddVerification {
-    pub canister_id: CanisterId,
-    pub canister_name: String,
-    pub repo_url: String,
-    pub commit_hash: String,
-    pub wasm_hash: String,
-    pub rust_version: String,
-    pub dfx_version: String,
-    pub optimize_count: u8,
-}
-
-#[derive(CandidType, Deserialize)]
-pub struct UpdateVerification {
-    pub canister_id: CanisterId,
-    pub canister_name: String,
-    pub repo_url: String,
-    pub commit_hash: String,
-    pub wasm_hash: String,
-    pub rust_version: String,
-    pub dfx_version: String,
-    pub optimize_count: u8,
-}
-
-#[derive(CandidType, Deserialize)]
 pub struct SubmitVerification {
     pub canister_id: CanisterId,
     pub canister_name: String,

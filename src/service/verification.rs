@@ -1,8 +1,6 @@
 use crate::common::types::{CallerId, CanisterId};
 use crate::service::model::error::Error;
-use crate::service::model::verification::{
-    AddVerification, SubmitVerification, UpdateVerification, Verification,
-};
+use crate::service::model::verification::{SubmitVerification, Verification};
 use crate::service::{verification_store, verification_store_mut};
 
 pub fn get_verification_by_canister_id(canister_id: &CanisterId) -> Option<&'static Verification> {
@@ -19,34 +17,10 @@ pub fn submit_verification(
 ) -> Result<(), Error> {
     match verification_store().verification_exists(&submit_verification.canister_id) {
         true => verification_store_mut()
-            .update_verification(
-                owner_id,
-                UpdateVerification {
-                    canister_id: submit_verification.canister_id,
-                    canister_name: submit_verification.canister_name,
-                    repo_url: submit_verification.repo_url,
-                    commit_hash: submit_verification.commit_hash,
-                    wasm_hash: submit_verification.wasm_hash,
-                    rust_version: submit_verification.rust_version,
-                    dfx_version: submit_verification.dfx_version,
-                    optimize_count: submit_verification.optimize_count,
-                },
-            )
+            .update_verification(owner_id, submit_verification)
             .map_err(|e| e.into()),
         false => verification_store_mut()
-            .add_verification(
-                owner_id,
-                AddVerification {
-                    canister_id: submit_verification.canister_id,
-                    canister_name: submit_verification.canister_name,
-                    repo_url: submit_verification.repo_url,
-                    commit_hash: submit_verification.commit_hash,
-                    wasm_hash: submit_verification.wasm_hash,
-                    rust_version: submit_verification.rust_version,
-                    dfx_version: submit_verification.dfx_version,
-                    optimize_count: submit_verification.optimize_count,
-                },
-            )
+            .add_verification(owner_id, submit_verification)
             .map_err(|e| e.into()),
     }
 }
