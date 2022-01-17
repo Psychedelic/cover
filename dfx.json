@@ -6,6 +6,11 @@
       "candid": "cover.did",
       "type": "rust",
       "package": "cover"
+    },
+    "cover_test": {
+      "candid": "cover.did",
+      "type": "rust",
+      "package": "cover"
     }
   },
   "defaults": {

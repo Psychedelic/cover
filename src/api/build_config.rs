@@ -2,7 +2,7 @@ use ic_kit::candid::candid_method;
 use ic_kit::ic::caller;
 use ic_kit::macros::{query, update};
 
-use crate::common::types::CanisterId;
+use crate::common::types::{CallerId, CanisterId};
 use crate::service::build_config;
 use crate::service::model::build_config::{AddBuildConfig, BuildConfig, UpdateBuildConfig};
 use crate::service::model::error::Error;
@@ -21,8 +21,12 @@ fn get_build_config_by_id(canister_id: CanisterId) -> Option<&'static BuildConfi
 
 #[update(name = "updateBuildConfig")]
 #[candid_method(update, rename = "updateBuildConfig")]
-fn update_build_config(canister_id: CanisterId, config: UpdateBuildConfig) -> Result<(), Error> {
-    build_config::update_build_config(&caller(), &canister_id, config)
+fn update_build_config(
+    owner_id: CallerId,
+    canister_id: CanisterId,
+    config: UpdateBuildConfig,
+) -> Result<(), Error> {
+    build_config::update_build_config(&owner_id, &canister_id, config)
 }
 
 #[update(name = "deleteBuildConfig")]
@@ -33,8 +37,17 @@ fn delete_build_config(canister_id: CanisterId) -> Result<(), Error> {
 
 #[update(name = "addBuildConfig")]
 #[candid_method(update, rename = "addBuildConfig")]
-fn add_build_config(config: AddBuildConfig) -> Result<(), Error> {
-    build_config::add_build_config(&caller(), config)
+fn add_build_config(owner_id: CallerId, config: AddBuildConfig) -> Result<(), Error> {
+    build_config::add_build_config(&owner_id, config)
+}
+
+#[query(name = "getBuildConfigProvider")]
+#[candid_method(query, rename = "getBuildConfigProvider")]
+fn get_build_config_provider(
+    canister_owner: CallerId,
+    canister_id: CanisterId,
+) -> Option<&'static BuildConfig> {
+    build_config::get_build_config_by_id(&canister_owner, &canister_id)
 }
 
 #[cfg(test)]
@@ -50,9 +63,15 @@ mod tests {
             .with_caller(mock_principals::bob())
             .inject();
 
-        assert_eq!(add_build_config(fake_add_build_config1()), Ok(()));
+        assert_eq!(
+            add_build_config(mock_principals::bob(), fake_add_build_config1()),
+            Ok(())
+        );
 
-        assert_eq!(add_build_config(fake_add_build_config2()), Ok(()));
+        assert_eq!(
+            add_build_config(mock_principals::bob(), fake_add_build_config2()),
+            Ok(())
+        );
     }
 
     #[test]
@@ -63,12 +82,15 @@ mod tests {
 
         assert_eq!(get_all_build_configs().len(), 0);
 
-        assert_eq!(add_build_config(fake_add_build_config1()), Ok(()));
+        assert_eq!(
+            add_build_config(mock_principals::john(), fake_add_build_config1()),
+            Ok(())
+        );
 
         assert_eq!(get_all_build_configs().len(), 1);
 
         assert_eq!(
-            add_build_config(fake_add_build_config1()),
+            add_build_config(mock_principals::john(), fake_add_build_config1()),
             Err(Error {
                 code: "ERR_005_003_002",
                 message: "Existed build config",
@@ -78,7 +100,10 @@ mod tests {
 
         assert_eq!(get_all_build_configs().len(), 1);
 
-        assert_eq!(add_build_config(fake_add_build_config2()), Ok(()));
+        assert_eq!(
+            add_build_config(mock_principals::john(), fake_add_build_config2()),
+            Ok(())
+        );
 
         assert_eq!(get_all_build_configs().len(), 2);
     }
@@ -143,7 +168,11 @@ mod tests {
         assert_eq!(get_all_build_configs().len(), 2);
 
         assert_eq!(
-            update_build_config(fake_canister1(), fake_update_build_config2()),
+            update_build_config(
+                mock_principals::bob(),
+                fake_canister1(),
+                fake_update_build_config2()
+            ),
             Ok(())
         );
 
@@ -159,12 +188,29 @@ mod tests {
         assert_eq!(get_all_build_configs().len(), 2);
 
         assert_eq!(
-            update_build_config(fake_canister3(), fake_update_build_config2()),
+            update_build_config(
+                mock_principals::bob(),
+                fake_canister3(),
+                fake_update_build_config2()
+            ),
             Err(Error {
                 code: "ERR_005_003_001",
                 message: "Build config not found",
                 debug_log: None,
             })
+        );
+    }
+
+    #[test]
+    fn get_build_config_provider_ok() {
+        init_test_data();
+
+        assert_eq!(
+            get_build_config_provider(mock_principals::bob(), fake_canister1()),
+            Some(&fake_build_config_use_add_model(
+                &mock_principals::bob(),
+                fake_add_build_config1()
+            ))
         );
     }
 }
