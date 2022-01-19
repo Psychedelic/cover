@@ -18,18 +18,9 @@ pub struct BuildConfig {
 }
 
 #[derive(CandidType, Deserialize)]
-pub struct AddBuildConfig {
+pub struct BuildConfigRequest {
+    pub user_id: CallerId,
     pub canister_id: CanisterId,
-    pub canister_name: String,
-    pub repo_url: String,
-    pub commit_hash: String,
-    pub rust_version: Option<String>,
-    pub dfx_version: String,
-    pub optimize_times: u8,
-}
-
-#[derive(CandidType, Deserialize)]
-pub struct UpdateBuildConfig {
     pub canister_name: String,
     pub repo_url: String,
     pub commit_hash: String,

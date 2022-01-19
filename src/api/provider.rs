@@ -40,6 +40,7 @@ fn get_all_providers() -> Vec<&'static Provider> {
 
 #[cfg(test)]
 mod tests {
+    use crate::service::store::error::ErrorKindStore;
     use ic_kit::*;
 
     use crate::service::store::test_data::*;
@@ -72,11 +73,7 @@ mod tests {
 
         assert_eq!(
             add_provider(fake_add_provider1(&mock_principals::john())),
-            Err(Error {
-                code: "ERR_004_003_002",
-                message: "Existed provider",
-                debug_log: None,
-            })
+            Err(Error::from(ErrorKindStore::ExistedProvider))
         );
 
         assert_eq!(get_all_providers().len(), 2);
@@ -122,11 +119,7 @@ mod tests {
 
         assert_eq!(
             delete_provider(mock_principals::alice()),
-            Err(Error {
-                code: "ERR_004_003_001",
-                message: "Provider not found",
-                debug_log: None,
-            })
+            Err(Error::from(ErrorKindStore::ProviderNotFound))
         );
 
         assert_eq!(get_all_providers().len(), 0);
@@ -155,11 +148,7 @@ mod tests {
 
         assert_eq!(
             update_provider(fake_update_provider2(&mock_principals::john())),
-            Err(Error {
-                code: "ERR_004_003_001",
-                message: "Provider not found",
-                debug_log: None,
-            })
+            Err(Error::from(ErrorKindStore::ProviderNotFound))
         );
     }
 }

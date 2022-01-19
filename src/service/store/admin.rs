@@ -20,7 +20,7 @@ impl AdminStore {
         self.admins
             .insert(*admin_id)
             .then(|| ())
-            .ok_or(ErrorKindStore::AdminExisted)
+            .ok_or(ErrorKindStore::ExistedAdmin)
     }
 
     pub fn delete_admin(&mut self, admin_id: &AdminId) -> Result<(), ErrorKindStore> {
@@ -63,7 +63,7 @@ mod test {
 
         assert_eq!(
             store.add_admin(&mock_principals::alice()),
-            Err(ErrorKindStore::AdminExisted)
+            Err(ErrorKindStore::ExistedAdmin)
         );
 
         assert_eq!(store.get_all_admins().len(), 1);
