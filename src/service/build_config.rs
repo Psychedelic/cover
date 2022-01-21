@@ -1,5 +1,5 @@
 use crate::common::types::{CallerId, CanisterId};
-use crate::service::model::build_config::{AddBuildConfig, BuildConfig, UpdateBuildConfig};
+use crate::service::model::build_config::{BuildConfig, BuildConfigRequest};
 use crate::service::model::error::Error;
 use crate::service::{build_config_store, build_config_store_mut};
 
@@ -14,13 +14,9 @@ pub fn get_build_config_by_id(
     build_config_store().get_build_config_by_id(caller_id, canister_id)
 }
 
-pub fn update_build_config(
-    caller_id: &CallerId,
-    canister_id: &CanisterId,
-    config: UpdateBuildConfig,
-) -> Result<(), Error> {
+pub fn update_build_config(config: BuildConfigRequest) -> Result<(), Error> {
     build_config_store_mut()
-        .update_build_config(caller_id, canister_id, config)
+        .update_build_config(config)
         .map_err(|e| e.into())
 }
 
@@ -30,8 +26,8 @@ pub fn delete_build_config(caller_id: &CallerId, canister_id: &CanisterId) -> Re
         .map_err(|e| e.into())
 }
 
-pub fn add_build_config(caller_id: &CallerId, config: AddBuildConfig) -> Result<(), Error> {
+pub fn add_build_config(config: BuildConfigRequest) -> Result<(), Error> {
     build_config_store_mut()
-        .add_build_config(caller_id, config)
+        .add_build_config(config)
         .map_err(|e| e.into())
 }

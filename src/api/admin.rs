@@ -26,6 +26,7 @@ fn get_all_admins() -> Vec<&'static AdminId> {
 
 #[cfg(test)]
 mod tests {
+    use crate::service::store::error::ErrorKindStore;
     use ic_kit::*;
 
     use super::*;
@@ -50,11 +51,7 @@ mod tests {
 
         assert_eq!(
             add_admin(mock_principals::john()),
-            Err(Error {
-                code: "ERR_006_003_002",
-                message: "Existed admin",
-                debug_log: None,
-            })
+            Err(Error::from(ErrorKindStore::ExistedAdmin))
         );
         assert_eq!(get_all_admins().len(), 2);
     }
@@ -71,11 +68,7 @@ mod tests {
 
         assert_eq!(
             delete_admin(mock_principals::bob()),
-            Err(Error {
-                code: "ERR_006_003_001",
-                message: "Admin not found",
-                debug_log: None,
-            })
+            Err(Error::from(ErrorKindStore::AdminNotFound))
         );
     }
 
