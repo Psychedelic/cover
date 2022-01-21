@@ -1,11 +1,11 @@
 use ic_kit::candid::CandidType;
 use serde::Deserialize;
 
-use crate::common::types::{CallerId, CanisterId};
+use crate::common::types::{CanisterId, CanisterOwnerId};
 
 #[derive(PartialEq, CandidType, Deserialize, Debug)]
 pub struct BuildConfig {
-    pub user_id: CallerId,
+    pub owner_id: CanisterOwnerId,
     pub canister_id: CanisterId,
     pub canister_name: String,
     pub repo_url: String,
@@ -18,8 +18,8 @@ pub struct BuildConfig {
 }
 
 #[derive(CandidType, Deserialize)]
-pub struct BuildConfigRequest {
-    pub user_id: CallerId,
+pub struct SaveBuildConfig {
+    pub owner_id: CanisterOwnerId,
     pub canister_id: CanisterId,
     pub canister_name: String,
     pub repo_url: String,

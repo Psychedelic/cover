@@ -15,8 +15,8 @@ on:
         description: 'Repo url'
         required: true
         type: string
-      user_access_token:
-        description: 'User access token'
+      repo_access_token:
+        description: 'Repo access token'
         required: true
         type: string
       commit_hash:
@@ -44,7 +44,7 @@ jobs:
       - name: Clone github repo
         run: |
           git init
-          git remote add origin https://${{ github.event.inputs.user_access_token }}@${{ github.event.inputs.repo_url }}
+          git remote add origin https://${{ github.event.inputs.repo_access_token }}@${{ github.event.inputs.repo_url }}
           git fetch origin ${{ github.event.inputs.commit_hash }} --depth 1
           git reset --hard FETCH_HEAD
       - name: Validate dfx build type
