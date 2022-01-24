@@ -11,6 +11,7 @@ type BuildConfig = record {
   repo_url : text;
   rust_version : opt text;
 };
+type BuildStatus = variant { Error; Success };
 type Error = record { debug_log : opt text; code : text; message : text };
 type Provider = record {
   id : principal;
@@ -35,26 +36,28 @@ type SaveBuildConfig = record {
 type SubmitVerification = record {
   canister_id : principal;
   dfx_version : text;
+  build_status : BuildStatus;
   canister_name : text;
   commit_hash : text;
   repo_url : text;
   rust_version : text;
   optimize_count : nat8;
-  wasm_hash : text;
+  build_url : text;
+  wasm_hash : opt text;
 };
 type Verification = record {
   updated_at : text;
   updated_by : principal;
   canister_id : principal;
-  created_at : text;
-  created_by : principal;
   dfx_version : text;
+  build_status : BuildStatus;
   canister_name : text;
   commit_hash : text;
   repo_url : text;
   rust_version : text;
   optimize_count : nat8;
-  wasm_hash : text;
+  build_url : text;
+  wasm_hash : opt text;
 };
 service : {
   addAdmin : (principal) -> (Result);
@@ -71,6 +74,6 @@ service : {
   getProviderById : (principal) -> (opt Provider) query;
   getVerificationByCanisterId : (principal) -> (opt Verification) query;
   saveBuildConfig : (SaveBuildConfig) -> (Result);
-  submitVerification : (principal, SubmitVerification) -> (Result);
+  submitVerification : (principal, SubmitVerification) -> ();
   updateProvider : (AddProvider) -> (Result);
 }
