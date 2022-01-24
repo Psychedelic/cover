@@ -73,7 +73,7 @@ service : {
   getBuildConfigProvider : (principal, principal) -> (opt BuildConfig) query;
   getProviderById : (principal) -> (opt Provider) query;
   getVerificationByCanisterId : (principal) -> (opt Verification) query;
-  saveBuildConfig : (SaveBuildConfig) -> (Result);
+  saveBuildConfig : (SaveBuildConfig) -> ();
   submitVerification : (principal, SubmitVerification) -> ();
   updateProvider : (AddProvider) -> (Result);
 }

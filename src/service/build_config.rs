@@ -23,13 +23,6 @@ pub fn delete_build_config(
         .map_err(|e| e.into())
 }
 
-pub fn save_build_config(config: SaveBuildConfig) -> Result<(), Error> {
-    match build_config_store().build_config_exists(&config.owner_id, &config.canister_id) {
-        true => build_config_store_mut()
-            .update_build_config(config)
-            .map_err(|e| e.into()),
-        false => build_config_store_mut()
-            .add_build_config(config)
-            .map_err(|e| e.into()),
-    }
+pub fn save_build_config(config: SaveBuildConfig) {
+    build_config_store_mut().save_build_config(config)
 }

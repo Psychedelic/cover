@@ -27,7 +27,7 @@ fn delete_build_config(canister_id: CanisterId) -> Result<(), Error> {
 
 #[update(name = "saveBuildConfig")]
 #[candid_method(update, rename = "saveBuildConfig")]
-fn save_build_config(config: SaveBuildConfig) -> Result<(), Error> {
+fn save_build_config(config: SaveBuildConfig) {
     build_config::save_build_config(config)
 }
 
@@ -54,21 +54,15 @@ mod tests {
             .with_caller(mock_principals::bob())
             .inject();
 
-        assert_eq!(
-            save_build_config(fake_save_build_config1(
-                &mock_principals::bob(),
-                &fake_canister1()
-            )),
-            Ok(())
-        );
+        save_build_config(fake_save_build_config1(
+            &mock_principals::bob(),
+            &fake_canister1(),
+        ));
 
-        assert_eq!(
-            save_build_config(fake_save_build_config2(
-                &mock_principals::bob(),
-                &fake_canister2()
-            )),
-            Ok(())
-        );
+        save_build_config(fake_save_build_config2(
+            &mock_principals::bob(),
+            &fake_canister2(),
+        ));
     }
 
     #[test]
@@ -79,13 +73,10 @@ mod tests {
 
         assert_eq!(get_all_build_configs().len(), 0);
 
-        assert_eq!(
-            save_build_config(fake_save_build_config1(
-                &mock_principals::john(),
-                &fake_canister1()
-            )),
-            Ok(())
-        );
+        save_build_config(fake_save_build_config1(
+            &mock_principals::john(),
+            &fake_canister1(),
+        ));
 
         assert_eq!(
             get_all_build_configs(),
@@ -95,13 +86,10 @@ mod tests {
             ))]
         );
 
-        assert_eq!(
-            save_build_config(fake_save_build_config3(
-                &mock_principals::john(),
-                &fake_canister1()
-            )),
-            Ok(())
-        );
+        save_build_config(fake_save_build_config3(
+            &mock_principals::john(),
+            &fake_canister1(),
+        ));
 
         assert_eq!(
             get_all_build_configs(),

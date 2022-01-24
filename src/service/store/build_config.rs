@@ -1,5 +1,4 @@
 use std::collections::BTreeMap;
-use std::ops::Not;
 
 use ic_kit::candid::CandidType;
 use serde::Deserialize;
@@ -31,51 +30,23 @@ impl BuildConfigStore {
         self.configs.get(&(*owner_id, *canister_id))
     }
 
-    pub fn build_config_exists(
-        &self,
-        owner_id: &CanisterOwnerId,
-        canister_id: &CanisterId,
-    ) -> bool {
-        self.configs.contains_key(&(*owner_id, *canister_id))
-    }
-
-    pub fn add_build_config(&mut self, config: SaveBuildConfig) -> Result<(), ErrorKindStore> {
-        self.build_config_exists(&config.owner_id, &config.canister_id)
-            .not()
-            .then(|| {
-                let now = time_utils::now_to_str();
-                self.configs.insert(
-                    (config.owner_id, config.canister_id),
-                    BuildConfig {
-                        owner_id: config.owner_id,
-                        canister_id: config.canister_id,
-                        canister_name: config.canister_name,
-                        repo_url: config.repo_url,
-                        commit_hash: config.commit_hash,
-                        rust_version: config.rust_version,
-                        dfx_version: config.dfx_version,
-                        optimize_times: config.optimize_times,
-                        created_at: now.clone(),
-                        updated_at: now,
-                    },
-                );
-            })
-            .ok_or(ErrorKindStore::ExistedBuildConfig)
-    }
-
-    pub fn update_build_config(&mut self, config: SaveBuildConfig) -> Result<(), ErrorKindStore> {
-        self.configs
-            .get_mut(&(config.owner_id, config.canister_id))
-            .map(|c| {
-                c.canister_name = config.canister_name;
-                c.repo_url = config.repo_url;
-                c.commit_hash = config.commit_hash;
-                c.rust_version = config.rust_version;
-                c.dfx_version = config.dfx_version;
-                c.optimize_times = config.optimize_times;
-                c.updated_at = time_utils::now_to_str()
-            })
-            .ok_or(ErrorKindStore::BuildConfigNotFound)
+    pub fn save_build_config(&mut self, config: SaveBuildConfig) {
+        let now = time_utils::now_to_str();
+        self.configs.insert(
+            (config.owner_id, config.canister_id),
+            BuildConfig {
+                owner_id: config.owner_id,
+                canister_id: config.canister_id,
+                canister_name: config.canister_name,
+                repo_url: config.repo_url,
+                commit_hash: config.commit_hash,
+                rust_version: config.rust_version,
+                dfx_version: config.dfx_version,
+                optimize_times: config.optimize_times,
+                created_at: now.clone(),
+                updated_at: now,
+            },
+        );
     }
 
     pub fn delete_build_config(
@@ -101,64 +72,44 @@ mod test {
     fn init_test_data() -> BuildConfigStore {
         let mut store = BuildConfigStore::default();
 
-        store
-            .add_build_config(fake_save_build_config1(
-                &mock_principals::bob(),
-                &fake_canister1(),
-            ))
-            .unwrap();
+        store.save_build_config(fake_save_build_config1(
+            &mock_principals::bob(),
+            &fake_canister1(),
+        ));
 
-        store
-            .add_build_config(fake_save_build_config2(
-                &mock_principals::bob(),
-                &fake_canister2(),
-            ))
-            .unwrap();
+        store.save_build_config(fake_save_build_config2(
+            &mock_principals::bob(),
+            &fake_canister2(),
+        ));
 
         store
     }
 
     #[test]
-    fn add_config_ok() {
+    fn save_config_ok() {
         let mut store = init_test_data();
 
         get_all_build_configs_ok();
 
-        assert_eq!(
-            store.add_build_config(fake_save_build_config2(
-                &mock_principals::bob(),
-                &fake_canister2(),
-            )),
-            Err(ErrorKindStore::ExistedBuildConfig)
-        );
+        store.save_build_config(fake_save_build_config2(
+            &mock_principals::bob(),
+            &fake_canister2(),
+        ));
 
         get_all_build_configs_ok();
 
-        assert_eq!(
-            store.add_build_config(fake_save_build_config3(
-                &mock_principals::bob(),
-                &fake_canister3()
-            )),
-            Ok(())
-        );
+        store.save_build_config(fake_save_build_config3(
+            &mock_principals::alice(),
+            &fake_canister1(),
+        ));
 
         assert_eq!(
-            store.get_all_build_configs(&mock_principals::bob()),
-            vec![
-                &fake_build_config_from(fake_save_build_config3(
-                    &mock_principals::bob(),
-                    &fake_canister3()
-                )),
-                &fake_build_config_from(fake_save_build_config2(
-                    &mock_principals::bob(),
-                    &fake_canister2()
-                )),
-                &fake_build_config_from(fake_save_build_config1(
-                    &mock_principals::bob(),
-                    &fake_canister1()
-                ))
-            ]
-        )
+            store.get_all_build_configs(&mock_principals::alice()),
+            vec![&fake_build_config_from(fake_save_build_config3(
+                &mock_principals::alice(),
+                &fake_canister1()
+            ))]
+        );
     }
 
     #[test]
@@ -209,35 +160,6 @@ mod test {
     }
 
     #[test]
-    fn update_config_ok() {
-        let mut store = init_test_data();
-
-        assert_eq!(
-            store.update_build_config(fake_save_build_config3(
-                &mock_principals::bob(),
-                &fake_canister1()
-            )),
-            Ok(())
-        );
-
-        assert_eq!(
-            store.get_build_config_by_id(&mock_principals::bob(), &fake_canister1()),
-            Some(&fake_build_config_from(fake_save_build_config3(
-                &mock_principals::bob(),
-                &fake_canister1()
-            )))
-        );
-
-        assert_eq!(
-            store.update_build_config(fake_save_build_config1(
-                &mock_principals::bob(),
-                &fake_canister3()
-            )),
-            Err(ErrorKindStore::BuildConfigNotFound)
-        )
-    }
-
-    #[test]
     fn delete_config_ok() {
         let mut store = init_test_data();
 
@@ -263,13 +185,5 @@ mod test {
             store.delete_build_config(&mock_principals::john(), &fake_canister1()),
             Err(ErrorKindStore::BuildConfigNotFound)
         );
-    }
-
-    #[test]
-    fn config_exists_ok() {
-        let store = init_test_data();
-
-        assert!(store.build_config_exists(&mock_principals::bob(), &fake_canister1()));
-        assert!(!store.build_config_exists(&mock_principals::alice(), &fake_canister1()));
     }
 }
