@@ -3,18 +3,8 @@ type BuildConfig = record {
   updated_at : text;
   canister_id : principal;
   created_at : text;
-  user_id : principal;
   dfx_version : text;
-  optimize_times : nat8;
-  canister_name : text;
-  commit_hash : text;
-  repo_url : text;
-  rust_version : opt text;
-};
-type BuildConfigRequest = record {
-  canister_id : principal;
-  user_id : principal;
-  dfx_version : text;
+  owner_id : principal;
   optimize_times : nat8;
   canister_name : text;
   commit_hash : text;
@@ -32,6 +22,16 @@ type Provider = record {
   created_by : principal;
 };
 type Result = variant { Ok; Err : Error };
+type SaveBuildConfig = record {
+  canister_id : principal;
+  dfx_version : text;
+  owner_id : principal;
+  optimize_times : nat8;
+  canister_name : text;
+  commit_hash : text;
+  repo_url : text;
+  rust_version : opt text;
+};
 type SubmitVerification = record {
   canister_id : principal;
   dfx_version : text;
@@ -58,7 +58,6 @@ type Verification = record {
 };
 service : {
   addAdmin : (principal) -> (Result);
-  addBuildConfig : (BuildConfigRequest) -> (Result);
   addProvider : (AddProvider) -> (Result);
   deleteAdmin : (principal) -> (Result);
   deleteBuildConfig : (principal) -> (Result);
@@ -71,7 +70,7 @@ service : {
   getBuildConfigProvider : (principal, principal) -> (opt BuildConfig) query;
   getProviderById : (principal) -> (opt Provider) query;
   getVerificationByCanisterId : (principal) -> (opt Verification) query;
+  saveBuildConfig : (SaveBuildConfig) -> (Result);
   submitVerification : (principal, SubmitVerification) -> (Result);
-  updateBuildConfig : (BuildConfigRequest) -> (Result);
   updateProvider : (AddProvider) -> (Result);
 }
