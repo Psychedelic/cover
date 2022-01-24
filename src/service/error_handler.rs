@@ -80,11 +80,6 @@ impl From<ErrorKindStore> for Error {
                 message: "Build config not found",
                 debug_log: None,
             },
-            ErrorKindStore::ExistedBuildConfig => Self {
-                code: "ERR_002_003_002",
-                message: "Existed build config",
-                debug_log: None,
-            },
             //============================================================================
             // Admin - ERR_003_003_{SEQUENCE}
             //============================================================================
