@@ -9,7 +9,9 @@ pub struct SubmitVerification {
     pub canister_name: String,
     pub repo_url: String,
     pub commit_hash: String,
-    pub wasm_hash: String,
+    pub wasm_hash: Option<String>,
+    pub build_url: String,
+    pub build_status: BuildStatus,
     pub rust_version: String,
     pub dfx_version: String,
     pub optimize_count: u8,
@@ -21,12 +23,18 @@ pub struct Verification {
     pub canister_name: String,
     pub repo_url: String,
     pub commit_hash: String,
-    pub wasm_hash: String,
+    pub wasm_hash: Option<String>,
+    pub build_url: String,
+    pub build_status: BuildStatus,
     pub rust_version: String,
     pub dfx_version: String,
     pub optimize_count: u8,
-    pub created_by: CallerId,
-    pub created_at: String,
     pub updated_by: CallerId,
     pub updated_at: String,
+}
+
+#[derive(CandidType, PartialEq, Deserialize, Debug)]
+pub enum BuildStatus {
+    Error,
+    Success,
 }
