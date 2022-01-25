@@ -41,7 +41,7 @@ impl BuildConfigStore {
                 commit_hash: config.commit_hash,
                 rust_version: config.rust_version,
                 dfx_version: config.dfx_version,
-                optimize_times: config.optimize_times,
+                optimize_count: config.optimize_count,
                 created_at: now.clone(),
                 updated_at: now,
             },

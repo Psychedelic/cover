@@ -13,7 +13,7 @@ pub fn fake_save_build_config1(
         commit_hash: "1234".into(),
         rust_version: Some("1.4.4".into()),
         dfx_version: "0.8.4".into(),
-        optimize_times: 0,
+        optimize_count: 0,
     }
 }
 
@@ -29,7 +29,7 @@ pub fn fake_save_build_config2(
         commit_hash: "2345".into(),
         rust_version: Some("1.2.45".into()),
         dfx_version: "0.8.4".into(),
-        optimize_times: 2,
+        optimize_count: 2,
     }
 }
 
@@ -45,6 +45,6 @@ pub fn fake_save_build_config3(
         commit_hash: "3456".into(),
         rust_version: Some("2.2.4".into()),
         dfx_version: "0.8.4".into(),
-        optimize_times: 5,
+        optimize_count: 5,
     }
 }

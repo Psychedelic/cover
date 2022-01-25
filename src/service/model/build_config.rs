@@ -12,7 +12,7 @@ pub struct BuildConfig {
     pub commit_hash: String,
     pub rust_version: Option<String>,
     pub dfx_version: String,
-    pub optimize_times: u8,
+    pub optimize_count: u8,
     pub created_at: String,
     pub updated_at: String,
 }
@@ -26,5 +26,5 @@ pub struct SaveBuildConfig {
     pub commit_hash: String,
     pub rust_version: Option<String>,
     pub dfx_version: String,
-    pub optimize_times: u8,
+    pub optimize_count: u8,
 }
