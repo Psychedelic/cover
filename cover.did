@@ -38,7 +38,7 @@ type SubmitVerification = record {
   canister_name : text;
   commit_hash : text;
   repo_url : text;
-  rust_version : text;
+  rust_version : opt text;
   optimize_count : nat8;
   build_url : text;
   wasm_hash : opt text;
@@ -52,7 +52,7 @@ type Verification = record {
   canister_name : text;
   commit_hash : text;
   repo_url : text;
-  rust_version : text;
+  rust_version : opt text;
   optimize_count : nat8;
   build_url : text;
   wasm_hash : opt text;

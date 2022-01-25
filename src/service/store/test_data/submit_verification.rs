@@ -11,7 +11,7 @@ pub fn fake_submit_verification1(canister_id: &CanisterId) -> SubmitVerification
         wasm_hash: Some("hash1".to_string()),
         build_url: "https://build1".to_string(),
         build_status: BuildStatus::Success,
-        rust_version: "1.0.1".to_string(),
+        rust_version: Some("1.0.1".to_string()),
         dfx_version: "0.8.4".to_string(),
         optimize_count: 1,
     }
@@ -26,7 +26,7 @@ pub fn fake_submit_verification2(canister_id: &CanisterId) -> SubmitVerification
         wasm_hash: None,
         build_url: "https://build2".to_string(),
         build_status: BuildStatus::Error,
-        rust_version: "2.0.2".to_string(),
+        rust_version: Some("2.0.2".to_string()),
         dfx_version: "0.8.4".to_string(),
         optimize_count: 4,
     }
@@ -40,7 +40,7 @@ pub fn fake_submit_verification3(canister_id: &CanisterId) -> SubmitVerification
         commit_hash: "submit_commit_3".to_string(),
         build_url: "https://build3".to_string(),
         wasm_hash: Some("hash3".to_string()),
-        rust_version: "".to_string(),
+        rust_version: None,
         dfx_version: "0.8.4".to_string(),
         optimize_count: 0,
         build_status: BuildStatus::Success,

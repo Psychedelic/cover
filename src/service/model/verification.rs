@@ -12,7 +12,7 @@ pub struct SubmitVerification {
     pub wasm_hash: Option<String>,
     pub build_url: String,
     pub build_status: BuildStatus,
-    pub rust_version: String,
+    pub rust_version: Option<String>,
     pub dfx_version: String,
     pub optimize_count: u8,
 }
@@ -26,7 +26,7 @@ pub struct Verification {
     pub wasm_hash: Option<String>,
     pub build_url: String,
     pub build_status: BuildStatus,
-    pub rust_version: String,
+    pub rust_version: Option<String>,
     pub dfx_version: String,
     pub optimize_count: u8,
     pub updated_by: CallerId,
