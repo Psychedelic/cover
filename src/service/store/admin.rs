@@ -4,7 +4,6 @@ use ic_kit::candid::CandidType;
 use serde::Deserialize;
 
 use crate::common::types::AdminId;
-use crate::service::store::error::ErrorKindStore;
 
 #[derive(Default, CandidType, Deserialize)]
 pub struct AdminStore {
@@ -16,18 +15,12 @@ impl AdminStore {
         self.admins.contains(admin_id)
     }
 
-    pub fn add_admin(&mut self, admin_id: &AdminId) -> Result<(), ErrorKindStore> {
-        self.admins
-            .insert(*admin_id)
-            .then(|| ())
-            .ok_or(ErrorKindStore::ExistedAdmin)
+    pub fn add_admin(&mut self, admin_id: &AdminId) {
+        self.admins.insert(*admin_id);
     }
 
-    pub fn delete_admin(&mut self, admin_id: &AdminId) -> Result<(), ErrorKindStore> {
-        self.admins
-            .remove(admin_id)
-            .then(|| ())
-            .ok_or(ErrorKindStore::AdminNotFound)
+    pub fn delete_admin(&mut self, admin_id: &AdminId) {
+        self.admins.remove(admin_id);
     }
 
     pub fn get_all_admins(&self) -> Vec<&AdminId> {
@@ -44,9 +37,9 @@ mod test {
     fn init_test_data() -> AdminStore {
         let mut store = AdminStore::default();
 
-        assert_eq!(store.add_admin(&mock_principals::alice()), Ok(()));
+        store.add_admin(&mock_principals::alice());
 
-        assert_eq!(store.add_admin(&mock_principals::bob()), Ok(()));
+        store.add_admin(&mock_principals::bob());
 
         store
     }
@@ -57,40 +50,38 @@ mod test {
 
         assert_eq!(store.get_all_admins().len(), 0);
 
-        assert_eq!(store.add_admin(&mock_principals::alice()), Ok(()));
+        store.add_admin(&mock_principals::alice());
 
-        assert_eq!(store.get_all_admins().len(), 1);
+        assert_eq!(store.get_all_admins(), vec![&mock_principals::alice()]);
 
-        assert_eq!(
-            store.add_admin(&mock_principals::alice()),
-            Err(ErrorKindStore::ExistedAdmin)
-        );
+        store.add_admin(&mock_principals::alice());
 
-        assert_eq!(store.get_all_admins().len(), 1);
+        assert_eq!(store.get_all_admins(), vec![&mock_principals::alice()]);
 
-        assert_eq!(store.add_admin(&mock_principals::bob()), Ok(()));
+        store.add_admin(&mock_principals::john());
 
         assert_eq!(store.get_all_admins().len(), 2);
+
+        assert!(store.admin_existed(&mock_principals::alice()));
+
+        assert!(store.admin_existed(&mock_principals::john()));
     }
 
     #[test]
     fn delete_admin_ok() {
         let mut store = init_test_data();
 
-        assert_eq!(store.get_all_admins().len(), 2);
+        get_all_admins_ok();
 
-        assert_eq!(store.delete_admin(&mock_principals::bob()), Ok(()));
+        store.delete_admin(&mock_principals::bob());
 
-        assert_eq!(store.get_all_admins().len(), 1);
+        assert_eq!(store.get_all_admins(), vec![&mock_principals::alice()]);
 
-        assert_eq!(
-            store.delete_admin(&mock_principals::bob()),
-            Err(ErrorKindStore::AdminNotFound)
-        );
+        store.delete_admin(&mock_principals::bob());
 
-        assert_eq!(store.get_all_admins().len(), 1);
+        assert_eq!(store.get_all_admins(), vec![&mock_principals::alice()]);
 
-        assert_eq!(store.delete_admin(&mock_principals::alice()), Ok(()));
+        store.delete_admin(&mock_principals::alice());
 
         assert_eq!(store.get_all_admins().len(), 0);
     }
@@ -109,5 +100,9 @@ mod test {
         let store = init_test_data();
 
         assert_eq!(store.get_all_admins().len(), 2);
+
+        assert!(store.admin_existed(&mock_principals::alice()));
+
+        assert!(store.admin_existed(&mock_principals::bob()));
     }
 }

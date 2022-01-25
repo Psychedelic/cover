@@ -5,7 +5,6 @@ use serde::Deserialize;
 
 use crate::common::types::{CanisterId, CanisterOwnerId};
 use crate::service::model::build_config::{BuildConfig, SaveBuildConfig};
-use crate::service::store::error::ErrorKindStore;
 use crate::service::time_utils;
 
 #[derive(CandidType, Default, Deserialize)]
@@ -49,15 +48,8 @@ impl BuildConfigStore {
         );
     }
 
-    pub fn delete_build_config(
-        &mut self,
-        owner_id: &CanisterOwnerId,
-        canister_id: &CanisterId,
-    ) -> Result<(), ErrorKindStore> {
-        self.configs
-            .remove(&(*owner_id, *canister_id))
-            .map(|_| ())
-            .ok_or(ErrorKindStore::BuildConfigNotFound)
+    pub fn delete_build_config(&mut self, owner_id: &CanisterOwnerId, canister_id: &CanisterId) {
+        self.configs.remove(&(*owner_id, *canister_id));
     }
 }
 
@@ -163,10 +155,7 @@ mod test {
     fn delete_config_ok() {
         let mut store = init_test_data();
 
-        assert_eq!(
-            store.delete_build_config(&mock_principals::bob(), &fake_canister1()),
-            Ok(())
-        );
+        store.delete_build_config(&mock_principals::bob(), &fake_canister1());
 
         assert_eq!(
             store.get_all_build_configs(&mock_principals::bob()),
@@ -176,14 +165,14 @@ mod test {
             ))]
         );
 
-        assert_eq!(
-            store.delete_build_config(&mock_principals::bob(), &fake_canister1()),
-            Err(ErrorKindStore::BuildConfigNotFound)
-        );
+        store.delete_build_config(&mock_principals::john(), &fake_canister1());
 
         assert_eq!(
-            store.delete_build_config(&mock_principals::john(), &fake_canister1()),
-            Err(ErrorKindStore::BuildConfigNotFound)
+            store.get_all_build_configs(&mock_principals::bob()),
+            vec![&fake_build_config_from(fake_save_build_config2(
+                &mock_principals::bob(),
+                &fake_canister2()
+            ))]
         );
     }
 }

@@ -11,8 +11,6 @@ pub use save_build_config::*;
 #[cfg(test)]
 pub use submit_verification::*;
 #[cfg(test)]
-pub use update_provider::*;
-#[cfg(test)]
 pub use verification::*;
 
 mod add_provider;
@@ -21,5 +19,4 @@ mod canister;
 mod provider;
 mod save_build_config;
 mod submit_verification;
-mod update_provider;
 mod verification;

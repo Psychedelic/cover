@@ -5,7 +5,6 @@ use ic_kit::macros::{query, update};
 use crate::common::types::{CanisterId, CanisterOwnerId};
 use crate::service::build_config;
 use crate::service::model::build_config::{BuildConfig, SaveBuildConfig};
-use crate::service::model::error::Error;
 
 #[query(name = "getAllBuildConfigs")]
 #[candid_method(query, rename = "getAllBuildConfigs")]
@@ -21,7 +20,7 @@ fn get_build_config_by_id(canister_id: CanisterId) -> Option<&'static BuildConfi
 
 #[update(name = "deleteBuildConfig")]
 #[candid_method(update, rename = "deleteBuildConfig")]
-fn delete_build_config(canister_id: CanisterId) -> Result<(), Error> {
+fn delete_build_config(canister_id: CanisterId) {
     build_config::delete_build_config(&caller(), &canister_id)
 }
 
@@ -44,7 +43,6 @@ fn get_build_config_provider(
 mod tests {
     use ic_kit::*;
 
-    use crate::service::store::error::ErrorKindStore;
     use crate::service::store::test_data::*;
 
     use super::*;
@@ -106,7 +104,7 @@ mod tests {
 
         get_all_build_configs_ok();
 
-        assert_eq!(delete_build_config(fake_canister1()), Ok(()));
+        delete_build_config(fake_canister1());
 
         assert_eq!(
             get_all_build_configs(),
@@ -116,10 +114,7 @@ mod tests {
             ))]
         );
 
-        assert_eq!(
-            delete_build_config(fake_canister1()),
-            Err(Error::from(ErrorKindStore::BuildConfigNotFound))
-        );
+        delete_build_config(fake_canister1());
 
         assert_eq!(
             get_all_build_configs(),
@@ -129,7 +124,7 @@ mod tests {
             ))]
         );
 
-        assert_eq!(delete_build_config(fake_canister2()), Ok(()));
+        delete_build_config(fake_canister2());
 
         assert_eq!(get_all_build_configs().len(), 0);
     }
