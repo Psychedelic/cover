@@ -5,11 +5,11 @@ type BuildConfig = record {
   created_at : text;
   dfx_version : text;
   owner_id : principal;
-  optimize_times : nat8;
   canister_name : text;
   commit_hash : text;
   repo_url : text;
   rust_version : opt text;
+  optimize_count : nat8;
 };
 type BuildStatus = variant { Error; Success };
 type Provider = record {
@@ -25,11 +25,11 @@ type SaveBuildConfig = record {
   canister_id : principal;
   dfx_version : text;
   owner_id : principal;
-  optimize_times : nat8;
   canister_name : text;
   commit_hash : text;
   repo_url : text;
   rust_version : opt text;
+  optimize_count : nat8;
 };
 type SubmitVerification = record {
   canister_id : principal;
