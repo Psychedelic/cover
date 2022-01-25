@@ -3,6 +3,10 @@ name: Cover build
 on:
   workflow_dispatch:
     inputs:
+      owner_id:
+        description: 'Owner id'
+        required: true
+        type: string
       canister_id:
         description: 'Canister id'
         required: true
@@ -31,8 +35,8 @@ on:
         description: 'DFX version'
         required: true
         type: string
-      optimize_times:
-        description: 'Optimize times'
+      optimize_count:
+        description: 'Optimize count'
         required: true
         type: string
 
@@ -104,15 +108,41 @@ jobs:
       - name: Build wasm
         run: dfx build --network ic ${{ github.event.inputs.canister_name }}
       - name: Optimize wasm
-        if: github.event.inputs.optimize_times > 0 && github.event.inputs.rust_version != ''
+        if: github.event.inputs.optimize_count > 0 && github.event.inputs.rust_version != ''
         run: |
           i=0
-          while [ $i -lt ${{ github.event.inputs.optimize_times }} ]
+          while [ $i -lt ${{ github.event.inputs.optimize_count }} ]
           do
             ic-cdk-optimizer .dfx/ic/canisters/${{ github.event.inputs.canister_name }}/${{ github.event.inputs.canister_name }}.wasm \
             -o .dfx/ic/canisters/${{ github.event.inputs.canister_name }}/${{ github.event.inputs.canister_name }}.wasm
             i=`expr $i + 1`
           done
       - name: Hash wasm
-        run: openssl dgst -sha256 .dfx/ic/canisters/${{ github.event.inputs.canister_name }}/${{ github.event.inputs.canister_name }}.wasm | awk '/.+$/{print "0x"$2}'
+        run: |
+          echo "WASM_HASH=$(openssl dgst -sha256 .dfx/ic/canisters/${{ github.event.inputs.canister_name }} \
+          /${{ github.event.inputs.canister_name }}.wasm | awk '/.+$/{print "0x"$2}')" >> $GITHUB_ENV
+      - name: Update verification
+        if: always()
+        run: |
+          if ! type dfx > /dev/null 
+          then
+           rm dfx.json
+           echo "No DFX found. Start downloading..."
+           DFX_VERSION="" sh -ci "$(curl -fsSL https://sdk.dfinity.org/install.sh)"
+          fi
+          hash=opt\"$WASM_HASH\"
+          if [ -z "$WASM_HASH" ]
+          then 
+            status="variant{ Error }"
+          else 
+            status="variant{ Success }"
+          fi
+          dfx canister --network ic call 3x7en-uqaaa-aaaai-abgca-cai submitVerification "(principal\"${{ github.event.inputs.owner_id }}\", \
+          record{canister_id=principal\"${{ github.event.inputs.canister_id }}\";canister_name=\"${{ github.event.inputs.canister_name }}\"; \
+          repo_url=\"${{ github.event.inputs.repo_url }}\";commit_hash=\"${{ github.event.inputs.commit_hash }}\"; \
+          wasm_hash=$hash;build_url=\"https://github.com/Psychedelic/cover/actions/runs/${{github.run_id}}\";build_status=$status; \
+          rust_version=opt\"${{ github.event.inputs.rust_version }}\"; dfx_version=\"${{ github.event.inputs.dfx_version }}\"; \
+          optimize_count=${{ github.event.inputs.optimize_count }}:nat8})"
+
+
 
