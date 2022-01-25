@@ -10,13 +10,6 @@ pub struct AddProvider {
     pub memo: Option<String>,
 }
 
-#[derive(CandidType, Deserialize)]
-pub struct UpdateProvider {
-    pub id: ProviderId,
-    pub name: String,
-    pub memo: Option<String>,
-}
-
 #[derive(CandidType, Deserialize, PartialEq, Debug)]
 pub struct Provider {
     pub id: ProviderId,

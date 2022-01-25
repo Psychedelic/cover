@@ -8,7 +8,6 @@ use crate::service::store::verification::VerificationStore;
 
 pub mod admin;
 pub mod build_config;
-pub mod error_handler;
 pub mod guard;
 pub mod model;
 pub mod provider;

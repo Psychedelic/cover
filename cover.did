@@ -12,7 +12,6 @@ type BuildConfig = record {
   rust_version : opt text;
 };
 type BuildStatus = variant { Error; Success };
-type Error = record { debug_log : opt text; code : text; message : text };
 type Provider = record {
   id : principal;
   updated_at : text;
@@ -22,7 +21,6 @@ type Provider = record {
   created_at : text;
   created_by : principal;
 };
-type Result = variant { Ok; Err : Error };
 type SaveBuildConfig = record {
   canister_id : principal;
   dfx_version : text;
@@ -60,11 +58,11 @@ type Verification = record {
   wasm_hash : opt text;
 };
 service : {
-  addAdmin : (principal) -> (Result);
-  addProvider : (AddProvider) -> (Result);
-  deleteAdmin : (principal) -> (Result);
-  deleteBuildConfig : (principal) -> (Result);
-  deleteProvider : (principal) -> (Result);
+  addAdmin : (principal) -> ();
+  addProvider : (AddProvider) -> ();
+  deleteAdmin : (principal) -> ();
+  deleteBuildConfig : (principal) -> ();
+  deleteProvider : (principal) -> ();
   getAllAdmins : () -> (vec principal) query;
   getAllBuildConfigs : () -> (vec BuildConfig) query;
   getAllProviders : () -> (vec Provider) query;
@@ -75,5 +73,4 @@ service : {
   getVerificationByCanisterId : (principal) -> (opt Verification) query;
   saveBuildConfig : (SaveBuildConfig) -> ();
   submitVerification : (principal, SubmitVerification) -> ();
-  updateProvider : (AddProvider) -> (Result);
 }
