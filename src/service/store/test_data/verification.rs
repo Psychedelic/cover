@@ -1,11 +1,7 @@
-use crate::common::types::CanisterOwnerId;
 use crate::service::model::verification::{SubmitVerification, Verification};
 use crate::service::time_utils;
 
-pub fn fake_verification(
-    owner_id: &CanisterOwnerId,
-    submit_verification: SubmitVerification,
-) -> Verification {
+pub fn fake_verification(submit_verification: SubmitVerification) -> Verification {
     Verification {
         canister_id: submit_verification.canister_id,
         canister_name: submit_verification.canister_name,
@@ -17,7 +13,7 @@ pub fn fake_verification(
         rust_version: submit_verification.rust_version,
         dfx_version: submit_verification.dfx_version,
         optimize_count: submit_verification.optimize_count,
-        updated_by: *owner_id,
+        updated_by: submit_verification.owner_id,
         updated_at: time_utils::now_to_str(),
     }
 }

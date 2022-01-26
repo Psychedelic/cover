@@ -11,6 +11,7 @@ type BuildConfig = record {
   rust_version : opt text;
   optimize_count : nat8;
 };
+type BuildConfigInfo = record { canister_id : principal; owner_id : principal };
 type BuildStatus = variant { Error; Success };
 type Provider = record {
   id : principal;
@@ -34,6 +35,7 @@ type SaveBuildConfig = record {
 type SubmitVerification = record {
   canister_id : principal;
   dfx_version : text;
+  owner_id : principal;
   build_status : BuildStatus;
   canister_name : text;
   commit_hash : text;
@@ -68,9 +70,8 @@ service : {
   getAllProviders : () -> (vec Provider) query;
   getAllVerifications : () -> (vec Verification) query;
   getBuildConfigById : (principal) -> (opt BuildConfig) query;
-  getBuildConfigProvider : (principal, principal) -> (opt BuildConfig) query;
-  getProviderById : (principal) -> (opt Provider) query;
+  getBuildConfigProvider : (BuildConfigInfo) -> (opt BuildConfig) query;
   getVerificationByCanisterId : (principal) -> (opt Verification) query;
   saveBuildConfig : (SaveBuildConfig) -> ();
-  submitVerification : (principal, SubmitVerification) -> ();
+  submitVerification : (SubmitVerification) -> ();
 }
