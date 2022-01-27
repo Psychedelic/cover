@@ -20,7 +20,3 @@ pub struct Provider {
     pub updated_by: CallerId,
     pub updated_at: String,
 }
-
-// TODO: define details
-#[derive(CandidType, Deserialize, Debug, PartialEq)]
-pub struct ProviderInfo {}
