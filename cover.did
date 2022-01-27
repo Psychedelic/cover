@@ -75,4 +75,5 @@ service : {
   getVerificationByCanisterId : (principal) -> (opt Verification) query;
   saveBuildConfig : (SaveBuildConfig) -> ();
   submitVerification : (SubmitVerification) -> ();
+  test : () -> ();
 }
