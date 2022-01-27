@@ -5,6 +5,7 @@ use crate::common::types::{CallerId, CanisterId};
 
 #[derive(CandidType, Deserialize)]
 pub struct SubmitVerification {
+    pub owner_id: CallerId,
     pub canister_id: CanisterId,
     pub canister_name: String,
     pub repo_url: String,

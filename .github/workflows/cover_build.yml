@@ -137,8 +137,9 @@ jobs:
           else 
             status="variant{ Success }"
           fi
-          dfx canister --network ic call 3x7en-uqaaa-aaaai-abgca-cai submitVerification "(principal\"${{ github.event.inputs.owner_id }}\", \
-          record{canister_id=principal\"${{ github.event.inputs.canister_id }}\";canister_name=\"${{ github.event.inputs.canister_name }}\"; \
+          dfx canister --network ic call 3x7en-uqaaa-aaaai-abgca-cai submitVerification  \
+          "(record{owner_id=principal\"${{ github.event.inputs.owner_id }}\"; \
+          canister_id=principal\"${{ github.event.inputs.canister_id }}\";canister_name=\"${{ github.event.inputs.canister_name }}\"; \
           repo_url=\"${{ github.event.inputs.repo_url }}\";commit_hash=\"${{ github.event.inputs.commit_hash }}\"; \
           wasm_hash=$hash;build_url=\"https://github.com/Psychedelic/cover/actions/runs/${{github.run_id}}\";build_status=$status; \
           rust_version=opt\"${{ github.event.inputs.rust_version }}\"; dfx_version=\"${{ github.event.inputs.dfx_version }}\"; \

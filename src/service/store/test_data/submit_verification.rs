@@ -1,9 +1,13 @@
-use crate::common::types::CanisterId;
+use crate::common::types::{CanisterId, CanisterOwnerId};
 use crate::service::model::verification::BuildStatus;
 use crate::service::model::verification::SubmitVerification;
 
-pub fn fake_submit_verification1(canister_id: &CanisterId) -> SubmitVerification {
+pub fn fake_submit_verification1(
+    owner_id: &CanisterOwnerId,
+    canister_id: &CanisterId,
+) -> SubmitVerification {
     SubmitVerification {
+        owner_id: *owner_id,
         canister_id: *canister_id,
         canister_name: "submit_canister_name_1".to_string(),
         repo_url: "submit_repo_1".to_string(),
@@ -17,8 +21,12 @@ pub fn fake_submit_verification1(canister_id: &CanisterId) -> SubmitVerification
     }
 }
 
-pub fn fake_submit_verification2(canister_id: &CanisterId) -> SubmitVerification {
+pub fn fake_submit_verification2(
+    owner_id: &CanisterOwnerId,
+    canister_id: &CanisterId,
+) -> SubmitVerification {
     SubmitVerification {
+        owner_id: *owner_id,
         canister_id: *canister_id,
         canister_name: "submit_canister_name_2".to_string(),
         repo_url: "submit_repo_2".to_string(),
@@ -32,8 +40,12 @@ pub fn fake_submit_verification2(canister_id: &CanisterId) -> SubmitVerification
     }
 }
 
-pub fn fake_submit_verification3(canister_id: &CanisterId) -> SubmitVerification {
+pub fn fake_submit_verification3(
+    owner_id: &CanisterOwnerId,
+    canister_id: &CanisterId,
+) -> SubmitVerification {
     SubmitVerification {
+        owner_id: *owner_id,
         canister_id: *canister_id,
         canister_name: "submit_canister_name_3".to_string(),
         repo_url: "submit_repo_3".to_string(),

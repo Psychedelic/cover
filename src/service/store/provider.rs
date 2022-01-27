@@ -37,10 +37,6 @@ impl ProviderStore {
         self.provider.remove(provider_id);
     }
 
-    pub fn get_provider_by_id(&self, provider_id: &ProviderId) -> Option<&Provider> {
-        self.provider.get(provider_id)
-    }
-
     pub fn get_all_providers(&self) -> Vec<&Provider> {
         self.provider.iter().map(|(_, v)| v).collect()
     }
@@ -121,21 +117,6 @@ mod test {
                 )
             ]
         );
-    }
-
-    #[test]
-    fn get_provider_by_canister_id_ok() {
-        let store = init_test_data();
-
-        assert_eq!(
-            store.get_provider_by_id(&mock_principals::alice()),
-            Some(&fake_provider(
-                &mock_principals::bob(),
-                fake_add_provider1(&mock_principals::alice()),
-            ))
-        );
-
-        assert_eq!(store.get_provider_by_id(&mock_principals::john()), None);
     }
 
     #[test]

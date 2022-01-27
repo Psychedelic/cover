@@ -2,9 +2,9 @@ use ic_kit::candid::candid_method;
 use ic_kit::ic::caller;
 use ic_kit::macros::{query, update};
 
-use crate::common::types::{CanisterId, CanisterOwnerId};
+use crate::common::types::CanisterId;
 use crate::service::build_config;
-use crate::service::model::build_config::{BuildConfig, SaveBuildConfig};
+use crate::service::model::build_config::{BuildConfig, BuildConfigInfo, SaveBuildConfig};
 
 #[query(name = "getAllBuildConfigs")]
 #[candid_method(query, rename = "getAllBuildConfigs")]
@@ -32,11 +32,8 @@ fn save_build_config(config: SaveBuildConfig) {
 
 #[query(name = "getBuildConfigProvider")]
 #[candid_method(query, rename = "getBuildConfigProvider")]
-fn get_build_config_provider(
-    canister_owner: CanisterOwnerId,
-    canister_id: CanisterId,
-) -> Option<&'static BuildConfig> {
-    build_config::get_build_config_by_id(&canister_owner, &canister_id)
+fn get_build_config_provider(info: BuildConfigInfo) -> Option<&'static BuildConfig> {
+    build_config::get_build_config_by_id(&info.owner_id, &info.canister_id)
 }
 
 #[cfg(test)]
@@ -168,7 +165,10 @@ mod tests {
         init_test_data();
 
         assert_eq!(
-            get_build_config_provider(mock_principals::bob(), fake_canister1()),
+            get_build_config_provider(BuildConfigInfo {
+                owner_id: mock_principals::bob(),
+                canister_id: fake_canister1()
+            }),
             Some(&fake_build_config_from(fake_save_build_config1(
                 &mock_principals::bob(),
                 &fake_canister1()

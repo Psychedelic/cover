@@ -19,12 +19,6 @@ fn delete_provider(provider_id: ProviderId) {
     provider::delete_provider(&provider_id)
 }
 
-#[query(name = "getProviderById", guard = "is_admin")]
-#[candid_method(query, rename = "getProviderById")]
-fn get_provider_by_id(provider_id: ProviderId) -> Option<&'static Provider> {
-    provider::get_provider_by_id(&provider_id)
-}
-
 #[query(name = "getAllProviders", guard = "is_admin")]
 #[candid_method(query, rename = "getAllProviders")]
 fn get_all_providers() -> Vec<&'static Provider> {
@@ -81,21 +75,6 @@ mod tests {
                 fake_add_provider1(&mock_principals::alice())
             )]
         );
-    }
-
-    #[test]
-    fn get_provider_by_id_ok() {
-        init_test_data();
-
-        assert_eq!(
-            get_provider_by_id(mock_principals::alice()),
-            Some(&fake_provider(
-                &mock_principals::bob(),
-                fake_add_provider1(&mock_principals::alice())
-            ))
-        );
-
-        assert_eq!(get_provider_by_id(mock_principals::john()), None);
     }
 
     #[test]
