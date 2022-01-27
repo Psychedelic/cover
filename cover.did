@@ -60,6 +60,7 @@ type Verification = record {
 service : {
   addAdmin : (principal) -> ();
   addProvider : (AddProvider) -> ();
+  check : () -> (nat32) query;
   deleteAdmin : (principal) -> ();
   deleteBuildConfig : (principal) -> ();
   deleteProvider : (principal) -> ();
@@ -73,4 +74,5 @@ service : {
   getVerificationByCanisterId : (principal) -> (opt Verification) query;
   saveBuildConfig : (SaveBuildConfig) -> ();
   submitVerification : (principal, SubmitVerification) -> ();
+  test : () -> ();
 }
