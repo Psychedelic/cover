@@ -3,7 +3,7 @@ use std::collections::BTreeMap;
 use ic_kit::candid::CandidType;
 use serde::Deserialize;
 
-use crate::common::types::{CanisterId, CanisterOwnerId};
+use crate::common::types::CanisterId;
 use crate::service::model::verification::{SubmitVerification, Verification};
 use crate::service::time_utils;
 
@@ -13,11 +13,7 @@ pub struct VerificationStore {
 }
 
 impl VerificationStore {
-    pub fn submit_verification(
-        &mut self,
-        owner_id: &CanisterOwnerId,
-        new_verification: SubmitVerification,
-    ) {
+    pub fn submit_verification(&mut self, new_verification: SubmitVerification) {
         let now = time_utils::now_to_str();
         self.verification.insert(
             new_verification.canister_id,
@@ -32,7 +28,7 @@ impl VerificationStore {
                 rust_version: new_verification.rust_version,
                 dfx_version: new_verification.dfx_version,
                 optimize_count: new_verification.optimize_count,
-                updated_by: *owner_id,
+                updated_by: new_verification.owner_id,
                 updated_at: now,
             },
         );
@@ -61,15 +57,15 @@ mod test {
     fn init_test_data() -> VerificationStore {
         let mut store = VerificationStore::default();
 
-        store.submit_verification(
+        store.submit_verification(fake_submit_verification1(
             &mock_principals::alice(),
-            fake_submit_verification1(&fake_canister1()),
-        );
+            &fake_canister1(),
+        ));
 
-        store.submit_verification(
+        store.submit_verification(fake_submit_verification2(
             &mock_principals::bob(),
-            fake_submit_verification2(&fake_canister2()),
-        );
+            &fake_canister2(),
+        ));
 
         store
     }
@@ -80,49 +76,49 @@ mod test {
 
         get_all_verification_ok();
 
-        store.submit_verification(
+        store.submit_verification(fake_submit_verification3(
             &mock_principals::alice(),
-            fake_submit_verification3(&fake_canister3()),
-        );
+            &fake_canister3(),
+        ));
 
         assert_eq!(
             store.get_all_verifications(),
             vec![
-                &fake_verification(
+                &fake_verification(fake_submit_verification3(
                     &mock_principals::alice(),
-                    fake_submit_verification3(&fake_canister3())
-                ),
-                &fake_verification(
+                    &fake_canister3()
+                )),
+                &fake_verification(fake_submit_verification2(
                     &mock_principals::bob(),
-                    fake_submit_verification2(&fake_canister2())
-                ),
-                &fake_verification(
+                    &fake_canister2()
+                )),
+                &fake_verification(fake_submit_verification1(
                     &mock_principals::alice(),
-                    fake_submit_verification1(&fake_canister1()),
-                )
+                    &fake_canister1()
+                ),)
             ]
         );
 
-        store.submit_verification(
+        store.submit_verification(fake_submit_verification2(
             &mock_principals::john(),
-            fake_submit_verification2(&fake_canister1()),
-        );
+            &fake_canister1(),
+        ));
 
         assert_eq!(
             store.get_all_verifications(),
             vec![
-                &fake_verification(
+                &fake_verification(fake_submit_verification3(
                     &mock_principals::alice(),
-                    fake_submit_verification3(&fake_canister3())
-                ),
-                &fake_verification(
+                    &fake_canister3()
+                )),
+                &fake_verification(fake_submit_verification2(
                     &mock_principals::bob(),
-                    fake_submit_verification2(&fake_canister2())
-                ),
-                &fake_verification(
+                    &fake_canister2()
+                )),
+                &fake_verification(fake_submit_verification2(
                     &mock_principals::john(),
-                    fake_submit_verification2(&fake_canister1()),
-                )
+                    &fake_canister1()
+                ),)
             ]
         );
     }
@@ -133,10 +129,10 @@ mod test {
 
         assert_eq!(
             store.get_verification_by_canister_id(&fake_canister2()),
-            Some(&fake_verification(
+            Some(&fake_verification(fake_submit_verification2(
                 &mock_principals::bob(),
-                fake_submit_verification2(&fake_canister2())
-            ))
+                &fake_canister2()
+            )))
         );
 
         assert_eq!(
@@ -154,14 +150,14 @@ mod test {
         assert_eq!(
             store.get_all_verifications(),
             vec![
-                &fake_verification(
+                &fake_verification(fake_submit_verification2(
                     &mock_principals::bob(),
-                    fake_submit_verification2(&fake_canister2())
-                ),
-                &fake_verification(
+                    &fake_canister2()
+                )),
+                &fake_verification(fake_submit_verification1(
                     &mock_principals::alice(),
-                    fake_submit_verification1(&fake_canister1()),
-                )
+                    &fake_canister1()
+                ),)
             ]
         );
     }

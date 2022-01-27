@@ -28,3 +28,9 @@ pub struct SaveBuildConfig {
     pub dfx_version: String,
     pub optimize_count: u8,
 }
+
+#[derive(CandidType, Deserialize)]
+pub struct BuildConfigInfo {
+    pub owner_id: CanisterOwnerId,
+    pub canister_id: CanisterId,
+}

@@ -10,10 +10,6 @@ pub fn delete_provider(provider_id: &ProviderId) {
     provider_store_mut().delete_provider(provider_id)
 }
 
-pub fn get_provider_by_id(provider_id: &ProviderId) -> Option<&'static Provider> {
-    provider_store().get_provider_by_id(provider_id)
-}
-
 pub fn get_all_providers() -> Vec<&'static Provider> {
     provider_store().get_all_providers()
 }
