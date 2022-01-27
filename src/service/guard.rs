@@ -1,7 +1,5 @@
-use crate::service::admin_store;
+use crate::service::{admin_store, builder_store, validator_store};
 use ic_cdk::caller;
-
-use super::provider_store;
 
 pub fn is_admin() -> Result<(), String> {
     admin_store()
@@ -10,9 +8,16 @@ pub fn is_admin() -> Result<(), String> {
         .ok_or_else(|| "Caller is not an authorized admin".into())
 }
 
-pub fn is_provider() -> Result<(), String> {
-    provider_store()
-        .provider_exists(&caller())
+pub fn is_builder() -> Result<(), String> {
+    builder_store()
+        .builder_existed(&caller())
         .then(|| ())
-        .ok_or_else(|| "Caller is not an authorized provider".into())
+        .ok_or_else(|| "Caller is not an authorized builder".into())
+}
+
+pub fn is_validator() -> Result<(), String> {
+    validator_store()
+        .validator_existed(&caller())
+        .then(|| ())
+        .ok_or_else(|| "Caller is not an authorized validator".into())
 }
