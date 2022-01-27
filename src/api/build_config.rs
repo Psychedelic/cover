@@ -4,6 +4,7 @@ use ic_kit::macros::{query, update};
 
 use crate::common::types::CanisterId;
 use crate::service::build_config;
+use crate::service::guard::is_validator;
 use crate::service::model::build_config::{BuildConfig, BuildConfigInfo, SaveBuildConfig};
 
 #[query(name = "getAllBuildConfigs")]
@@ -24,15 +25,15 @@ fn delete_build_config(canister_id: CanisterId) {
     build_config::delete_build_config(&caller(), &canister_id)
 }
 
-#[update(name = "saveBuildConfig")]
+#[update(name = "saveBuildConfig", guard = "is_validator")]
 #[candid_method(update, rename = "saveBuildConfig")]
 fn save_build_config(config: SaveBuildConfig) {
     build_config::save_build_config(config)
 }
 
-#[query(name = "getBuildConfigProvider")]
-#[candid_method(query, rename = "getBuildConfigProvider")]
-fn get_build_config_provider(info: BuildConfigInfo) -> Option<&'static BuildConfig> {
+#[query(name = "getBuildConfigValidator", guard = "is_validator")]
+#[candid_method(query, rename = "getBuildConfigValidator")]
+fn get_build_config_validator(info: BuildConfigInfo) -> Option<&'static BuildConfig> {
     build_config::get_build_config_by_id(&info.owner_id, &info.canister_id)
 }
 
@@ -161,11 +162,11 @@ mod tests {
     }
 
     #[test]
-    fn get_build_config_provider_ok() {
+    fn get_build_config_validator_ok() {
         init_test_data();
 
         assert_eq!(
-            get_build_config_provider(BuildConfigInfo {
+            get_build_config_validator(BuildConfigInfo {
                 owner_id: mock_principals::bob(),
                 canister_id: fake_canister1()
             }),

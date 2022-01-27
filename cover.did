@@ -1,4 +1,3 @@
-type AddProvider = record { id : principal; memo : opt text; name : text };
 type BuildConfig = record {
   updated_at : text;
   canister_id : principal;
@@ -13,15 +12,6 @@ type BuildConfig = record {
 };
 type BuildConfigInfo = record { canister_id : principal; owner_id : principal };
 type BuildStatus = variant { Error; Success };
-type Provider = record {
-  id : principal;
-  updated_at : text;
-  updated_by : principal;
-  memo : opt text;
-  name : text;
-  created_at : text;
-  created_by : principal;
-};
 type SaveBuildConfig = record {
   canister_id : principal;
   dfx_version : text;
@@ -61,17 +51,20 @@ type Verification = record {
 };
 service : {
   addAdmin : (principal) -> ();
-  addProvider : (AddProvider) -> ();
+  addBuilder : (principal) -> ();
+  addValidator : (principal) -> ();
   check : () -> (nat32) query;
   deleteAdmin : (principal) -> ();
   deleteBuildConfig : (principal) -> ();
-  deleteProvider : (principal) -> ();
+  deleteBuilder : (principal) -> ();
+  deleteValidator : (principal) -> ();
   getAllAdmins : () -> (vec principal) query;
   getAllBuildConfigs : () -> (vec BuildConfig) query;
-  getAllProviders : () -> (vec Provider) query;
+  getAllBuilders : () -> (vec principal) query;
+  getAllValidators : () -> (vec principal) query;
   getAllVerifications : () -> (vec Verification) query;
   getBuildConfigById : (principal) -> (opt BuildConfig) query;
-  getBuildConfigProvider : (BuildConfigInfo) -> (opt BuildConfig) query;
+  getBuildConfigValidator : (BuildConfigInfo) -> (opt BuildConfig) query;
   getVerificationByCanisterId : (principal) -> (opt Verification) query;
   saveBuildConfig : (SaveBuildConfig) -> ();
   submitVerification : (SubmitVerification) -> ();

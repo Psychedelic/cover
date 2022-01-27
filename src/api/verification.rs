@@ -2,7 +2,7 @@ use ic_kit::candid::candid_method;
 use ic_kit::macros::{query, update};
 
 use crate::common::types::CanisterId;
-use crate::service::guard::is_provider;
+use crate::service::guard::is_builder;
 use crate::service::model::verification::{SubmitVerification, Verification};
 use crate::service::verification;
 
@@ -18,7 +18,7 @@ fn get_all_verifications() -> Vec<&'static Verification> {
     verification::get_all_verifications()
 }
 
-#[update(name = "submitVerification", guard = "is_provider")]
+#[update(name = "submitVerification", guard = "is_builder")]
 #[candid_method(update, rename = "submitVerification")]
 fn submit_verification(verification: SubmitVerification) {
     verification::submit_verification(verification)
