@@ -15,7 +15,7 @@ Cover (short for Code Verification) is an open internet service that helps verif
 
 > This is an alpha release ✨ so that developers can start to play around, test the general Cover architecture during the weekend, and provide feedback to us! The alpha registry shouldn't be considered dependable yet. We will follow-up next week with a release that will include the permissioning ruling necessary to ensure all submissions are fully trusted.
 
-If you are Cover developer, please read the [Developer Readme](./README-dev.md)
+If you are Cover developer, please read the [Developer Readme](https://github.com/Psychedelic/cover/blob/main/README-DEV.md)
 
 ## Requirements ⚙️
 
@@ -27,7 +27,7 @@ If you are Cover developer, please read the [Developer Readme](./README-dev.md)
 ### Create Build Action 
 
 Inside of your canister repo create a directory `.github/workflows/` and add a `myBuild.yml` file,
-with the following content. To see a full build example see [build.yml](.github/workflows/build.yml)
+with the following content.
 ```yaml
 
 name: Example canister build using build.js 
@@ -63,7 +63,7 @@ jobs:
 ```
 
 Whenever you push your code using `production` or `main` branches, the above workflow will be triggered. 
-If you successfully generated the canister.wasm the [Cover Validation Plugin](./GithubActionPlugin) 
+If you successfully generated the canister.wasm the Cover Validation Plugin.
 will call an AWS Lambda Function that will add the validation results to the [Cover canister](https://ic.rocks/principal/iftvq-niaaa-aaaai-qasga-cai)   
 
 ### Build Canister
@@ -74,7 +74,7 @@ Thus, if you want to generate a wasm file locally, you must use the same docker 
 
 You can either provide your own docker image (We suggest you use ubuntu:20:04 at the base) or 
 you use our fleek/dfxrust docker image that includes tools needed to build Rust based canisters. 
-The fleek/dfxrust image is build with this [Dockerfile](GithubActionPlugin/dockers/dfxrust/Dockerfile). 
+The fleek/dfxrust image is build with this Dockerfile.
 
 #### Executing local build 
 
