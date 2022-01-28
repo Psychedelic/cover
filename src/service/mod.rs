@@ -12,6 +12,7 @@ pub mod build_config;
 pub mod builder;
 pub mod guard;
 pub mod model;
+pub mod pagination;
 pub mod time_utils;
 pub mod validator;
 pub mod verification;
