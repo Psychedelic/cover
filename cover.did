@@ -53,7 +53,6 @@ service : {
   addAdmin : (principal) -> ();
   addBuilder : (principal) -> ();
   addValidator : (principal) -> ();
-  check : () -> (nat32) query;
   deleteAdmin : (principal) -> ();
   deleteBuildConfig : (principal) -> ();
   deleteBuilder : (principal) -> ();
@@ -68,5 +67,4 @@ service : {
   getVerificationByCanisterId : (principal) -> (opt Verification) query;
   saveBuildConfig : (SaveBuildConfig) -> ();
   submitVerification : (SubmitVerification) -> ();
-  test : () -> ();
 }
