@@ -3,6 +3,7 @@ use ic_kit::macros::{query, update};
 
 use crate::common::types::CanisterId;
 use crate::service::guard::is_builder;
+use crate::service::model::pagination::{Pagination, PaginationInfo};
 use crate::service::model::verification::{SubmitVerification, Verification};
 use crate::service::verification;
 
@@ -12,10 +13,10 @@ fn get_verification_by_canister_id(canister_id: CanisterId) -> Option<&'static V
     verification::get_verification_by_canister_id(&canister_id)
 }
 
-#[query(name = "getAllVerifications")]
-#[candid_method(query, rename = "getAllVerifications")]
-fn get_all_verifications() -> Vec<&'static Verification> {
-    verification::get_all_verifications()
+#[query(name = "getVerifications")]
+#[candid_method(query, rename = "getVerifications")]
+fn get_verifications(pagination_info: PaginationInfo) -> Pagination<&'static Verification> {
+    verification::get_verifications(&pagination_info)
 }
 
 #[update(name = "submitVerification", guard = "is_builder")]
@@ -44,15 +45,55 @@ mod tests {
     }
 
     #[test]
-    fn get_all_verifications_ok() {
+    fn get_verifications_ok() {
         init_test_data();
 
         assert_eq!(
-            get_all_verifications(),
-            vec![&fake_verification(fake_submit_verification1(
-                &mock_principals::alice(),
-                &fake_canister1()
-            ))]
+            get_verifications(PaginationInfo {
+                page_index: 0,
+                items_per_page: 2
+            }),
+            fake_pagination(
+                vec![],
+                &PaginationInfo {
+                    page_index: 0,
+                    items_per_page: 2
+                },
+                1
+            )
+        );
+
+        assert_eq!(
+            get_verifications(PaginationInfo {
+                page_index: 1,
+                items_per_page: 2
+            }),
+            fake_pagination(
+                vec![&fake_verification(fake_submit_verification1(
+                    &mock_principals::alice(),
+                    &fake_canister1()
+                ))],
+                &PaginationInfo {
+                    page_index: 1,
+                    items_per_page: 2
+                },
+                1
+            )
+        );
+
+        assert_eq!(
+            get_verifications(PaginationInfo {
+                page_index: 2,
+                items_per_page: 2
+            }),
+            fake_pagination(
+                vec![],
+                &PaginationInfo {
+                    page_index: 2,
+                    items_per_page: 2
+                },
+                1
+            )
         );
     }
 
@@ -75,19 +116,27 @@ mod tests {
     fn submit_verification_ok() {
         init_test_data();
 
-        get_all_verifications_ok();
-
         submit_verification(fake_submit_verification1(
             &mock_principals::bob(),
             &fake_canister1(),
         ));
 
         assert_eq!(
-            get_all_verifications(),
-            vec![&fake_verification(fake_submit_verification1(
-                &mock_principals::bob(),
-                &fake_canister1()
-            ))]
+            get_verifications(PaginationInfo {
+                page_index: 1,
+                items_per_page: 3
+            }),
+            fake_pagination(
+                vec![&fake_verification(fake_submit_verification1(
+                    &mock_principals::bob(),
+                    &fake_canister1()
+                ))],
+                &PaginationInfo {
+                    page_index: 1,
+                    items_per_page: 3
+                },
+                1
+            )
         );
 
         submit_verification(fake_submit_verification1(
@@ -96,17 +145,27 @@ mod tests {
         ));
 
         assert_eq!(
-            get_all_verifications(),
-            vec![
-                &fake_verification(fake_submit_verification1(
-                    &mock_principals::bob(),
-                    &fake_canister2()
-                )),
-                &fake_verification(fake_submit_verification1(
-                    &mock_principals::bob(),
-                    &fake_canister1()
-                ))
-            ]
+            get_verifications(PaginationInfo {
+                page_index: 1,
+                items_per_page: 3
+            }),
+            fake_pagination(
+                vec![
+                    &fake_verification(fake_submit_verification1(
+                        &mock_principals::bob(),
+                        &fake_canister2()
+                    )),
+                    &fake_verification(fake_submit_verification1(
+                        &mock_principals::bob(),
+                        &fake_canister1()
+                    )),
+                ],
+                &PaginationInfo {
+                    page_index: 1,
+                    items_per_page: 3
+                },
+                2
+            )
         );
     }
 }
