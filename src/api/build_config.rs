@@ -7,10 +7,10 @@ use crate::service::build_config;
 use crate::service::guard::is_validator;
 use crate::service::model::build_config::{BuildConfig, BuildConfigInfo, SaveBuildConfig};
 
-#[query(name = "getAllBuildConfigs")]
-#[candid_method(query, rename = "getAllBuildConfigs")]
-fn get_all_build_configs() -> Vec<&'static BuildConfig> {
-    build_config::get_all_build_configs(&caller())
+#[query(name = "getBuildConfigs")]
+#[candid_method(query, rename = "getBuildConfigs")]
+fn get_build_configs() -> Vec<&'static BuildConfig> {
+    build_config::get_build_configs(&caller())
 }
 
 #[query(name = "getBuildConfigById")]
@@ -67,7 +67,7 @@ mod tests {
             .with_caller(mock_principals::john())
             .inject();
 
-        assert_eq!(get_all_build_configs().len(), 0);
+        assert_eq!(get_build_configs().len(), 0);
 
         save_build_config(fake_save_build_config1(
             &mock_principals::john(),
@@ -75,7 +75,7 @@ mod tests {
         ));
 
         assert_eq!(
-            get_all_build_configs(),
+            get_build_configs(),
             vec![&fake_build_config_from(fake_save_build_config1(
                 &mock_principals::john(),
                 &fake_canister1()
@@ -88,7 +88,7 @@ mod tests {
         ));
 
         assert_eq!(
-            get_all_build_configs(),
+            get_build_configs(),
             vec![&fake_build_config_from(fake_save_build_config3(
                 &mock_principals::john(),
                 &fake_canister1()
@@ -100,12 +100,12 @@ mod tests {
     fn delete_build_config_ok() {
         init_test_data();
 
-        get_all_build_configs_ok();
+        get_build_configs_ok();
 
         delete_build_config(fake_canister1());
 
         assert_eq!(
-            get_all_build_configs(),
+            get_build_configs(),
             vec![&fake_build_config_from(fake_save_build_config2(
                 &mock_principals::bob(),
                 &fake_canister2()
@@ -115,7 +115,7 @@ mod tests {
         delete_build_config(fake_canister1());
 
         assert_eq!(
-            get_all_build_configs(),
+            get_build_configs(),
             vec![&fake_build_config_from(fake_save_build_config2(
                 &mock_principals::bob(),
                 &fake_canister2()
@@ -124,15 +124,15 @@ mod tests {
 
         delete_build_config(fake_canister2());
 
-        assert_eq!(get_all_build_configs().len(), 0);
+        assert_eq!(get_build_configs().len(), 0);
     }
 
     #[test]
-    fn get_all_build_configs_ok() {
+    fn get_build_configs_ok() {
         init_test_data();
 
         assert_eq!(
-            get_all_build_configs(),
+            get_build_configs(),
             vec![
                 &fake_build_config_from(fake_save_build_config2(
                     &mock_principals::bob(),

@@ -17,10 +17,10 @@ fn delete_admin(admin_id: AdminId) {
     admin::delete_admin(&admin_id)
 }
 
-#[query(name = "getAllAdmins", guard = "is_admin")]
-#[candid_method(query, rename = "getAllAdmins")]
-fn get_all_admins() -> Vec<&'static AdminId> {
-    admin::get_all_admins()
+#[query(name = "getAdmins", guard = "is_admin")]
+#[candid_method(query, rename = "getAdmins")]
+fn get_admins() -> Vec<&'static AdminId> {
+    admin::get_admins()
 }
 
 #[cfg(test)]
@@ -41,15 +41,15 @@ mod tests {
     #[test]
     fn add_admin_ok() {
         init_test_data();
-        assert_eq!(get_all_admins(), vec![&mock_principals::bob()]);
+        assert_eq!(get_admins(), vec![&mock_principals::bob()]);
 
         add_admin(mock_principals::john());
 
-        assert_eq!(get_all_admins().len(), 2);
+        assert_eq!(get_admins().len(), 2);
 
         add_admin(mock_principals::john());
 
-        assert_eq!(get_all_admins().len(), 2);
+        assert_eq!(get_admins().len(), 2);
     }
 
     #[test]
@@ -58,17 +58,17 @@ mod tests {
 
         delete_admin(mock_principals::bob());
 
-        assert_eq!(get_all_admins().len(), 0);
+        assert_eq!(get_admins().len(), 0);
 
         delete_admin(mock_principals::bob());
 
-        assert_eq!(get_all_admins().len(), 0);
+        assert_eq!(get_admins().len(), 0);
     }
 
     #[test]
-    fn get_all_admins_ok() {
+    fn get_admins_ok() {
         init_test_data();
 
-        assert_eq!(get_all_admins(), vec![&mock_principals::bob()]);
+        assert_eq!(get_admins(), vec![&mock_principals::bob()]);
     }
 }
