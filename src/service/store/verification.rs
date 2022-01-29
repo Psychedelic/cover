@@ -133,20 +133,26 @@ mod test {
     fn init_test_data() -> VerificationStore {
         let mut store = VerificationStore::default();
 
-        store.submit_verification(
-            fake_success_verification(&mock_principals::alice(), &fake_canister1()),
-            |canister_id, build_status| {
-                assert_eq!(canister_id, fake_canister1());
-                assert_eq!(build_status, BuildStatus::Success);
-            },
+        assert_eq!(
+            store.register_verification(
+                fake_register_verification(&fake_canister1()),
+                |canister_id, build_status| {
+                    assert_eq!(canister_id, fake_canister1());
+                    assert_eq!(build_status, BuildStatus::Pending);
+                },
+            ),
+            Ok(())
         );
 
-        store.submit_verification(
-            fake_building_verification(&mock_principals::bob(), &fake_canister2()),
-            |canister_id, build_status| {
-                assert_eq!(canister_id, fake_canister2());
-                assert_eq!(build_status, BuildStatus::Building);
-            },
+        assert_eq!(
+            store.register_verification(
+                fake_register_verification(&fake_canister2()),
+                |canister_id, build_status| {
+                    assert_eq!(canister_id, fake_canister2());
+                    assert_eq!(build_status, BuildStatus::Pending);
+                },
+            ),
+            Ok(())
         );
 
         store
@@ -157,96 +163,51 @@ mod test {
         let mut store = init_test_data();
 
         store.submit_verification(
-            fake_pending_verification(&mock_principals::alice(), &fake_canister3()),
+            fake_success_verification(&mock_principals::alice(), &fake_canister3()),
             |canister_id, build_status| {
                 assert_eq!(canister_id, fake_canister3());
-                assert_eq!(build_status, BuildStatus::Pending);
+                assert_eq!(build_status, BuildStatus::Success);
             },
         );
 
-        assert_eq!(store.verifications.len(), 3);
-        assert_eq!(store.records.len(), 3);
-
         assert_eq!(
             store.get_verification_by_canister_id(&fake_canister3()),
-            Some(&fake_verification(fake_pending_verification(
+            Some(&fake_verification(fake_success_verification(
                 &mock_principals::alice(),
                 &fake_canister3()
             )))
         );
 
-        assert_eq!(store.records[0], fake_canister1());
-        assert_eq!(store.records[1], fake_canister2());
-        assert_eq!(store.records[2], fake_canister3());
-
-        assert_eq!(
-            store.get_verification_by_canister_id(&fake_canister2()),
-            Some(&fake_verification(fake_building_verification(
-                &mock_principals::bob(),
-                &fake_canister2()
-            )))
-        );
-
-        assert_eq!(
-            store.get_verification_by_canister_id(&fake_canister1()),
-            Some(&fake_verification(fake_success_verification(
-                &mock_principals::alice(),
-                &fake_canister1()
-            )))
-        );
-
         store.submit_verification(
-            fake_error_verification(&mock_principals::john(), &fake_canister1()),
+            fake_error_verification(&mock_principals::alice(), &fake_canister1()),
             |canister_id, build_status| {
                 assert_eq!(canister_id, fake_canister1());
                 assert_eq!(build_status, BuildStatus::Error);
             },
         );
 
-        assert_eq!(store.verifications.len(), 3);
-        assert_eq!(store.records.len(), 3);
-
         assert_eq!(
             store.get_verification_by_canister_id(&fake_canister1()),
             Some(&fake_verification(fake_error_verification(
-                &mock_principals::john(),
+                &mock_principals::alice(),
                 &fake_canister1()
             )))
         );
-
-        assert_eq!(store.records[0], fake_canister1())
-    }
-
-    #[test]
-    fn get_verification_by_canister_id_ok() {
-        let store = init_test_data();
-
-        assert_eq!(
-            store.get_verification_by_canister_id(&fake_canister2()),
-            Some(&fake_verification(fake_building_verification(
-                &mock_principals::bob(),
-                &fake_canister2()
-            )))
-        );
-
-        assert_eq!(
-            store.get_verification_by_canister_id(&fake_canister3()),
-            None
-        );
-
-        assert_eq!(store.verifications.len(), 2);
     }
 
     #[test]
     fn get_verifications_ok() {
         let mut store = init_test_data();
 
-        store.submit_verification(
-            fake_pending_verification(&mock_principals::john(), &fake_canister3()),
-            |canister_id, build_status| {
-                assert_eq!(canister_id, fake_canister3());
-                assert_eq!(build_status, BuildStatus::Pending);
-            },
+        assert_eq!(
+            store.register_verification(
+                fake_register_verification(&fake_canister3()),
+                |canister_id, build_status| {
+                    assert_eq!(canister_id, fake_canister3());
+                    assert_eq!(build_status, BuildStatus::Pending);
+                },
+            ),
+            Ok(())
         );
 
         assert_eq!(
@@ -271,12 +232,10 @@ mod test {
             }),
             fake_pagination(
                 vec![
-                    &fake_verification(fake_pending_verification(
-                        &mock_principals::john(),
+                    &fake_verification_use_register_model(fake_register_verification(
                         &fake_canister3()
                     )),
-                    &fake_verification(fake_building_verification(
-                        &mock_principals::bob(),
+                    &fake_verification_use_register_model(fake_register_verification(
                         &fake_canister2()
                     ))
                 ],
@@ -294,10 +253,9 @@ mod test {
                 items_per_page: 2
             }),
             fake_pagination(
-                vec![&fake_verification(fake_success_verification(
-                    &mock_principals::alice(),
-                    &fake_canister1()
-                ))],
+                vec![&fake_verification_use_register_model(
+                    fake_register_verification(&fake_canister1())
+                )],
                 &PaginationInfo {
                     page_index: 2,
                     items_per_page: 2
@@ -343,9 +301,20 @@ mod test {
 
         assert_eq!(
             store.register_verification(
-                fake_register_verification(&mock_principals::john(), &fake_canister1()),
+                fake_register_verification(&fake_canister1()),
                 |canister_id, build_status| {
                     assert_eq!(canister_id, fake_canister1());
+                    assert_eq!(build_status, BuildStatus::Pending);
+                },
+            ),
+            Err(Error::BuildInProgress)
+        );
+
+        assert_eq!(
+            store.register_verification(
+                fake_register_verification(&fake_canister3()),
+                |canister_id, build_status| {
+                    assert_eq!(canister_id, fake_canister3());
                     assert_eq!(build_status, BuildStatus::Pending);
                 },
             ),
@@ -353,33 +322,20 @@ mod test {
         );
 
         assert_eq!(
-            store.register_verification(
-                fake_register_verification(&mock_principals::john(), &fake_canister2()),
-                |canister_id, build_status| {
-                    assert_eq!(canister_id, fake_canister2());
-                    assert_eq!(build_status, BuildStatus::Pending);
+            store.get_verifications(&PaginationInfo {
+                page_index: 2,
+                items_per_page: 1
+            }),
+            fake_pagination(
+                vec![&fake_verification_use_register_model(
+                    fake_register_verification(&fake_canister2())
+                )],
+                &PaginationInfo {
+                    page_index: 2,
+                    items_per_page: 1
                 },
-            ),
-            Err(Error::BuildInProgress)
-        );
-
-        store.submit_verification(
-            fake_pending_verification(&mock_principals::john(), &fake_canister3()),
-            |canister_id, build_status| {
-                assert_eq!(canister_id, fake_canister3());
-                assert_eq!(build_status, BuildStatus::Pending);
-            },
-        );
-
-        assert_eq!(
-            store.register_verification(
-                fake_register_verification(&mock_principals::john(), &fake_canister3()),
-                |canister_id, build_status| {
-                    assert_eq!(canister_id, fake_canister3());
-                    assert_eq!(build_status, BuildStatus::Pending);
-                },
-            ),
-            Err(Error::BuildInProgress)
+                store.verifications.len() as u64
+            )
         );
     }
 }

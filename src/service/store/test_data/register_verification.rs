@@ -1,12 +1,10 @@
-use crate::common::types::{CanisterId, CanisterOwnerId};
+use crate::common::types::CanisterId;
 use crate::service::model::verification::RegisterVerification;
+use ic_kit::*;
 
-pub fn fake_register_verification(
-    owner_id: &CanisterOwnerId,
-    canister_id: &CanisterId,
-) -> RegisterVerification {
+pub fn fake_register_verification(canister_id: &CanisterId) -> RegisterVerification {
     RegisterVerification {
-        owner_id: *owner_id,
+        owner_id: mock_principals::bob(),
         canister_id: *canister_id,
         canister_name: "Register".to_string(),
         repo_url: "https://register.com".to_string(),
