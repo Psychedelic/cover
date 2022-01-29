@@ -94,12 +94,12 @@ service : {
   deleteBuilder : (principal) -> ();
   deleteValidator : (principal) -> ();
   getActivities : (PaginationInfo) -> (Pagination) query;
-  getAllAdmins : () -> (vec principal) query;
-  getAllBuildConfigs : () -> (vec BuildConfig) query;
-  getAllBuilders : () -> (vec principal) query;
-  getAllValidators : () -> (vec principal) query;
+  getAdmins : () -> (vec principal) query;
   getBuildConfigById : (principal) -> (opt BuildConfig) query;
   getBuildConfigValidator : (BuildConfigInfo) -> (opt BuildConfig) query;
+  getBuildConfigs : () -> (vec BuildConfig) query;
+  getBuilders : () -> (vec principal) query;
+  getValidators : () -> (vec principal) query;
   getVerificationByCanisterId : (principal) -> (opt Verification) query;
   getVerifications : (PaginationInfo) -> (Pagination_1) query;
   registerVerification : (RegisterVerification) -> (Result);
