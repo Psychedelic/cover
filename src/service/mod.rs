@@ -1,3 +1,4 @@
+use crate::service::store::activity::ActivityStore;
 use ic_kit::ic::{get, get_mut};
 use ic_kit::ic::{stable_restore, stable_store, trap};
 
@@ -7,6 +8,7 @@ use crate::service::store::builder::BuilderStore;
 use crate::service::store::validator::ValidatorStore;
 use crate::service::store::verification::VerificationStore;
 
+pub mod activity;
 pub mod admin;
 pub mod build_config;
 pub mod builder;
@@ -73,6 +75,16 @@ fn validator_store() -> &'static ValidatorStore {
     get()
 }
 
+#[inline]
+fn activity_store_mut() -> &'static mut ActivityStore {
+    get_mut()
+}
+
+#[inline]
+fn activity_store() -> &'static ActivityStore {
+    get()
+}
+
 /// These steps are atomic: If canister_pre_upgrade or canister_post_upgrade trap, the upgrade has failed, and the canister is reverted to the previous state. Otherwise, the upgrade has succeeded, and the old instance is discarded.
 /// fyi: https://sdk.dfinity.org/docs/interface-spec/index.html#system-api
 
@@ -82,6 +94,7 @@ type InternalStableStoreAsRef = (
     &'static BuildConfigStore,
     &'static AdminStore,
     &'static ValidatorStore,
+    &'static ActivityStore,
 );
 
 pub fn pre_upgrade() {
@@ -91,6 +104,7 @@ pub fn pre_upgrade() {
         build_config_store(),
         admin_store(),
         validator_store(),
+        activity_store(),
     )) {
         trap(&format!(
             "An error occurred when saving to stable memory (pre_upgrade): {:?}",
@@ -105,6 +119,7 @@ type InternalStableStore = (
     BuildConfigStore,
     AdminStore,
     ValidatorStore,
+    ActivityStore,
 );
 
 pub fn post_upgrade() {
@@ -116,12 +131,14 @@ pub fn post_upgrade() {
                 build_config_store,
                 admin_store,
                 validator_store,
+                activity_store,
             )| {
                 (*verification_store_mut()) = verification_store;
                 (*builder_store_mut()) = builder_store;
                 (*build_config_store_mut()) = build_config_store;
                 (*admin_store_mut()) = admin_store;
                 (*validator_store_mut()) = validator_store;
+                (*activity_store_mut()) = activity_store
             },
         )
         .unwrap_or_else(|e| {

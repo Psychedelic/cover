@@ -38,4 +38,6 @@ pub struct Verification {
 pub enum BuildStatus {
     Error,
     Success,
+    Pending,
+    Building,
 }

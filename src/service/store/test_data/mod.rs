@@ -1,4 +1,6 @@
 #[cfg(test)]
+pub use activity::*;
+#[cfg(test)]
 pub use build_config::*;
 #[cfg(test)]
 pub use canister::*;
@@ -11,6 +13,7 @@ pub use submit_verification::*;
 #[cfg(test)]
 pub use verification::*;
 
+mod activity;
 mod build_config;
 mod canister;
 mod pagination;
