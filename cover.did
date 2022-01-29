@@ -82,7 +82,7 @@ type Verification = record {
   repo_url : text;
   rust_version : opt text;
   optimize_count : nat8;
-  build_url : text;
+  build_url : opt text;
   wasm_hash : opt text;
 };
 service : {
