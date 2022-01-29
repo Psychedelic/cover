@@ -1,3 +1,8 @@
+type Activity = record {
+  create_at : text;
+  canister_id : principal;
+  build_status : BuildStatus;
+};
 type BuildConfig = record {
   updated_at : text;
   canister_id : principal;
@@ -11,8 +16,18 @@ type BuildConfig = record {
   optimize_count : nat8;
 };
 type BuildConfigInfo = record { canister_id : principal; owner_id : principal };
-type BuildStatus = variant { Error; Success };
+type BuildStatus = variant { Error; Building; Success; Pending };
 type Pagination = record {
+  page_index : nat64;
+  data : vec Activity;
+  total_pages : nat64;
+  total_items : nat64;
+  is_first_page : bool;
+  items_per_page : nat64;
+  is_last_page : bool;
+};
+type PaginationInfo = record { page_index : nat64; items_per_page : nat64 };
+type Pagination_1 = record {
   page_index : nat64;
   data : vec Verification;
   total_pages : nat64;
@@ -21,7 +36,6 @@ type Pagination = record {
   items_per_page : nat64;
   is_last_page : bool;
 };
-type PaginationInfo = record { page_index : nat64; items_per_page : nat64 };
 type SaveBuildConfig = record {
   canister_id : principal;
   dfx_version : text;
@@ -60,6 +74,7 @@ type Verification = record {
   wasm_hash : opt text;
 };
 service : {
+  addActivity : (Activity) -> ();
   addAdmin : (principal) -> ();
   addBuilder : (principal) -> ();
   addValidator : (principal) -> ();
@@ -67,6 +82,7 @@ service : {
   deleteBuildConfig : (principal) -> ();
   deleteBuilder : (principal) -> ();
   deleteValidator : (principal) -> ();
+  getActivities : (PaginationInfo) -> (Pagination) query;
   getAllAdmins : () -> (vec principal) query;
   getAllBuildConfigs : () -> (vec BuildConfig) query;
   getAllBuilders : () -> (vec principal) query;
@@ -74,7 +90,7 @@ service : {
   getBuildConfigById : (principal) -> (opt BuildConfig) query;
   getBuildConfigValidator : (BuildConfigInfo) -> (opt BuildConfig) query;
   getVerificationByCanisterId : (principal) -> (opt Verification) query;
-  getVerifications : (PaginationInfo) -> (Pagination) query;
+  getVerifications : (PaginationInfo) -> (Pagination_1) query;
   saveBuildConfig : (SaveBuildConfig) -> ();
   submitVerification : (SubmitVerification) -> ();
 }
