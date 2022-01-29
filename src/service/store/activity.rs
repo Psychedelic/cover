@@ -1,6 +1,9 @@
+use crate::common::types::CanisterId;
 use crate::service::model::activity::Activity;
 use crate::service::model::pagination::{Pagination, PaginationInfo};
+use crate::service::model::verification::BuildStatus;
 use crate::service::pagination::total_pages;
+use crate::service::time_utils;
 use ic_kit::candid::CandidType;
 use serde::Deserialize;
 use std::collections::LinkedList;
@@ -13,12 +16,16 @@ pub struct ActivityStore {
 }
 
 impl ActivityStore {
-    pub fn add_activity(&mut self, new_activity: Activity) {
+    pub fn add_activity(&mut self, canister_id: CanisterId, build_status: BuildStatus) {
         if self.activities.len() >= MAX_ACTIVITIES_NUMBER {
             self.activities.pop_back();
         }
 
-        self.activities.push_front(new_activity)
+        self.activities.push_front(Activity {
+            canister_id,
+            build_status,
+            create_at: time_utils::now_to_str(),
+        })
     }
 
     pub fn get_activities(&self, pagination_info: &PaginationInfo) -> Pagination<&Activity> {
@@ -63,11 +70,11 @@ mod test {
     fn init_test_data() -> ActivityStore {
         let mut store = ActivityStore::default();
 
-        store.add_activity(fake_activity(&fake_canister1(), BuildStatus::Success));
+        store.add_activity(fake_canister1(), BuildStatus::Success);
 
-        store.add_activity(fake_activity(&fake_canister2(), BuildStatus::Error));
+        store.add_activity(fake_canister2(), BuildStatus::Error);
 
-        store.add_activity(fake_activity(&fake_canister3(), BuildStatus::Pending));
+        store.add_activity(fake_canister3(), BuildStatus::Pending);
 
         store
     }
@@ -76,7 +83,7 @@ mod test {
         let mut store = ActivityStore::default();
 
         for _ in 0..MAX_ACTIVITIES_NUMBER {
-            store.add_activity(fake_activity(&fake_canister1(), BuildStatus::Pending))
+            store.add_activity(fake_canister1(), BuildStatus::Pending)
         }
 
         store
@@ -92,7 +99,7 @@ mod test {
                 items_per_page: 2
             }),
             fake_pagination(
-                vec![&fake_activity(&fake_canister1(), BuildStatus::Success)],
+                vec![&fake_activity(fake_canister1(), BuildStatus::Success)],
                 &PaginationInfo {
                     page_index: 2,
                     items_per_page: 2
@@ -108,9 +115,9 @@ mod test {
             }),
             fake_pagination(
                 vec![
-                    &fake_activity(&fake_canister3(), BuildStatus::Pending),
-                    &fake_activity(&fake_canister2(), BuildStatus::Error),
-                    &fake_activity(&fake_canister1(), BuildStatus::Success)
+                    &fake_activity(fake_canister3(), BuildStatus::Pending),
+                    &fake_activity(fake_canister2(), BuildStatus::Error),
+                    &fake_activity(fake_canister1(), BuildStatus::Success)
                 ],
                 &PaginationInfo {
                     page_index: 1,
@@ -156,7 +163,7 @@ mod test {
                 items_per_page: 1
             }),
             fake_pagination(
-                vec![&fake_activity(&fake_canister3(), BuildStatus::Pending)],
+                vec![&fake_activity(fake_canister3(), BuildStatus::Pending)],
                 &PaginationInfo {
                     page_index: 1,
                     items_per_page: 1
@@ -187,18 +194,18 @@ mod test {
 
         assert_eq!(
             store.activities.front(),
-            Some(&fake_activity(&fake_canister1(), BuildStatus::Pending))
+            Some(&fake_activity(fake_canister1(), BuildStatus::Pending))
         );
 
         assert_eq!(store.activities.len(), MAX_ACTIVITIES_NUMBER);
 
-        store.add_activity(fake_activity(&fake_canister3(), BuildStatus::Success));
+        store.add_activity(fake_canister3(), BuildStatus::Success);
 
         assert_eq!(store.activities.len(), MAX_ACTIVITIES_NUMBER);
 
         assert_eq!(
             store.activities.front(),
-            Some(&fake_activity(&fake_canister3(), BuildStatus::Success))
+            Some(&fake_activity(fake_canister3(), BuildStatus::Success))
         );
 
         assert_eq!(
@@ -207,7 +214,7 @@ mod test {
                 items_per_page: 7,
             }),
             fake_pagination(
-                vec![&fake_activity(&fake_canister1(), BuildStatus::Pending)],
+                vec![&fake_activity(fake_canister1(), BuildStatus::Pending)],
                 &PaginationInfo {
                     page_index: 18,
                     items_per_page: 7,

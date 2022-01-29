@@ -17,10 +17,10 @@ fn delete_builder(builder_id: BuilderId) {
     builder::delete_builder(&builder_id)
 }
 
-#[query(name = "getAllBuilders", guard = "is_admin")]
-#[candid_method(query, rename = "getAllBuilders")]
-fn get_all_builders() -> Vec<&'static BuilderId> {
-    builder::get_all_builders()
+#[query(name = "getBuilders", guard = "is_admin")]
+#[candid_method(query, rename = "getBuilders")]
+fn get_builders() -> Vec<&'static BuilderId> {
+    builder::get_builders()
 }
 
 #[cfg(test)]
@@ -40,34 +40,34 @@ mod tests {
     fn add_builder_ok() {
         init_test_data();
 
-        get_all_builders_ok();
+        get_builders_ok();
 
-        assert_eq!(get_all_builders().len(), 1);
+        assert_eq!(get_builders().len(), 1);
 
         add_builder(mock_principals::john());
 
-        assert_eq!(get_all_builders().len(), 2);
+        assert_eq!(get_builders().len(), 2);
     }
 
     #[test]
-    fn get_all_builders_ok() {
+    fn get_builders_ok() {
         init_test_data();
 
-        assert_eq!(get_all_builders(), vec![&mock_principals::alice()]);
+        assert_eq!(get_builders(), vec![&mock_principals::alice()]);
     }
 
     #[test]
     fn delete_builder_ok() {
         init_test_data();
 
-        get_all_builders_ok();
+        get_builders_ok();
 
         delete_builder(mock_principals::alice());
 
-        assert_eq!(get_all_builders().len(), 0);
+        assert_eq!(get_builders().len(), 0);
 
         delete_builder(mock_principals::john());
 
-        assert_eq!(get_all_builders().len(), 0);
+        assert_eq!(get_builders().len(), 0);
     }
 }

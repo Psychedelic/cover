@@ -9,6 +9,6 @@ pub fn delete_builder(builder_id: &BuilderId) {
     builder_store_mut().delete_builder(builder_id)
 }
 
-pub fn get_all_builders() -> Vec<&'static BuilderId> {
-    builder_store().get_all_builders()
+pub fn get_builders() -> Vec<&'static BuilderId> {
+    builder_store().get_builders()
 }

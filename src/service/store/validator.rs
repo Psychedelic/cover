@@ -23,7 +23,7 @@ impl ValidatorStore {
         self.validators.remove(validator_id);
     }
 
-    pub fn get_all_validators(&self) -> Vec<&ValidatorId> {
+    pub fn get_validators(&self) -> Vec<&ValidatorId> {
         self.validators.iter().collect()
     }
 }
@@ -49,10 +49,10 @@ mod test {
     }
 
     #[test]
-    fn get_all_validators_ok() {
+    fn get_validators_ok() {
         let store = init_test_data();
 
-        assert_eq!(store.get_all_validators(), vec![&mock_principals::bob()])
+        assert_eq!(store.get_validators(), vec![&mock_principals::bob()])
     }
 
     #[test]
@@ -61,11 +61,11 @@ mod test {
 
         store.add_validator(&mock_principals::john());
 
-        assert_eq!(store.get_all_validators().len(), 2);
+        assert_eq!(store.get_validators().len(), 2);
 
         store.add_validator(&mock_principals::john());
 
-        assert_eq!(store.get_all_validators().len(), 2);
+        assert_eq!(store.get_validators().len(), 2);
 
         assert!(store.validator_existed(&mock_principals::john()))
     }
@@ -76,6 +76,6 @@ mod test {
 
         store.delete_validator(&mock_principals::bob());
 
-        assert_eq!(store.get_all_validators().len(), 0);
+        assert_eq!(store.get_validators().len(), 0);
     }
 }

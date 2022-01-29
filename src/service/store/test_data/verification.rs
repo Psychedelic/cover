@@ -8,7 +8,7 @@ pub fn fake_verification(submit_verification: SubmitVerification) -> Verificatio
         repo_url: submit_verification.repo_url,
         commit_hash: submit_verification.commit_hash,
         wasm_hash: submit_verification.wasm_hash,
-        build_url: submit_verification.build_url,
+        build_url: Some(submit_verification.build_url),
         build_status: submit_verification.build_status,
         rust_version: submit_verification.rust_version,
         dfx_version: submit_verification.dfx_version,

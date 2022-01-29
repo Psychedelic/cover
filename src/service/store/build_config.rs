@@ -13,7 +13,7 @@ pub struct BuildConfigStore {
 }
 
 impl BuildConfigStore {
-    pub fn get_all_build_configs(&self, owner_id: &CanisterOwnerId) -> Vec<&BuildConfig> {
+    pub fn get_build_configs(&self, owner_id: &CanisterOwnerId) -> Vec<&BuildConfig> {
         self.configs
             .iter()
             .filter(|((c, _), _)| c == owner_id)
@@ -81,14 +81,14 @@ mod test {
     fn save_config_ok() {
         let mut store = init_test_data();
 
-        get_all_build_configs_ok();
+        get_build_configs_ok();
 
         store.save_build_config(fake_save_build_config2(
             &mock_principals::bob(),
             &fake_canister2(),
         ));
 
-        get_all_build_configs_ok();
+        get_build_configs_ok();
 
         store.save_build_config(fake_save_build_config3(
             &mock_principals::alice(),
@@ -96,7 +96,7 @@ mod test {
         ));
 
         assert_eq!(
-            store.get_all_build_configs(&mock_principals::alice()),
+            store.get_build_configs(&mock_principals::alice()),
             vec![&fake_build_config_from(fake_save_build_config3(
                 &mock_principals::alice(),
                 &fake_canister1()
@@ -105,11 +105,11 @@ mod test {
     }
 
     #[test]
-    fn get_all_build_configs_ok() {
+    fn get_build_configs_ok() {
         let store = init_test_data();
 
         assert_eq!(
-            store.get_all_build_configs(&mock_principals::bob()),
+            store.get_build_configs(&mock_principals::bob()),
             vec![
                 &fake_build_config_from(fake_save_build_config2(
                     &mock_principals::bob(),
@@ -122,10 +122,7 @@ mod test {
             ]
         );
 
-        assert_eq!(
-            store.get_all_build_configs(&mock_principals::alice()).len(),
-            0
-        );
+        assert_eq!(store.get_build_configs(&mock_principals::alice()).len(), 0);
     }
 
     #[test]
@@ -158,7 +155,7 @@ mod test {
         store.delete_build_config(&mock_principals::bob(), &fake_canister1());
 
         assert_eq!(
-            store.get_all_build_configs(&mock_principals::bob()),
+            store.get_build_configs(&mock_principals::bob()),
             vec![&fake_build_config_from(fake_save_build_config2(
                 &mock_principals::bob(),
                 &fake_canister2()
@@ -168,7 +165,7 @@ mod test {
         store.delete_build_config(&mock_principals::john(), &fake_canister1());
 
         assert_eq!(
-            store.get_all_build_configs(&mock_principals::bob()),
+            store.get_build_configs(&mock_principals::bob()),
             vec![&fake_build_config_from(fake_save_build_config2(
                 &mock_principals::bob(),
                 &fake_canister2()
