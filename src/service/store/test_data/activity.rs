@@ -5,7 +5,7 @@ use crate::service::time_utils;
 
 pub fn fake_activity(canister_id: CanisterId, status: BuildStatus) -> Activity {
     Activity {
-        canister_id: canister_id,
+        canister_id,
         build_status: status,
         create_at: time_utils::now_to_str(),
     }
