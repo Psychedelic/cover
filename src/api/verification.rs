@@ -131,7 +131,7 @@ mod tests {
                 items_per_page: 2
             }),
             fake_pagination(
-                vec![&fake_activity(&fake_canister1(), BuildStatus::Success)],
+                vec![&fake_activity(fake_canister1(), BuildStatus::Success)],
                 &PaginationInfo {
                     page_index: 1,
                     items_per_page: 2
@@ -151,7 +151,7 @@ mod tests {
                 items_per_page: 1
             }),
             fake_pagination(
-                vec![&fake_activity(&fake_canister1(), BuildStatus::Success)],
+                vec![&fake_activity(fake_canister1(), BuildStatus::Success)],
                 &PaginationInfo {
                     page_index: 2,
                     items_per_page: 1
@@ -189,7 +189,7 @@ mod tests {
                 items_per_page: 2
             }),
             fake_pagination(
-                vec![&fake_activity(&fake_canister1(), BuildStatus::Success)],
+                vec![&fake_activity(fake_canister1(), BuildStatus::Success)],
                 &PaginationInfo {
                     page_index: 2,
                     items_per_page: 2
@@ -242,8 +242,8 @@ mod tests {
             }),
             fake_pagination(
                 vec![
-                    &fake_activity(&fake_canister1(), BuildStatus::Pending),
-                    &fake_activity(&fake_canister1(), BuildStatus::Success)
+                    &fake_activity(fake_canister1(), BuildStatus::Pending),
+                    &fake_activity(fake_canister1(), BuildStatus::Success)
                 ],
                 &PaginationInfo {
                     page_index: 1,
@@ -268,8 +268,8 @@ mod tests {
             }),
             fake_pagination(
                 vec![
-                    &fake_activity(&fake_canister1(), BuildStatus::Pending),
-                    &fake_activity(&fake_canister1(), BuildStatus::Success)
+                    &fake_activity(fake_canister1(), BuildStatus::Pending),
+                    &fake_activity(fake_canister1(), BuildStatus::Success)
                 ],
                 &PaginationInfo {
                     page_index: 1,

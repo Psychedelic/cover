@@ -19,9 +19,13 @@ pub struct VerificationStore {
 }
 
 impl VerificationStore {
-    pub fn submit_verification(&mut self, new_verification: SubmitVerification) {
-        let now = time_utils::now_to_str();
+    pub fn submit_verification<F: Fn(CanisterId, BuildStatus)>(
+        &mut self,
+        new_verification: SubmitVerification,
+        activity_handler: F,
+    ) {
         let canister_id = new_verification.canister_id;
+        let build_status = new_verification.build_status;
         self.verifications
             .insert(
                 new_verification.canister_id,
@@ -31,17 +35,18 @@ impl VerificationStore {
                     repo_url: new_verification.repo_url,
                     commit_hash: new_verification.commit_hash,
                     wasm_hash: new_verification.wasm_hash,
-                    build_url: new_verification.build_url,
+                    build_url: Some(new_verification.build_url),
                     build_status: new_verification.build_status,
                     rust_version: new_verification.rust_version,
                     dfx_version: new_verification.dfx_version,
                     optimize_count: new_verification.optimize_count,
                     updated_by: new_verification.owner_id,
-                    updated_at: now,
+                    updated_at: time_utils::now_to_str(),
                 },
             )
             .is_none()
             .then(|| self.records.push(canister_id));
+        activity_handler(canister_id, build_status);
     }
 
     pub fn get_verification_by_canister_id(
@@ -80,34 +85,38 @@ impl VerificationStore {
         Pagination::of(data, pagination_info, total_items)
     }
 
-    pub fn register_verification(
+    pub fn register_verification<F: Fn(CanisterId, BuildStatus)>(
         &mut self,
         register_verification: RegisterVerification,
+        activity_handler: F,
     ) -> Result<(), Error> {
-        let result = self
-            .verifications
+        self.verifications
             .get_mut(&register_verification.canister_id)
             .map(|verification| match verification.build_status {
                 BuildStatus::Pending | BuildStatus::Building => Err(Error::BuildInProgress),
                 BuildStatus::Error | BuildStatus::Success => Ok(()),
             })
-            .unwrap_or_else(|| Ok(()));
-        result.is_ok().then(|| {
-            self.submit_verification(SubmitVerification {
-                owner_id: register_verification.owner_id,
-                canister_id: register_verification.canister_id,
-                canister_name: register_verification.canister_name,
-                repo_url: register_verification.repo_url,
-                commit_hash: register_verification.commit_hash,
-                wasm_hash: None,
-                build_url: "".to_string(),
-                build_status: BuildStatus::Pending,
-                rust_version: register_verification.rust_version,
-                dfx_version: register_verification.dfx_version,
-                optimize_count: register_verification.optimize_count,
+            .unwrap_or_else(|| Ok(()))
+            .map(|_| {
+                self.verifications.insert(
+                    register_verification.canister_id,
+                    Verification {
+                        canister_id: register_verification.canister_id,
+                        canister_name: register_verification.canister_name,
+                        repo_url: register_verification.repo_url,
+                        commit_hash: register_verification.commit_hash,
+                        wasm_hash: None,
+                        build_url: None,
+                        build_status: BuildStatus::Pending,
+                        rust_version: register_verification.rust_version,
+                        dfx_version: register_verification.dfx_version,
+                        optimize_count: register_verification.optimize_count,
+                        updated_by: register_verification.owner_id,
+                        updated_at: time_utils::now_to_str(),
+                    },
+                );
+                activity_handler(register_verification.canister_id, BuildStatus::Pending)
             })
-        });
-        result
     }
 }
 
@@ -122,15 +131,21 @@ mod test {
     fn init_test_data() -> VerificationStore {
         let mut store = VerificationStore::default();
 
-        store.submit_verification(fake_success_verification(
-            &mock_principals::alice(),
-            &fake_canister1(),
-        ));
+        store.submit_verification(
+            fake_success_verification(&mock_principals::alice(), &fake_canister1()),
+            |canister_id, build_status| {
+                assert_eq!(canister_id, fake_canister1());
+                assert_eq!(build_status, BuildStatus::Success);
+            },
+        );
 
-        store.submit_verification(fake_building_verification(
-            &mock_principals::bob(),
-            &fake_canister2(),
-        ));
+        store.submit_verification(
+            fake_building_verification(&mock_principals::bob(), &fake_canister2()),
+            |canister_id, build_status| {
+                assert_eq!(canister_id, fake_canister2());
+                assert_eq!(build_status, BuildStatus::Building);
+            },
+        );
 
         store
     }
@@ -139,10 +154,13 @@ mod test {
     fn submit_verification_ok() {
         let mut store = init_test_data();
 
-        store.submit_verification(fake_pending_verification(
-            &mock_principals::alice(),
-            &fake_canister3(),
-        ));
+        store.submit_verification(
+            fake_pending_verification(&mock_principals::alice(), &fake_canister3()),
+            |canister_id, build_status| {
+                assert_eq!(canister_id, fake_canister3());
+                assert_eq!(build_status, BuildStatus::Pending);
+            },
+        );
 
         assert_eq!(store.verifications.len(), 3);
         assert_eq!(store.records.len(), 3);
@@ -175,10 +193,13 @@ mod test {
             )))
         );
 
-        store.submit_verification(fake_error_verification(
-            &mock_principals::john(),
-            &fake_canister1(),
-        ));
+        store.submit_verification(
+            fake_error_verification(&mock_principals::john(), &fake_canister1()),
+            |canister_id, build_status| {
+                assert_eq!(canister_id, fake_canister1());
+                assert_eq!(build_status, BuildStatus::Error);
+            },
+        );
 
         assert_eq!(store.verifications.len(), 3);
         assert_eq!(store.records.len(), 3);
@@ -218,10 +239,13 @@ mod test {
     fn get_verifications_ok() {
         let mut store = init_test_data();
 
-        store.submit_verification(fake_pending_verification(
-            &mock_principals::john(),
-            &fake_canister3(),
-        ));
+        store.submit_verification(
+            fake_pending_verification(&mock_principals::john(), &fake_canister3()),
+            |canister_id, build_status| {
+                assert_eq!(canister_id, fake_canister3());
+                assert_eq!(build_status, BuildStatus::Pending);
+            },
+        );
 
         assert_eq!(
             store.get_verifications(&PaginationInfo {
@@ -316,31 +340,43 @@ mod test {
         let mut store = init_test_data();
 
         assert_eq!(
-            store.register_verification(fake_register_verification(
-                &mock_principals::john(),
-                &fake_canister1()
-            )),
+            store.register_verification(
+                fake_register_verification(&mock_principals::john(), &fake_canister1()),
+                |canister_id, build_status| {
+                    assert_eq!(canister_id, fake_canister1());
+                    assert_eq!(build_status, BuildStatus::Pending);
+                },
+            ),
             Ok(())
         );
 
         assert_eq!(
-            store.register_verification(fake_register_verification(
-                &mock_principals::john(),
-                &fake_canister2()
-            )),
+            store.register_verification(
+                fake_register_verification(&mock_principals::john(), &fake_canister2()),
+                |canister_id, build_status| {
+                    assert_eq!(canister_id, fake_canister2());
+                    assert_eq!(build_status, BuildStatus::Pending);
+                },
+            ),
             Err(Error::BuildInProgress)
         );
 
-        store.submit_verification(fake_pending_verification(
-            &mock_principals::john(),
-            &fake_canister3(),
-        ));
+        store.submit_verification(
+            fake_pending_verification(&mock_principals::john(), &fake_canister3()),
+            |canister_id, build_status| {
+                assert_eq!(canister_id, fake_canister3());
+                assert_eq!(build_status, BuildStatus::Pending);
+            },
+        );
 
         assert_eq!(
-            store.register_verification(fake_register_verification(
-                &mock_principals::john(),
-                &fake_canister3()
-            )),
+            store.register_verification(
+                fake_register_verification(&mock_principals::john(), &fake_canister3()),
+                |canister_id, build_status| {
+                    assert_eq!(canister_id, fake_canister3());
+                    assert_eq!(build_status, BuildStatus::Pending);
+                },
+            ),
             Err(Error::BuildInProgress)
         );
     }

@@ -37,7 +37,7 @@ pub struct Verification {
     pub repo_url: String,
     pub commit_hash: String,
     pub wasm_hash: Option<String>,
-    pub build_url: String,
+    pub build_url: Option<String>,
     pub build_status: BuildStatus,
     pub rust_version: Option<String>,
     pub dfx_version: String,
