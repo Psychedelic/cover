@@ -11,6 +11,7 @@ fn main() {
     use crate::common::types::*;
     use crate::service::model::activity::*;
     use crate::service::model::build_config::*;
+    use crate::service::model::error::*;
     use crate::service::model::pagination::*;
     use crate::service::model::verification::*;
 

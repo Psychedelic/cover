@@ -1,6 +1,9 @@
+use crate::common::types::CanisterId;
 use crate::service::model::activity::Activity;
 use crate::service::model::pagination::{Pagination, PaginationInfo};
+use crate::service::model::verification::BuildStatus;
 use crate::service::pagination::total_pages;
+use crate::service::time_utils;
 use ic_kit::candid::CandidType;
 use serde::Deserialize;
 use std::collections::LinkedList;
@@ -13,12 +16,16 @@ pub struct ActivityStore {
 }
 
 impl ActivityStore {
-    pub fn add_activity(&mut self, new_activity: Activity) {
+    pub fn add_activity(&mut self, canister_id: &CanisterId, build_status: &BuildStatus) {
         if self.activities.len() >= MAX_ACTIVITIES_NUMBER {
             self.activities.pop_back();
         }
 
-        self.activities.push_front(new_activity)
+        self.activities.push_front(Activity {
+            canister_id: *canister_id,
+            build_status: *build_status,
+            create_at: time_utils::now_to_str(),
+        })
     }
 
     pub fn get_activities(&self, pagination_info: &PaginationInfo) -> Pagination<&Activity> {
@@ -63,11 +70,11 @@ mod test {
     fn init_test_data() -> ActivityStore {
         let mut store = ActivityStore::default();
 
-        store.add_activity(fake_activity(&fake_canister1(), BuildStatus::Success));
+        store.add_activity(&fake_canister1(), &BuildStatus::Success);
 
-        store.add_activity(fake_activity(&fake_canister2(), BuildStatus::Error));
+        store.add_activity(&fake_canister2(), &BuildStatus::Error);
 
-        store.add_activity(fake_activity(&fake_canister3(), BuildStatus::Pending));
+        store.add_activity(&fake_canister3(), &BuildStatus::Pending);
 
         store
     }
@@ -76,7 +83,7 @@ mod test {
         let mut store = ActivityStore::default();
 
         for _ in 0..MAX_ACTIVITIES_NUMBER {
-            store.add_activity(fake_activity(&fake_canister1(), BuildStatus::Pending))
+            store.add_activity(&fake_canister1(), &BuildStatus::Pending)
         }
 
         store
@@ -192,7 +199,7 @@ mod test {
 
         assert_eq!(store.activities.len(), MAX_ACTIVITIES_NUMBER);
 
-        store.add_activity(fake_activity(&fake_canister3(), BuildStatus::Success));
+        store.add_activity(&fake_canister3(), &BuildStatus::Success);
 
         assert_eq!(store.activities.len(), MAX_ACTIVITIES_NUMBER);
 

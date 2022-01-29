@@ -17,6 +17,7 @@ type BuildConfig = record {
 };
 type BuildConfigInfo = record { canister_id : principal; owner_id : principal };
 type BuildStatus = variant { Error; Building; Success; Pending };
+type Error = variant { BuildInProgress };
 type Pagination = record {
   page_index : nat64;
   data : vec Activity;
@@ -36,6 +37,17 @@ type Pagination_1 = record {
   items_per_page : nat64;
   is_last_page : bool;
 };
+type RegisterVerification = record {
+  canister_id : principal;
+  dfx_version : text;
+  owner_id : principal;
+  canister_name : text;
+  commit_hash : text;
+  repo_url : text;
+  rust_version : opt text;
+  optimize_count : nat8;
+};
+type Result = variant { Ok; Err : Error };
 type SaveBuildConfig = record {
   canister_id : principal;
   dfx_version : text;
@@ -74,7 +86,6 @@ type Verification = record {
   wasm_hash : opt text;
 };
 service : {
-  addActivity : (Activity) -> ();
   addAdmin : (principal) -> ();
   addBuilder : (principal) -> ();
   addValidator : (principal) -> ();
@@ -91,6 +102,7 @@ service : {
   getBuildConfigValidator : (BuildConfigInfo) -> (opt BuildConfig) query;
   getVerificationByCanisterId : (principal) -> (opt Verification) query;
   getVerifications : (PaginationInfo) -> (Pagination_1) query;
+  registerVerification : (RegisterVerification) -> (Result);
   saveBuildConfig : (SaveBuildConfig) -> ();
   submitVerification : (SubmitVerification) -> ();
 }

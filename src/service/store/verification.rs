@@ -4,8 +4,11 @@ use ic_kit::candid::CandidType;
 use serde::Deserialize;
 
 use crate::common::types::CanisterId;
+use crate::service::model::error::Error;
 use crate::service::model::pagination::{Pagination, PaginationInfo};
-use crate::service::model::verification::{SubmitVerification, Verification};
+use crate::service::model::verification::{
+    BuildStatus, RegisterVerification, SubmitVerification, Verification,
+};
 use crate::service::pagination::total_pages;
 use crate::service::time_utils;
 
@@ -76,6 +79,36 @@ impl VerificationStore {
 
         Pagination::of(data, pagination_info, total_items)
     }
+
+    pub fn register_verification(
+        &mut self,
+        register_verification: RegisterVerification,
+    ) -> Result<(), Error> {
+        let result = self
+            .verifications
+            .get_mut(&register_verification.canister_id)
+            .map(|verification| match verification.build_status {
+                BuildStatus::Pending | BuildStatus::Building => Err(Error::BuildInProgress),
+                BuildStatus::Error | BuildStatus::Success => Ok(()),
+            })
+            .unwrap_or_else(|| Ok(()));
+        result.is_ok().then(|| {
+            self.submit_verification(SubmitVerification {
+                owner_id: register_verification.owner_id,
+                canister_id: register_verification.canister_id,
+                canister_name: register_verification.canister_name,
+                repo_url: register_verification.repo_url,
+                commit_hash: register_verification.commit_hash,
+                wasm_hash: None,
+                build_url: "".to_string(),
+                build_status: BuildStatus::Pending,
+                rust_version: register_verification.rust_version,
+                dfx_version: register_verification.dfx_version,
+                optimize_count: register_verification.optimize_count,
+            })
+        });
+        result
+    }
 }
 
 #[cfg(test)]
@@ -89,12 +122,12 @@ mod test {
     fn init_test_data() -> VerificationStore {
         let mut store = VerificationStore::default();
 
-        store.submit_verification(fake_submit_verification1(
+        store.submit_verification(fake_success_verification(
             &mock_principals::alice(),
             &fake_canister1(),
         ));
 
-        store.submit_verification(fake_submit_verification2(
+        store.submit_verification(fake_building_verification(
             &mock_principals::bob(),
             &fake_canister2(),
         ));
@@ -106,7 +139,7 @@ mod test {
     fn submit_verification_ok() {
         let mut store = init_test_data();
 
-        store.submit_verification(fake_submit_verification3(
+        store.submit_verification(fake_pending_verification(
             &mock_principals::alice(),
             &fake_canister3(),
         ));
@@ -116,7 +149,7 @@ mod test {
 
         assert_eq!(
             store.get_verification_by_canister_id(&fake_canister3()),
-            Some(&fake_verification(fake_submit_verification3(
+            Some(&fake_verification(fake_pending_verification(
                 &mock_principals::alice(),
                 &fake_canister3()
             )))
@@ -128,7 +161,7 @@ mod test {
 
         assert_eq!(
             store.get_verification_by_canister_id(&fake_canister2()),
-            Some(&fake_verification(fake_submit_verification2(
+            Some(&fake_verification(fake_building_verification(
                 &mock_principals::bob(),
                 &fake_canister2()
             )))
@@ -136,13 +169,13 @@ mod test {
 
         assert_eq!(
             store.get_verification_by_canister_id(&fake_canister1()),
-            Some(&fake_verification(fake_submit_verification1(
+            Some(&fake_verification(fake_success_verification(
                 &mock_principals::alice(),
                 &fake_canister1()
             )))
         );
 
-        store.submit_verification(fake_submit_verification2(
+        store.submit_verification(fake_error_verification(
             &mock_principals::john(),
             &fake_canister1(),
         ));
@@ -152,7 +185,7 @@ mod test {
 
         assert_eq!(
             store.get_verification_by_canister_id(&fake_canister1()),
-            Some(&fake_verification(fake_submit_verification2(
+            Some(&fake_verification(fake_error_verification(
                 &mock_principals::john(),
                 &fake_canister1()
             )))
@@ -167,7 +200,7 @@ mod test {
 
         assert_eq!(
             store.get_verification_by_canister_id(&fake_canister2()),
-            Some(&fake_verification(fake_submit_verification2(
+            Some(&fake_verification(fake_building_verification(
                 &mock_principals::bob(),
                 &fake_canister2()
             )))
@@ -185,7 +218,7 @@ mod test {
     fn get_verifications_ok() {
         let mut store = init_test_data();
 
-        store.submit_verification(fake_submit_verification3(
+        store.submit_verification(fake_pending_verification(
             &mock_principals::john(),
             &fake_canister3(),
         ));
@@ -212,11 +245,11 @@ mod test {
             }),
             fake_pagination(
                 vec![
-                    &fake_verification(fake_submit_verification3(
+                    &fake_verification(fake_pending_verification(
                         &mock_principals::john(),
                         &fake_canister3()
                     )),
-                    &fake_verification(fake_submit_verification2(
+                    &fake_verification(fake_building_verification(
                         &mock_principals::bob(),
                         &fake_canister2()
                     ))
@@ -235,7 +268,7 @@ mod test {
                 items_per_page: 2
             }),
             fake_pagination(
-                vec![&fake_verification(fake_submit_verification1(
+                vec![&fake_verification(fake_success_verification(
                     &mock_principals::alice(),
                     &fake_canister1()
                 ))],
@@ -275,6 +308,40 @@ mod test {
                 },
                 store.verifications.len() as u64
             )
+        );
+    }
+
+    #[test]
+    fn register_verification_ok() {
+        let mut store = init_test_data();
+
+        assert_eq!(
+            store.register_verification(fake_register_verification(
+                &mock_principals::john(),
+                &fake_canister1()
+            )),
+            Ok(())
+        );
+
+        assert_eq!(
+            store.register_verification(fake_register_verification(
+                &mock_principals::john(),
+                &fake_canister2()
+            )),
+            Err(Error::BuildInProgress)
+        );
+
+        store.submit_verification(fake_pending_verification(
+            &mock_principals::john(),
+            &fake_canister3(),
+        ));
+
+        assert_eq!(
+            store.register_verification(fake_register_verification(
+                &mock_principals::john(),
+                &fake_canister3()
+            )),
+            Err(Error::BuildInProgress)
         );
     }
 }
