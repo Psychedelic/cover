@@ -26,26 +26,23 @@ impl VerificationStore {
     ) {
         let canister_id = new_verification.canister_id;
         let build_status = new_verification.build_status;
-        self.verifications
-            .insert(
-                new_verification.canister_id,
-                Verification {
-                    canister_id: new_verification.canister_id,
-                    canister_name: new_verification.canister_name,
-                    repo_url: new_verification.repo_url,
-                    commit_hash: new_verification.commit_hash,
-                    wasm_hash: new_verification.wasm_hash,
-                    build_url: Some(new_verification.build_url),
-                    build_status: new_verification.build_status,
-                    rust_version: new_verification.rust_version,
-                    dfx_version: new_verification.dfx_version,
-                    optimize_count: new_verification.optimize_count,
-                    updated_by: new_verification.owner_id,
-                    updated_at: time_utils::now_to_str(),
-                },
-            )
-            .is_none()
-            .then(|| self.records.push(canister_id));
+        self.verifications.insert(
+            new_verification.canister_id,
+            Verification {
+                canister_id: new_verification.canister_id,
+                canister_name: new_verification.canister_name,
+                repo_url: new_verification.repo_url,
+                commit_hash: new_verification.commit_hash,
+                wasm_hash: new_verification.wasm_hash,
+                build_url: Some(new_verification.build_url),
+                build_status: new_verification.build_status,
+                rust_version: new_verification.rust_version,
+                dfx_version: new_verification.dfx_version,
+                optimize_count: new_verification.optimize_count,
+                updated_by: new_verification.owner_id,
+                updated_at: time_utils::now_to_str(),
+            },
+        );
         activity_handler(canister_id, build_status);
     }
 
@@ -90,6 +87,8 @@ impl VerificationStore {
         register_verification: RegisterVerification,
         activity_handler: F,
     ) -> Result<(), Error> {
+        let canister_id = register_verification.canister_id;
+        let build_status = BuildStatus::Pending;
         self.verifications
             .get_mut(&register_verification.canister_id)
             .map(|verification| match verification.build_status {
@@ -98,24 +97,27 @@ impl VerificationStore {
             })
             .unwrap_or_else(|| Ok(()))
             .map(|_| {
-                self.verifications.insert(
-                    register_verification.canister_id,
-                    Verification {
-                        canister_id: register_verification.canister_id,
-                        canister_name: register_verification.canister_name,
-                        repo_url: register_verification.repo_url,
-                        commit_hash: register_verification.commit_hash,
-                        wasm_hash: None,
-                        build_url: None,
-                        build_status: BuildStatus::Pending,
-                        rust_version: register_verification.rust_version,
-                        dfx_version: register_verification.dfx_version,
-                        optimize_count: register_verification.optimize_count,
-                        updated_by: register_verification.owner_id,
-                        updated_at: time_utils::now_to_str(),
-                    },
-                );
-                activity_handler(register_verification.canister_id, BuildStatus::Pending)
+                self.verifications
+                    .insert(
+                        register_verification.canister_id,
+                        Verification {
+                            canister_id: register_verification.canister_id,
+                            canister_name: register_verification.canister_name,
+                            repo_url: register_verification.repo_url,
+                            commit_hash: register_verification.commit_hash,
+                            wasm_hash: None,
+                            build_url: None,
+                            build_status,
+                            rust_version: register_verification.rust_version,
+                            dfx_version: register_verification.dfx_version,
+                            optimize_count: register_verification.optimize_count,
+                            updated_by: register_verification.owner_id,
+                            updated_at: time_utils::now_to_str(),
+                        },
+                    )
+                    .is_none()
+                    .then(|| self.records.push(canister_id));
+                activity_handler(canister_id, build_status)
             })
     }
 }
