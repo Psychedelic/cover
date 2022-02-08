@@ -53,6 +53,10 @@ impl VerificationStore {
         self.verifications.get(canister_id)
     }
 
+    pub fn get_all(&self) -> Vec<&Verification> {
+        self.verifications.iter().map(|(_, v)| v).collect()
+    }
+
     pub fn get_verifications(&self, pagination_info: &PaginationInfo) -> Pagination<&Verification> {
         let total_items = self.records.len() as u64;
         let total_pages = total_pages(total_items, pagination_info.items_per_page);

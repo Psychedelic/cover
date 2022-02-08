@@ -13,6 +13,7 @@ fn main() {
     use crate::service::model::build_config::*;
     use crate::service::model::error::*;
     use crate::service::model::pagination::*;
+    use crate::service::model::stats::*;
     use crate::service::model::verification::*;
 
     ic_kit::candid::export_service!();
