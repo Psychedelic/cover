@@ -17,6 +17,7 @@ type BuildConfig = record {
 };
 type BuildConfigInfo = record { canister_id : principal; owner_id : principal };
 type BuildStatus = variant { Error; Building; Success; Pending };
+type CanisterType = variant { Rust; Motoko };
 type Error = variant { BuildInProgress };
 type Pagination = record {
   page_index : nat64;
@@ -43,6 +44,7 @@ type RegisterVerification = record {
   owner_id : principal;
   canister_name : text;
   commit_hash : text;
+  canister_type : opt CanisterType;
   repo_url : text;
   rust_version : opt text;
   optimize_count : nat8;
@@ -58,6 +60,15 @@ type SaveBuildConfig = record {
   rust_version : opt text;
   optimize_count : nat8;
 };
+type Stats = record {
+  build_error_count : nat64;
+  build_in_progress_count : nat64;
+  rust_canisters_count : nat64;
+  build_pending_count : nat64;
+  motoko_canisters_count : nat64;
+  total_canisters : nat64;
+  build_success_count : nat64;
+};
 type SubmitVerification = record {
   canister_id : principal;
   dfx_version : text;
@@ -65,6 +76,7 @@ type SubmitVerification = record {
   build_status : BuildStatus;
   canister_name : text;
   commit_hash : text;
+  canister_type : opt CanisterType;
   repo_url : text;
   rust_version : opt text;
   optimize_count : nat8;
@@ -79,6 +91,7 @@ type Verification = record {
   build_status : BuildStatus;
   canister_name : text;
   commit_hash : text;
+  canister_type : opt CanisterType;
   repo_url : text;
   rust_version : opt text;
   optimize_count : nat8;
@@ -99,6 +112,7 @@ service : {
   getBuildConfigValidator : (BuildConfigInfo) -> (opt BuildConfig) query;
   getBuildConfigs : () -> (vec BuildConfig) query;
   getBuilders : () -> (vec principal) query;
+  getStats : () -> (Stats) query;
   getValidators : () -> (vec principal) query;
   getVerificationByCanisterId : (principal) -> (opt Verification) query;
   getVerifications : (PaginationInfo) -> (Pagination_1) query;

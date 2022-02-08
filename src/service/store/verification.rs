@@ -37,6 +37,7 @@ impl VerificationStore {
                 build_url: Some(new_verification.build_url),
                 build_status: new_verification.build_status,
                 rust_version: new_verification.rust_version,
+                canister_type: new_verification.canister_type,
                 dfx_version: new_verification.dfx_version,
                 optimize_count: new_verification.optimize_count,
                 updated_by: new_verification.owner_id,
@@ -51,6 +52,10 @@ impl VerificationStore {
         canister_id: &CanisterId,
     ) -> Option<&Verification> {
         self.verifications.get(canister_id)
+    }
+
+    pub fn get_all(&self) -> Vec<&Verification> {
+        self.verifications.iter().map(|(_, v)| v).collect()
     }
 
     pub fn get_verifications(&self, pagination_info: &PaginationInfo) -> Pagination<&Verification> {
@@ -108,6 +113,7 @@ impl VerificationStore {
                             wasm_hash: None,
                             build_url: None,
                             build_status,
+                            canister_type: register_verification.canister_type,
                             rust_version: register_verification.rust_version,
                             dfx_version: register_verification.dfx_version,
                             optimize_count: register_verification.optimize_count,
