@@ -21,13 +21,3 @@ RUN cargo install ic-cdk-optimizer
 # Replace your dfx version here
 ENV DFX_VERSION=0.8.4
 RUN sh -ci "$(curl -fsSL https://sdk.dfinity.org/install.sh)"
-
-# OR mount volumne
-COPY . /canister
-WORKDIR /canister
-
-# Example: Build and Optimize
-RUN dfx build --network ic cover_test
-RUN ic-cdk-optimizer .dfx/ic/canisters/cover_test/cover_test.wasm \
-            -o .dfx/ic/canisters/cover_test/cover_test.wasm
-RUN openssl dgst -sha256 .dfx/ic/canisters/cover_test/cover_test.wasm | awk '/.+$/{print "0x"$2}' > wasm_hash
