@@ -37,7 +37,7 @@ impl VerificationStore {
                 build_url: Some(new_verification.build_url),
                 build_status: new_verification.build_status,
                 rust_version: new_verification.rust_version,
-                canister_type: Option::from(new_verification.canister_type),
+                canister_type: new_verification.canister_type,
                 dfx_version: new_verification.dfx_version,
                 optimize_count: new_verification.optimize_count,
                 updated_by: new_verification.owner_id,

@@ -76,7 +76,7 @@ type SubmitVerification = record {
   build_status : BuildStatus;
   canister_name : text;
   commit_hash : text;
-  canister_type : CanisterType;
+  canister_type : opt CanisterType;
   repo_url : text;
   rust_version : opt text;
   optimize_count : nat8;

@@ -13,7 +13,7 @@ pub struct SubmitVerification {
     pub wasm_hash: Option<String>,
     pub build_url: String,
     pub build_status: BuildStatus,
-    pub canister_type: CanisterType,
+    pub canister_type: Option<CanisterType>,
     pub rust_version: Option<String>,
     pub dfx_version: String,
     pub optimize_count: u8,

@@ -12,7 +12,7 @@ pub fn fake_verification(submit_verification: SubmitVerification) -> Verificatio
         wasm_hash: submit_verification.wasm_hash,
         build_url: Some(submit_verification.build_url),
         build_status: submit_verification.build_status,
-        canister_type: Option::from(submit_verification.canister_type),
+        canister_type: submit_verification.canister_type,
         rust_version: submit_verification.rust_version,
         dfx_version: submit_verification.dfx_version,
         optimize_count: submit_verification.optimize_count,
