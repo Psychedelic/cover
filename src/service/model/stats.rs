@@ -1,6 +1,6 @@
 use ic_kit::candid::CandidType;
 
-#[derive(CandidType)]
+#[derive(CandidType, Debug, PartialEq)]
 pub struct Stats {
     pub total_canisters: usize,
     pub motoko_canisters_count: usize,

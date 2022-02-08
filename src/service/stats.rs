@@ -1,5 +1,5 @@
 use crate::service::model::stats::Stats;
-use crate::service::model::verification::BuildStatus;
+use crate::service::model::verification::{BuildStatus, CanisterType};
 use crate::service::verification_store;
 
 pub fn get_stats() -> Stats {
@@ -14,11 +14,13 @@ pub fn get_stats() -> Stats {
         build_success_count: 0,
     };
     for v in verifications {
-        if v.rust_version.is_some() {
-            stats.rust_canisters_count += 1;
-        } else {
-            stats.motoko_canisters_count += 1;
-        }
+        if let Some(canister_type) = v.canister_type {
+            match canister_type {
+                CanisterType::Rust => stats.rust_canisters_count += 1,
+                CanisterType::Motoko => stats.motoko_canisters_count += 1,
+            }
+        };
+
         match v.build_status {
             BuildStatus::Pending => stats.build_pending_count += 1,
             BuildStatus::Building => stats.build_in_progress_count += 1,
@@ -26,5 +28,6 @@ pub fn get_stats() -> Stats {
             BuildStatus::Success => stats.build_success_count += 1,
         };
     }
+
     stats
 }

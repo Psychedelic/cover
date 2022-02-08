@@ -17,6 +17,7 @@ type BuildConfig = record {
 };
 type BuildConfigInfo = record { canister_id : principal; owner_id : principal };
 type BuildStatus = variant { Error; Building; Success; Pending };
+type CanisterType = variant { Rust; Motoko };
 type Error = variant { BuildInProgress };
 type Pagination = record {
   page_index : nat64;
@@ -43,6 +44,7 @@ type RegisterVerification = record {
   owner_id : principal;
   canister_name : text;
   commit_hash : text;
+  canister_type : opt CanisterType;
   repo_url : text;
   rust_version : opt text;
   optimize_count : nat8;
@@ -74,6 +76,7 @@ type SubmitVerification = record {
   build_status : BuildStatus;
   canister_name : text;
   commit_hash : text;
+  canister_type : CanisterType;
   repo_url : text;
   rust_version : opt text;
   optimize_count : nat8;
@@ -88,6 +91,7 @@ type Verification = record {
   build_status : BuildStatus;
   canister_name : text;
   commit_hash : text;
+  canister_type : opt CanisterType;
   repo_url : text;
   rust_version : opt text;
   optimize_count : nat8;

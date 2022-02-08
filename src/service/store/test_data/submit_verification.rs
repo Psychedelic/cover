@@ -1,6 +1,6 @@
 use crate::common::types::{CanisterId, CanisterOwnerId};
-use crate::service::model::verification::BuildStatus;
 use crate::service::model::verification::SubmitVerification;
+use crate::service::model::verification::{BuildStatus, CanisterType};
 
 pub fn fake_success_verification(
     owner_id: &CanisterOwnerId,
@@ -15,6 +15,7 @@ pub fn fake_success_verification(
         wasm_hash: Some("hash1".to_string()),
         build_url: "https://build1".to_string(),
         build_status: BuildStatus::Success,
+        canister_type: CanisterType::Rust,
         rust_version: Some("1.0.1".to_string()),
         dfx_version: "0.8.4".to_string(),
         optimize_count: 1,
@@ -34,6 +35,7 @@ pub fn fake_error_verification(
         wasm_hash: None,
         build_url: "https://build2".to_string(),
         build_status: BuildStatus::Error,
+        canister_type: CanisterType::Motoko,
         rust_version: Some("2.0.2".to_string()),
         dfx_version: "0.8.4".to_string(),
         optimize_count: 4,
