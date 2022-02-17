@@ -5,9 +5,6 @@ type Activity = record {
 };
 type BuildConfig = record {
   updated_at : text;
-  signature : text;
-  repo_access_token : text;
-  public_key : text;
   canister_id : principal;
   created_at : text;
   dfx_version : text;
@@ -54,9 +51,6 @@ type RegisterVerification = record {
 };
 type Result = variant { Ok; Err : Error };
 type SaveBuildConfig = record {
-  signature : text;
-  repo_access_token : text;
-  public_key : text;
   canister_id : principal;
   dfx_version : text;
   owner_id : principal;
