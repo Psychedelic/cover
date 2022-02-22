@@ -17,6 +17,7 @@ pub struct SubmitVerification {
     pub rust_version: Option<String>,
     pub dfx_version: String,
     pub optimize_count: u8,
+    pub repo_visibility: Option<String>,
 }
 
 #[derive(CandidType, Deserialize)]
@@ -26,7 +27,6 @@ pub struct RegisterVerification {
     pub canister_name: String,
     pub repo_url: String,
     pub commit_hash: String,
-    pub canister_type: Option<CanisterType>,
     pub rust_version: Option<String>,
     pub dfx_version: String,
     pub optimize_count: u8,
@@ -45,6 +45,7 @@ pub struct Verification {
     pub rust_version: Option<String>,
     pub dfx_version: String,
     pub optimize_count: u8,
+    pub repo_visibility: Option<String>,
     pub updated_by: CanisterOwnerId,
     pub updated_at: String,
 }

@@ -16,6 +16,7 @@ pub fn fake_verification(submit_verification: SubmitVerification) -> Verificatio
         rust_version: submit_verification.rust_version,
         dfx_version: submit_verification.dfx_version,
         optimize_count: submit_verification.optimize_count,
+        repo_visibility: submit_verification.repo_visibility,
         updated_by: submit_verification.owner_id,
         updated_at: time_utils::now_to_str(),
     }
@@ -36,6 +37,7 @@ pub fn fake_verification_use_register_model(
         rust_version: register_verification.rust_version,
         dfx_version: register_verification.dfx_version,
         optimize_count: register_verification.optimize_count,
+        repo_visibility: None,
         updated_by: register_verification.owner_id,
         updated_at: time_utils::now_to_str(),
     }
