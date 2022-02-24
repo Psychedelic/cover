@@ -5,16 +5,18 @@ fn u64_to_utc(time: u64) -> DateTime<Utc> {
     DateTime::<Utc>::from(sys_time)
 }
 
-#[cfg(not(test))]
 pub fn now_to_str() -> String {
+    get_now().to_rfc3339_opts(SecondsFormat::Millis, false)
+}
+
+#[cfg(not(test))]
+pub fn get_now() -> DateTime<Utc> {
     let time = ic_kit::ic::time();
-    let utc = u64_to_utc(time);
-    utc.to_rfc3339_opts(SecondsFormat::Millis, false)
+    u64_to_utc(time)
 }
 
 #[cfg(test)]
-pub fn now_to_str() -> String {
+pub fn get_now() -> DateTime<Utc> {
     let time = 0;
-    let utc = u64_to_utc(time);
-    utc.to_rfc3339_opts(SecondsFormat::Millis, false)
+    u64_to_utc(time)
 }
