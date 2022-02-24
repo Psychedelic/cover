@@ -49,7 +49,6 @@ type RegisterVerification = record {
   owner_id : principal;
   canister_name : text;
   commit_hash : text;
-  canister_type : opt CanisterType;
   repo_url : text;
   rust_version : opt text;
   optimize_count : nat8;
@@ -83,6 +82,7 @@ type SubmitVerification = record {
   commit_hash : text;
   canister_type : opt CanisterType;
   repo_url : text;
+  repo_visibility : opt text;
   rust_version : opt text;
   optimize_count : nat8;
   build_url : text;
@@ -98,6 +98,7 @@ type Verification = record {
   commit_hash : text;
   canister_type : opt CanisterType;
   repo_url : text;
+  repo_visibility : opt text;
   rust_version : opt text;
   optimize_count : nat8;
   build_url : opt text;

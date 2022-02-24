@@ -19,6 +19,7 @@ pub fn fake_success_verification(
         rust_version: Some("1.0.1".to_string()),
         dfx_version: "0.8.4".to_string(),
         optimize_count: 1,
+        repo_visibility: Some("public".to_string()),
     }
 }
 
@@ -39,5 +40,6 @@ pub fn fake_error_verification(
         rust_version: Some("2.0.2".to_string()),
         dfx_version: "0.8.4".to_string(),
         optimize_count: 4,
+        repo_visibility: None,
     }
 }
