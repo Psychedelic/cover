@@ -1,4 +1,6 @@
+use chrono::{DateTime, Utc};
 use std::collections::HashMap;
+use std::str::FromStr;
 
 use ic_kit::candid::CandidType;
 use serde::Deserialize;
@@ -98,7 +100,19 @@ impl VerificationStore {
         self.verifications
             .get_mut(&register_verification.canister_id)
             .map(|verification| match verification.build_status {
-                BuildStatus::Pending | BuildStatus::Building => Err(Error::BuildInProgress),
+                BuildStatus::Pending | BuildStatus::Building => {
+                    //user have to wait 5 minutes until next register
+                    let time_update: DateTime<Utc> =
+                        DateTime::from_str(&*verification.updated_at).unwrap();
+                    let minutes_from_last_update = time_utils::get_now()
+                        .signed_duration_since(time_update)
+                        .num_minutes();
+                    if minutes_from_last_update > 5 {
+                        Ok(())
+                    } else {
+                        Err(Error::BuildInProgress)
+                    }
+                }
                 BuildStatus::Error | BuildStatus::Success => Ok(()),
             })
             .unwrap_or_else(|| Ok(()))
