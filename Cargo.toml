@@ -5,8 +5,8 @@ edition = "2018"
 authors = ["Fleek Team <support@fleek.co>"]
 
 [dependencies]
-ic-cdk-macros = "0.3.2"
-ic-cdk = "0.3.2"
-ic-kit = "0.4.3"
 serde = "1.0.132"
 chrono = "0.4.19"
+ic-cdk = { git = "https://github.com/dfinity/cdk-rs", rev = "dfb6889db8efdcd3a82195fc9df495c261241878" }
+candid = "0.7.4"
+ic-cdk-macros = { git = "https://github.com/dfinity/cdk-rs", rev = "dfb6889db8efdcd3a82195fc9df495c261241878" }

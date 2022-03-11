@@ -1,4 +1,4 @@
-use ic_kit::candid::CandidType;
+use ic_cdk::export::candid::CandidType;
 use serde::Deserialize;
 
 #[derive(CandidType, Deserialize, PartialEq, Debug)]

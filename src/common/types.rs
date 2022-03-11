@@ -1,4 +1,4 @@
-use ic_kit::Principal;
+use ic_cdk::export::Principal;
 
 pub type CanisterId = Principal;
 pub type CanisterOwnerId = Principal;

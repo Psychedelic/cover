@@ -1,10 +1,10 @@
 use crate::common::types::CanisterId;
 use crate::service::model::verification::BuildStatus;
 
-use ic_kit::candid::CandidType;
+use ic_cdk::export::candid::CandidType;
 use serde::Deserialize;
 
-#[derive(CandidType, Deserialize, PartialEq, Debug)]
+#[derive(CandidType, Deserialize, PartialEq, Debug, Clone)]
 pub struct Activity {
     pub canister_id: CanisterId,
     pub build_status: BuildStatus,
