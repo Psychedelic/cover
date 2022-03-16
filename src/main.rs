@@ -11,11 +11,11 @@ mod upgrade;
 // ========================================================================================================
 
 use crate::common::types::{AdminId, BuilderId, ValidatorId};
-use crate::service::{admin, builder, validator};
-use ic_kit::candid::candid_method;
-use ic_kit::candid::CandidType;
-use ic_kit::ic::caller;
-use ic_kit::macros::init;
+use crate::service::store::{admin, builder, validator};
+use ic_cdk::caller;
+use ic_cdk::export::candid::candid_method;
+use ic_cdk::export::candid::CandidType;
+use ic_cdk_macros::init;
 use serde::Deserialize;
 
 #[derive(CandidType, Deserialize)]
@@ -56,7 +56,8 @@ fn main() {
     use crate::service::model::pagination::*;
     use crate::service::model::stats::*;
     use crate::service::model::verification::*;
+    use ic_cdk::api::call::ManualReply;
 
-    ic_kit::candid::export_service!();
+    ic_cdk::export::candid::export_service!();
     std::print!("{}", __export_service());
 }

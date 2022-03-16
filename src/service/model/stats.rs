@@ -1,4 +1,4 @@
-use ic_kit::candid::CandidType;
+use ic_cdk::export::candid::CandidType;
 
 #[derive(CandidType, Debug, PartialEq)]
 pub struct Stats {

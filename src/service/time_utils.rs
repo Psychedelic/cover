@@ -11,7 +11,7 @@ pub fn now_to_str() -> String {
 
 #[cfg(not(test))]
 pub fn get_now() -> DateTime<Utc> {
-    let time = ic_kit::ic::time();
+    let time = ic_cdk::api::time();
     u64_to_utc(time)
 }
 
