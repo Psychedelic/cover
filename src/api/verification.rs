@@ -1,3 +1,4 @@
+use crate::common::constants::{MAX_ITEMS_PER_PAGE, MIN_ITEMS_PER_PAGE};
 use crate::common::types::CanisterId;
 use crate::service::guard::{is_builder, is_validator};
 use crate::service::model::error::Error;
@@ -9,6 +10,7 @@ use crate::service::store::verification;
 use ic_cdk::api::call::ManualReply;
 use ic_cdk::export::candid::candid_method;
 use ic_cdk_macros::{query, update};
+use std::cmp::{max, min};
 
 #[query(name = "getVerificationByCanisterId", manual_reply = true)]
 #[candid_method(query, rename = "getVerificationByCanisterId")]
@@ -18,24 +20,23 @@ fn get_verification_by_canister_id(canister_id: CanisterId) -> ManualReply<Optio
 
 #[query(name = "getVerifications", manual_reply = true)]
 #[candid_method(query, rename = "getVerifications")]
-fn get_verifications(pagination_info: PaginationInfo) -> ManualReply<Pagination<Verification>> {
+fn get_verifications(mut pagination_info: PaginationInfo) -> ManualReply<Pagination<Verification>> {
+    pagination_info.items_per_page = max(MIN_ITEMS_PER_PAGE, pagination_info.items_per_page);
+    pagination_info.items_per_page = min(MAX_ITEMS_PER_PAGE, pagination_info.items_per_page);
+
     verification::get_verifications(&pagination_info, |result| ManualReply::one(result))
 }
 
 #[update(name = "submitVerification", guard = "is_builder")]
 #[candid_method(update, rename = "submitVerification")]
 fn submit_verification(verification: SubmitVerification) {
-    verification::submit_verification(verification, |canister_id, build_status| {
-        activity::add_activity(canister_id, build_status)
-    })
+    verification::submit_verification(verification, activity::add_activity)
 }
 
 #[update(name = "registerVerification", guard = "is_validator")]
 #[candid_method(update, rename = "registerVerification")]
 fn register_verification(verification: RegisterVerification) -> Result<(), Error> {
-    verification::register_verification(verification, |canister_id, build_status| {
-        activity::add_activity(canister_id, build_status)
-    })
+    verification::register_verification(verification, activity::add_activity)
 }
 
 #[query(name = "getVerificationsStats")]

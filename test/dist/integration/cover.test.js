@@ -2,6 +2,7 @@ import { adminActor, aliceActor, aliceIdentity, anotherAdminActor, anotherAdminI
 import { Principal } from "@dfinity/principal";
 import test from "ava";
 const TEST_CANISTER_ID = Principal.fromText("3x7en-uqaaa-aaaai-abgca-cai");
+const ANOTHER_TEST_CANISTER_ID = Principal.fromText("bymdn-oaaaa-aaaai-abeva-cai");
 test.serial("Admin test", async (t) => {
     await t.notThrowsAsync(adminActor.addAdmin(anotherAdminIdentity.getPrincipal()));
     await t.throwsAsync(aliceActor.addAdmin(anotherAdminIdentity.getPrincipal()));
@@ -121,27 +122,19 @@ test.serial("Verification test", async (t) => {
         rust_version: ["1.2.3"],
         wasm_hash: ["hash"]
     });
-    const verifications = await validatorActor.getVerifications({ items_per_page: 10n, page_index: 1n });
-    t.is(verifications.data.length, 1);
-    t.like(verifications.data[0], {
-        canister_id: TEST_CANISTER_ID,
-        build_status: { Success: null }
+    await validatorActor.registerVerification({
+        canister_id: ANOTHER_TEST_CANISTER_ID,
+        canister_name: "",
+        commit_hash: "anotherHash",
+        dfx_version: "0.8.2",
+        optimize_count: 0,
+        owner_id: aliceIdentity.getPrincipal(),
+        repo_url: "",
+        rust_version: ["0.8.3"]
     });
-    const stats = await validatorActor.getVerificationsStats();
-    t.deepEqual(stats, {
-        total_canisters: 1n,
-        motoko_canisters_count: 1n,
-        rust_canisters_count: 0n,
-        build_pending_count: 0n,
-        build_in_progress_count: 0n,
-        build_error_count: 0n,
-        build_success_count: 1n
-    });
-});
-test.serial("Activity test", async (t) => {
-    const activities = await anotherAdminActor.getActivities({ items_per_page: 10n, page_index: 1n });
-    t.is(activities.data.length, 2);
-    t.like(activities, {
+    const verifications = await validatorActor.getVerifications({ items_per_page: 2n, page_index: 1n });
+    t.is(verifications.data.length, 2);
+    t.like(verifications, {
         page_index: 1n,
         total_pages: 1n,
         total_items: 2n,
@@ -149,8 +142,26 @@ test.serial("Activity test", async (t) => {
         items_per_page: 10n,
         is_last_page: true
     });
-    t.like(activities.data[0], {
-        canister_id: TEST_CANISTER_ID,
-        build_status: { Success: null }
+    const stats = await validatorActor.getVerificationsStats();
+    t.deepEqual(stats, {
+        total_canisters: 2n,
+        motoko_canisters_count: 1n,
+        rust_canisters_count: 0n,
+        build_pending_count: 1n,
+        build_in_progress_count: 0n,
+        build_error_count: 0n,
+        build_success_count: 1n
+    });
+});
+test.serial("Activity test", async (t) => {
+    const activities = await anotherAdminActor.getActivities({ items_per_page: 1000n, page_index: 1n });
+    t.is(activities.data.length, 3);
+    t.like(activities, {
+        page_index: 1n,
+        total_pages: 1n,
+        total_items: 3n,
+        is_first_page: true,
+        items_per_page: 120n,
+        is_last_page: true
     });
 });
