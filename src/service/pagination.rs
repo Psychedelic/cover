@@ -9,7 +9,7 @@ impl<T> Pagination<T> {
             total_pages,
             page_index: pagination_info.page_index,
             items_per_page: pagination_info.items_per_page,
-            is_first_page: pagination_info.page_index == 0,
+            is_first_page: pagination_info.page_index == 1,
             is_last_page: total_pages == pagination_info.page_index,
         }
     }

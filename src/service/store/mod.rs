@@ -18,9 +18,6 @@ pub mod builder;
 pub mod validator;
 pub mod verification;
 
-#[cfg(test)]
-pub mod test_data;
-
 thread_local! {
     static ACTIVITY_STORE: RefCell<ActivityStore> = RefCell::new(ActivityStore::default());
     static ADMIN_STORE: RefCell<AdminStore> = RefCell::new(AdminStore::default());
