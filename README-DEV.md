@@ -2,25 +2,26 @@
 
 Code verification canister
 
-## Local development
+## Local Development
 
-```
+```bash
 $ cd $COVER_ROOT
 $ dfx start --clean
 $ dfx deploy
 ```
 
-## IC build
+## IC Build
 
-```
+```bash
 $ cd $COVER_ROOT
-$ <create canister on Local/IC>
+
+# create canister on Local/IC
 $ dfx build
 ```
 
 ## IC Deployment
 
-```
+```bash
 # for first time deployment
 $ dfx canister --network ic create cover
 $ dfx canister --network ic install cover -m install
@@ -32,9 +33,14 @@ $ dfx canister --network ic install cover -m reinstall
 $ dfx canister --network ic install cover -m upgrade
 ```
 
+## Integration Test
+```bash
+$ make test
+```
+
 ## Contribution
 
-```
+```bash
 # 1. create a branch
 # 2. contributes
 $ cargo run > cover.did
