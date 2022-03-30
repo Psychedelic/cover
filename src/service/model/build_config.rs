@@ -13,7 +13,6 @@ pub struct BuildConfig {
     pub rust_version: Option<String>,
     pub dfx_version: String,
     pub optimize_count: u8,
-    pub created_at: String,
     pub updated_at: String,
 }
 
