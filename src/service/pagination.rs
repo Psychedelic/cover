@@ -16,11 +16,7 @@ impl<T> Pagination<T> {
 }
 
 pub fn total_pages(total_items: u64, items_per_page: u64) -> u64 {
-    if items_per_page == 0 {
-        0
-    } else {
-        let is_even = total_items % items_per_page == 0;
-        let extra_page = if is_even { 0 } else { 1 };
-        (total_items / items_per_page) + extra_page
-    }
+    let is_even = total_items % items_per_page == 0;
+    let extra_page = if is_even { 0 } else { 1 };
+    (total_items / items_per_page) + extra_page
 }

@@ -73,7 +73,7 @@ pub fn get_verifications<
         let total_pages = total_pages(total_items, pagination_info.items_per_page);
 
         let mut data: Vec<&Verification> = vec![];
-        if 0 < pagination_info.page_index && pagination_info.page_index <= total_pages {
+        if pagination_info.page_index > 0 && pagination_info.page_index <= total_pages {
             // check if last page
             let data_length = match pagination_info.page_index == total_pages {
                 true => total_items - (pagination_info.items_per_page * (total_pages - 1)),
