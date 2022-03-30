@@ -3,7 +3,7 @@ use serde::Deserialize;
 
 use crate::common::types::{CanisterId, CanisterOwnerId};
 
-#[derive(PartialEq, CandidType, Deserialize, Debug)]
+#[derive(CandidType, Deserialize)]
 pub struct BuildConfig {
     pub owner_id: CanisterOwnerId,
     pub canister_id: CanisterId,

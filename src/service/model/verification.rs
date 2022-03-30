@@ -32,7 +32,7 @@ pub struct RegisterVerification {
     pub optimize_count: u8,
 }
 
-#[derive(CandidType, Deserialize, PartialEq, Debug)]
+#[derive(CandidType, Deserialize)]
 pub struct Verification {
     pub canister_id: CanisterId,
     pub canister_name: String,
@@ -50,7 +50,7 @@ pub struct Verification {
     pub updated_at: String,
 }
 
-#[derive(CandidType, PartialEq, Deserialize, Debug, Copy, Clone)]
+#[derive(CandidType, Deserialize, Clone, Copy)]
 pub enum BuildStatus {
     Pending,
     Building,
@@ -58,7 +58,7 @@ pub enum BuildStatus {
     Success,
 }
 
-#[derive(CandidType, PartialEq, Deserialize, Debug, Copy, Clone)]
+#[derive(CandidType, Deserialize, Clone, Copy)]
 pub enum CanisterType {
     Rust,
     Motoko,
