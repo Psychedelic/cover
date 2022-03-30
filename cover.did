@@ -6,7 +6,6 @@ type Activity = record {
 type BuildConfig = record {
   updated_at : text;
   canister_id : principal;
-  created_at : text;
   dfx_version : text;
   owner_id : principal;
   canister_name : text;

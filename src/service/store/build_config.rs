@@ -45,7 +45,6 @@ pub fn save_build_config(config: SaveBuildConfig) {
                 rust_version: config.rust_version,
                 dfx_version: config.dfx_version,
                 optimize_count: config.optimize_count,
-                created_at: now.clone(),
                 updated_at: now,
             },
         );

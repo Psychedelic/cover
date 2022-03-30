@@ -7,7 +7,6 @@ export interface Activity {
 export interface BuildConfig {
   'updated_at' : string,
   'canister_id' : Principal,
-  'created_at' : string,
   'dfx_version' : string,
   'owner_id' : Principal,
   'canister_name' : string,
