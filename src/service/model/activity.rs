@@ -4,7 +4,7 @@ use crate::service::model::verification::BuildStatus;
 use ic_cdk::export::candid::CandidType;
 use serde::Deserialize;
 
-#[derive(CandidType, Deserialize, PartialEq, Debug, Clone)]
+#[derive(CandidType, Deserialize)]
 pub struct Activity {
     pub canister_id: CanisterId,
     pub build_status: BuildStatus,

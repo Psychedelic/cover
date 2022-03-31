@@ -1,7 +1,6 @@
 use ic_cdk::export::candid::CandidType;
-use serde::Deserialize;
 
-#[derive(CandidType, Deserialize, PartialEq, Debug)]
+#[derive(CandidType)]
 pub enum Error {
     BuildInProgress,
 }
