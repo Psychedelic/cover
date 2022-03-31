@@ -60,24 +60,24 @@ pub fn pre_upgrade() {
 }
 
 type InternalStableStore = (
-    VerificationStore,
+    AdminStore,
+    ActivityStore,
     BuilderStore,
     BuildConfigStore,
-    AdminStore,
     ValidatorStore,
-    ActivityStore,
+    VerificationStore,
 );
 
 pub fn post_upgrade() {
     stable_restore::<InternalStableStore>()
         .map(
             |(
-                verification_store_mut,
+                admin_store_mut,
+                activity_store_mut,
                 builder_store_mut,
                 build_config_store_mut,
-                admin_store_mut,
                 validator_store_mut,
-                activity_store_mut,
+                verification_store_mut,
             )| {
                 ACTIVITY_STORE.with(|activity_store| {
                     ADMIN_STORE.with(|admin_store| {
