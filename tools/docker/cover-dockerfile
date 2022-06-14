@@ -7,7 +7,7 @@ RUN \
         build-essential pkg-config libssl-dev llvm-dev liblmdb-dev clang cmake git
 
 # Replace your Rust version here
-ARG rust_version=1.59.0
+ARG rust_version=1.61.0
 ENV RUSTUP_HOME=/opt/rustup \
     CARGO_HOME=/opt/cargo \
     PATH=/opt/cargo/bin:$PATH
@@ -19,5 +19,5 @@ RUN cargo install ic-cdk-optimizer
 
 # Install dfx; the version is picked up from the DFX_VERSION environment variable
 # Replace your dfx version here
-ENV DFX_VERSION=0.9.2
+ENV DFX_VERSION=0.9.3
 RUN sh -ci "$(curl -fsSL https://sdk.dfinity.org/install.sh)"
