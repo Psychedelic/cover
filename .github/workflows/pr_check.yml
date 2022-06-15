@@ -2,7 +2,7 @@ name: Rust - PR check
 
 on:
   pull_request:
-    branches: [ main ]
+    branches: [main, develop]
     paths:
       - 'src/**.rs'
       - 'Cargo.*'
