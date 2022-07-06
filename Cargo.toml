@@ -7,6 +7,6 @@ authors = ["Fleek Team <support@fleek.co>"]
 [dependencies]
 serde = "1.0.132"
 chrono = "0.4.19"
-candid = "0.7.4"
-ic-cdk = "0.5.1"
-ic-cdk-macros = "0.5.1"
+candid = "0.7.14"
+ic-cdk = "0.5.2"
+ic-cdk-macros = "0.5.2"
