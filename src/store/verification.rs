@@ -1,4 +1,4 @@
-use crate::service::model::stats::Stats;
+use crate::model::stats::Stats;
 use chrono::{DateTime, Utc};
 use ic_cdk::api::call::ManualReply;
 use ic_cdk::export::candid::CandidType;
@@ -8,13 +8,13 @@ use std::str::FromStr;
 
 use super::VERIFICATION_STORE;
 use crate::common::types::CanisterId;
-use crate::service::model::error::Error;
-use crate::service::model::pagination::{Pagination, PaginationInfo};
-use crate::service::model::verification::{
+use crate::model::error::Error;
+use crate::model::pagination::{Pagination, PaginationInfo};
+use crate::model::verification::{
     BuildStatus, CanisterType, RegisterVerification, SubmitVerification, Verification,
 };
-use crate::service::pagination::total_pages;
-use crate::service::time_utils;
+use crate::util::pagination::total_pages;
+use crate::util::time;
 
 #[derive(CandidType, Deserialize, Default)]
 pub struct VerificationStore {
@@ -45,7 +45,7 @@ pub fn submit_verification<F: Fn(CanisterId, BuildStatus)>(
                 optimize_count: new_verification.optimize_count,
                 repo_visibility: new_verification.repo_visibility,
                 updated_by: new_verification.owner_id,
-                updated_at: time_utils::now_to_str(),
+                updated_at: time::now_to_str(),
             },
         );
         activity_handler(canister_id, build_status);
@@ -114,7 +114,7 @@ pub fn register_verification<F: Fn(CanisterId, BuildStatus)>(
                     //user have to wait 5 minutes until next register
                     let time_update: DateTime<Utc> =
                         DateTime::from_str(&*verification.updated_at).unwrap();
-                    let minutes_from_last_update = time_utils::get_now()
+                    let minutes_from_last_update = time::get_now()
                         .signed_duration_since(time_update)
                         .num_minutes();
                     if minutes_from_last_update > 5 {
@@ -145,7 +145,7 @@ pub fn register_verification<F: Fn(CanisterId, BuildStatus)>(
                             optimize_count: register_verification.optimize_count,
                             repo_visibility: None,
                             updated_by: register_verification.owner_id,
-                            updated_at: time_utils::now_to_str(),
+                            updated_at: time::now_to_str(),
                         },
                     )
                     .is_none()

@@ -1,4 +1,4 @@
-use crate::service::model::pagination::{Pagination, PaginationInfo};
+use crate::model::pagination::{Pagination, PaginationInfo};
 
 impl<T> Pagination<T> {
     pub fn of(data: Vec<T>, pagination_info: &PaginationInfo, total_items: u64) -> Pagination<T> {

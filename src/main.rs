@@ -1,46 +1,30 @@
 mod common;
-mod service;
+mod model;
+mod store;
+mod util;
 
 use crate::common::types::{AdminId, BuilderId, ValidatorId};
-use crate::service::store::{
-    activity::ActivityStore, admin, admin::AdminStore, build_config::BuildConfigStore, builder,
-    builder::BuilderStore, validator, validator::ValidatorStore, verification,
-    verification::VerificationStore,
-};
+use crate::store::{admin, builder, validator, verification};
 use ic_cdk::caller;
 use ic_cdk::export::candid::CandidType;
 use serde::Deserialize;
 
-use std::cell::RefCell;
-use std::ops::Deref;
-
 use crate::common::constants::{MAX_ITEMS_PER_PAGE, MIN_ITEMS_PER_PAGE};
-use crate::service::model::activity::Activity;
-use crate::service::model::pagination::{Pagination, PaginationInfo};
-use crate::service::model::stats::Stats;
-use crate::service::model::verification::{RegisterVerification, SubmitVerification, Verification};
-use crate::service::store::activity;
+use crate::model::activity::Activity;
+use crate::model::pagination::{Pagination, PaginationInfo};
+use crate::model::stats::Stats;
+use crate::model::verification::{RegisterVerification, SubmitVerification, Verification};
+use crate::store::activity;
 use ic_cdk::api::call::ManualReply;
 use ic_cdk::export::candid::candid_method;
-use ic_cdk::storage::{stable_restore, stable_save};
-use ic_cdk::trap;
-use ic_cdk_macros::{init, post_upgrade, pre_upgrade, query, update};
+use ic_cdk_macros::{init, query, update};
 use std::cmp::{max, min};
 
 use crate::common::types::CanisterId;
-use crate::service::guard::{is_admin, is_builder, is_validator};
-use crate::service::model::build_config::{BuildConfig, BuildConfigInfo, SaveBuildConfig};
-use crate::service::model::error::Error;
-use crate::service::store::build_config;
-
-thread_local! {
-    static ACTIVITY_STORE: RefCell<ActivityStore> = RefCell::new(ActivityStore::default());
-    static ADMIN_STORE: RefCell<AdminStore> = RefCell::new(AdminStore::default());
-    static BUILDER_STORE: RefCell<BuilderStore> = RefCell::new(BuilderStore::default());
-    static BUILD_CONFIG_STORE: RefCell<BuildConfigStore> = RefCell::new(BuildConfigStore::default());
-    static VALIDATOR_STORE: RefCell<ValidatorStore> = RefCell::new(ValidatorStore::default());
-    static VERIFICATION_STORE: RefCell<VerificationStore> = RefCell::new(VerificationStore::default());
-}
+use crate::model::build_config::{BuildConfig, BuildConfigInfo, SaveBuildConfig};
+use crate::model::error::Error;
+use crate::store::build_config;
+use crate::util::guard::{is_admin, is_builder, is_validator};
 
 #[derive(CandidType, Deserialize)]
 pub struct Config {
@@ -218,100 +202,11 @@ fn get_verifications_stats() -> Stats {
     verification::get_verifications_stats()
 }
 
-type InternalStableStoreAsRef<'a> = (
-    &'a AdminStore,
-    &'a ActivityStore,
-    &'a BuilderStore,
-    &'a BuildConfigStore,
-    &'a ValidatorStore,
-    &'a VerificationStore,
-);
-
-#[pre_upgrade]
-pub fn pre_upgrade() {
-    ACTIVITY_STORE.with(|activity_store|
-            ADMIN_STORE.with(|admin_store|
-                BUILDER_STORE.with(|builder_store|
-                    BUILD_CONFIG_STORE.with(|build_config_store|
-                        VALIDATOR_STORE.with(|validator_store|
-                            VERIFICATION_STORE.with(|verification_store| {
-                                if let Err(e) = stable_save::<InternalStableStoreAsRef>((
-                                    admin_store.borrow().deref(),
-                                    activity_store.borrow().deref(),
-                                    builder_store.borrow().deref(),
-                                    build_config_store.borrow().deref(),
-                                    validator_store.borrow().deref(),
-                                    verification_store.borrow().deref()
-                                )){
-                                    trap(&format!(
-                                        "An error occurred when saving to stable memory (pre_upgrade): {:?}",
-                                        e
-                                    ));
-                            }}))))))
-}
-
-type InternalStableStore = (
-    AdminStore,
-    ActivityStore,
-    BuilderStore,
-    BuildConfigStore,
-    ValidatorStore,
-    VerificationStore,
-);
-
-#[post_upgrade]
-pub fn post_upgrade() {
-    stable_restore::<InternalStableStore>()
-        .map(
-            |(
-                admin_store_mut,
-                activity_store_mut,
-                builder_store_mut,
-                build_config_store_mut,
-                validator_store_mut,
-                verification_store_mut,
-            )| {
-                ACTIVITY_STORE.with(|activity_store| {
-                    ADMIN_STORE.with(|admin_store| {
-                        BUILDER_STORE.with(|builder_store| {
-                            BUILD_CONFIG_STORE.with(|build_config_store| {
-                                VALIDATOR_STORE.with(|validator_store| {
-                                    VERIFICATION_STORE.with(|verification_store| {
-                                        *verification_store.borrow_mut() = verification_store_mut;
-                                        *build_config_store.borrow_mut() = build_config_store_mut;
-                                        *builder_store.borrow_mut() = builder_store_mut;
-                                        *admin_store.borrow_mut() = admin_store_mut;
-                                        *validator_store.borrow_mut() = validator_store_mut;
-                                        *activity_store.borrow_mut() = activity_store_mut
-                                    })
-                                })
-                            })
-                        })
-                    })
-                })
-            },
-        )
-        .unwrap_or_else(|e| {
-            trap(&format!(
-                "An error occurred when loading from stable memory (post_upgrade): {:?}",
-                e
-            ));
-        });
-}
-
 #[cfg(any(target_arch = "wasm32"))]
 fn main() {}
 
 #[cfg(not(any(target_arch = "wasm32", test)))]
 fn main() {
-    use crate::common::types::*;
-    use crate::service::model::activity::*;
-    use crate::service::model::build_config::*;
-    use crate::service::model::error::*;
-    use crate::service::model::pagination::*;
-    use crate::service::model::stats::*;
-    use crate::service::model::verification::*;
-
     ic_cdk::export::candid::export_service!();
     std::print!("{}", __export_service());
 }

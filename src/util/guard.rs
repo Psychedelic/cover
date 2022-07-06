@@ -1,4 +1,4 @@
-use crate::service::store::{admin, builder, validator};
+use crate::store::{admin, builder, validator};
 use ic_cdk::caller;
 
 pub fn is_admin() -> Result<(), String> {
