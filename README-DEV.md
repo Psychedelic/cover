@@ -6,17 +6,10 @@ Code verification canister
 
 ```bash
 $ cd $COVER_ROOT
-$ dfx start --clean
-$ dfx deploy
-```
-
-## IC Build
-
-```bash
-$ cd $COVER_ROOT
+$ make build
 
 # create canister on Local/IC
-$ dfx build
+$ make local
 ```
 
 ## IC Deployment
@@ -43,11 +36,10 @@ $ make test
 ```bash
 # 1. create a branch
 # 2. contributes
-$ cargo run > cover.did
-$ cargo build
-$ cargo test
-$ cargo fmt --all
-$ cargo clippy
+$ make format
+$ make lint
+$ make build
+$ make test
 # 3. commits
 # 4. PR
 ```
