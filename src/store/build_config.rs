@@ -6,8 +6,8 @@ use serde::Deserialize;
 
 use super::BUILD_CONFIG_STORE;
 use crate::common::types::{CanisterId, CanisterOwnerId};
-use crate::service::model::build_config::{BuildConfig, SaveBuildConfig};
-use crate::service::time_utils;
+use crate::model::build_config::{BuildConfig, SaveBuildConfig};
+use crate::util::time;
 
 #[derive(CandidType, Default, Deserialize)]
 pub struct BuildConfigStore {
@@ -33,7 +33,7 @@ pub fn get_build_configs<F: Fn(Vec<&BuildConfig>) -> ManualReply<Vec<BuildConfig
 
 pub fn save_build_config(config: SaveBuildConfig) {
     BUILD_CONFIG_STORE.with(|store| {
-        let now = time_utils::now_to_str();
+        let now = time::now_to_str();
         store.borrow_mut().configs.insert(
             (config.owner_id, config.canister_id),
             BuildConfig {

@@ -1,10 +1,10 @@
 use super::ACTIVITY_STORE;
 use crate::common::types::CanisterId;
-use crate::service::model::activity::Activity;
-use crate::service::model::pagination::{Pagination, PaginationInfo};
-use crate::service::model::verification::BuildStatus;
-use crate::service::pagination::total_pages;
-use crate::service::time_utils;
+use crate::model::activity::Activity;
+use crate::model::pagination::{Pagination, PaginationInfo};
+use crate::model::verification::BuildStatus;
+use crate::util::pagination::total_pages;
+use crate::util::time;
 use ic_cdk::api::call::ManualReply;
 use ic_cdk::export::candid::CandidType;
 use serde::Deserialize;
@@ -26,7 +26,7 @@ pub fn add_activity(canister_id: CanisterId, build_status: BuildStatus) {
         store_ref_mut.activities.push_front(Activity {
             canister_id,
             build_status,
-            create_at: time_utils::now_to_str(),
+            create_at: time::now_to_str(),
         })
     })
 }

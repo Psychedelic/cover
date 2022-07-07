@@ -2,11 +2,11 @@ use activity::ActivityStore;
 use admin::AdminStore;
 use build_config::BuildConfigStore;
 use builder::BuilderStore;
-use validator::ValidatorStore;
-use verification::VerificationStore;
-
 use ic_cdk::storage::{stable_restore, stable_save};
 use ic_cdk::trap;
+use ic_cdk_macros::{post_upgrade, pre_upgrade};
+use validator::ValidatorStore;
+use verification::VerificationStore;
 
 use std::cell::RefCell;
 use std::ops::Deref;
@@ -36,6 +36,7 @@ type InternalStableStoreAsRef<'a> = (
     &'a VerificationStore,
 );
 
+#[pre_upgrade]
 pub fn pre_upgrade() {
     ACTIVITY_STORE.with(|activity_store|
             ADMIN_STORE.with(|admin_store|
@@ -55,7 +56,6 @@ pub fn pre_upgrade() {
                                         "An error occurred when saving to stable memory (pre_upgrade): {:?}",
                                         e
                                     ));
-
                             }}))))))
 }
 
@@ -68,6 +68,7 @@ type InternalStableStore = (
     VerificationStore,
 );
 
+#[post_upgrade]
 pub fn post_upgrade() {
     stable_restore::<InternalStableStore>()
         .map(
