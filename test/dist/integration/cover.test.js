@@ -1,9 +1,9 @@
-import { adminActor, aliceActor, aliceIdentity, anotherAdminActor, anotherAdminIdentity, bobActor, bobIdentity, builderActor, builderIdentity, johnActor, validatorActor, validatorIdentity } from "../setup.js";
-import { Principal } from "@dfinity/principal";
-import test from "ava";
-const TEST_CANISTER_ID = Principal.fromText("3x7en-uqaaa-aaaai-abgca-cai");
-const ANOTHER_TEST_CANISTER_ID = Principal.fromText("bymdn-oaaaa-aaaai-abeva-cai");
-test.serial("Admin test", async (t) => {
+import { Principal } from '@dfinity/principal';
+import test from 'ava';
+import { adminActor, aliceActor, aliceIdentity, anotherAdminActor, anotherAdminIdentity, bobActor, bobIdentity, builderActor, builderIdentity, johnActor, validatorActor, validatorIdentity } from '../setup.js';
+const TEST_CANISTER_ID = Principal.fromText('3x7en-uqaaa-aaaai-abgca-cai');
+const ANOTHER_TEST_CANISTER_ID = Principal.fromText('bymdn-oaaaa-aaaai-abeva-cai');
+test.serial('Admin test', async (t) => {
     await t.notThrowsAsync(adminActor.addAdmin(anotherAdminIdentity.getPrincipal()));
     await t.throwsAsync(aliceActor.addAdmin(anotherAdminIdentity.getPrincipal()));
     await t.notThrowsAsync(adminActor.addAdmin(bobIdentity.getPrincipal()));
@@ -12,7 +12,7 @@ test.serial("Admin test", async (t) => {
     const adminList = admins.map(a => a.toText());
     t.true(adminList.includes(anotherAdminIdentity.getPrincipal().toText()));
 });
-test.serial("Validator test", async (t) => {
+test.serial('Validator test', async (t) => {
     await t.notThrowsAsync(adminActor.addValidator(validatorIdentity.getPrincipal()));
     await t.throwsAsync(validatorActor.addValidator(bobIdentity.getPrincipal()));
     await t.notThrowsAsync(adminActor.addValidator(aliceIdentity.getPrincipal()));
@@ -21,7 +21,7 @@ test.serial("Validator test", async (t) => {
     const validatorList = validators.map(v => v.toText());
     t.true(validatorList.includes(validatorIdentity.getPrincipal().toText()));
 });
-test.serial("Builder test", async (t) => {
+test.serial('Builder test', async (t) => {
     await t.notThrowsAsync(adminActor.addBuilder(builderIdentity.getPrincipal()));
     await t.throwsAsync(johnActor.addBuilder(bobIdentity.getPrincipal()));
     await t.notThrowsAsync(adminActor.addBuilder(aliceIdentity.getPrincipal()));
@@ -30,15 +30,15 @@ test.serial("Builder test", async (t) => {
     const builderList = builders.map(b => b.toText());
     t.true(builderList.includes(builderIdentity.getPrincipal().toText()));
 });
-test.serial("Build config test", async (t) => {
+test.serial('Build config test', async (t) => {
     const config = {
         canister_id: TEST_CANISTER_ID,
-        canister_name: "",
-        commit_hash: "",
-        dfx_version: "",
+        canister_name: '',
+        commit_hash: '',
+        dfx_version: '',
         optimize_count: 0,
         owner_id: aliceIdentity.getPrincipal(),
-        repo_url: "",
+        repo_url: '',
         rust_version: []
     };
     await t.notThrowsAsync(validatorActor.saveBuildConfig(config));
@@ -63,16 +63,16 @@ test.serial("Build config test", async (t) => {
     const emptyList = await aliceActor.getBuildConfigs();
     t.is(emptyList.length, 0);
 });
-test.serial("Verification test", async (t) => {
+test.serial('Verification test', async (t) => {
     const registerVerification = {
         canister_id: TEST_CANISTER_ID,
-        canister_name: "test",
-        commit_hash: "abc",
-        dfx_version: "0.8.3",
+        canister_name: 'test',
+        commit_hash: 'abc',
+        dfx_version: '0.8.3',
         optimize_count: 1,
         owner_id: bobIdentity.getPrincipal(),
-        repo_url: "url/test",
-        rust_version: ["1.2"]
+        repo_url: 'url/test',
+        rust_version: ['1.2']
     };
     await t.throwsAsync(bobActor.registerVerification(registerVerification));
     await t.notThrowsAsync(validatorActor.registerVerification(registerVerification));
@@ -80,28 +80,28 @@ test.serial("Verification test", async (t) => {
     t.is(verification.length, 1);
     t.like(verification[0], {
         canister_id: TEST_CANISTER_ID,
-        canister_name: "test",
-        commit_hash: "abc",
-        dfx_version: "0.8.3",
+        canister_name: 'test',
+        commit_hash: 'abc',
+        dfx_version: '0.8.3',
         optimize_count: 1,
-        repo_url: "url/test",
-        rust_version: ["1.2"],
+        repo_url: 'url/test',
+        rust_version: ['1.2'],
         build_status: { Pending: null }
     });
     const submitVerification = {
         build_status: { Success: null },
-        build_url: "build/test",
+        build_url: 'build/test',
         canister_id: TEST_CANISTER_ID,
-        canister_name: "test",
+        canister_name: 'test',
         canister_type: [{ Motoko: null }],
-        commit_hash: "abc",
-        dfx_version: "0.8.2",
+        commit_hash: 'abc',
+        dfx_version: '0.8.2',
         optimize_count: 1,
         owner_id: bobIdentity.getPrincipal(),
-        repo_url: "url/test",
-        repo_visibility: ["public"],
-        rust_version: ["1.2.3"],
-        wasm_hash: ["hash"]
+        repo_url: 'url/test',
+        repo_visibility: ['public'],
+        rust_version: ['1.2.3'],
+        wasm_hash: ['hash']
     };
     await t.throwsAsync(bobActor.submitVerification(submitVerification));
     await t.throwsAsync(validatorActor.submitVerification(submitVerification));
@@ -110,27 +110,27 @@ test.serial("Verification test", async (t) => {
     t.is(verification.length, 1);
     t.like(verification[0], {
         build_status: { Success: null },
-        build_url: ["build/test"],
+        build_url: ['build/test'],
         canister_id: TEST_CANISTER_ID,
-        canister_name: "test",
+        canister_name: 'test',
         canister_type: [{ Motoko: null }],
-        commit_hash: "abc",
-        dfx_version: "0.8.2",
+        commit_hash: 'abc',
+        dfx_version: '0.8.2',
         optimize_count: 1,
-        repo_url: "url/test",
-        repo_visibility: ["public"],
-        rust_version: ["1.2.3"],
-        wasm_hash: ["hash"]
+        repo_url: 'url/test',
+        repo_visibility: ['public'],
+        rust_version: ['1.2.3'],
+        wasm_hash: ['hash']
     });
     await validatorActor.registerVerification({
         canister_id: ANOTHER_TEST_CANISTER_ID,
-        canister_name: "",
-        commit_hash: "anotherHash",
-        dfx_version: "0.8.2",
+        canister_name: '',
+        commit_hash: 'anotherHash',
+        dfx_version: '0.8.2',
         optimize_count: 0,
         owner_id: aliceIdentity.getPrincipal(),
-        repo_url: "",
-        rust_version: ["0.8.3"]
+        repo_url: '',
+        rust_version: ['0.8.3']
     });
     const verifications = await validatorActor.getVerifications({ items_per_page: 2n, page_index: 1n });
     t.is(verifications.data.length, 2);
@@ -153,7 +153,7 @@ test.serial("Verification test", async (t) => {
         build_success_count: 1n
     });
 });
-test.serial("Activity test", async (t) => {
+test.serial('Activity test', async (t) => {
     const activities = await anotherAdminActor.getActivities({ items_per_page: 1000n, page_index: 1n });
     t.is(activities.data.length, 3);
     t.like(activities, {
