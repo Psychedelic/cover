@@ -1,6 +1,5 @@
 use crate::common::types::CanisterId;
 use crate::model::verification::BuildStatus;
-
 use ic_cdk::export::candid::CandidType;
 use serde::Deserialize;
 

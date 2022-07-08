@@ -1,3 +1,10 @@
+pub mod activity;
+pub mod admin;
+pub mod build_config;
+pub mod builder;
+pub mod validator;
+pub mod verification;
+
 use activity::ActivityStore;
 use admin::AdminStore;
 use build_config::BuildConfigStore;
@@ -5,18 +12,10 @@ use builder::BuilderStore;
 use ic_cdk::storage::{stable_restore, stable_save};
 use ic_cdk::trap;
 use ic_cdk_macros::{post_upgrade, pre_upgrade};
-use validator::ValidatorStore;
-use verification::VerificationStore;
-
 use std::cell::RefCell;
 use std::ops::Deref;
-
-pub mod activity;
-pub mod admin;
-pub mod build_config;
-pub mod builder;
-pub mod validator;
-pub mod verification;
+use validator::ValidatorStore;
+use verification::VerificationStore;
 
 thread_local! {
     static ACTIVITY_STORE: RefCell<ActivityStore> = RefCell::new(ActivityStore::default());
