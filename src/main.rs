@@ -3,35 +3,22 @@ mod model;
 mod store;
 mod util;
 
-use crate::common::types::{AdminId, BuilderId, ValidatorId};
-use crate::store::{admin, builder, validator, verification};
-use ic_cdk::caller;
-use ic_cdk::export::candid::CandidType;
-use serde::Deserialize;
-
 use crate::common::constants::{MAX_ITEMS_PER_PAGE, MIN_ITEMS_PER_PAGE};
+use crate::common::types::{AdminId, BuilderId, CanisterId, ValidatorId};
 use crate::model::activity::Activity;
+use crate::model::build_config::{BuildConfig, BuildConfigInfo, SaveBuildConfig};
+use crate::model::config::Config;
+use crate::model::error::Error;
 use crate::model::pagination::{Pagination, PaginationInfo};
 use crate::model::stats::Stats;
 use crate::model::verification::{RegisterVerification, SubmitVerification, Verification};
-use crate::store::activity;
+use crate::store::{activity, admin, build_config, builder, validator, verification};
+use crate::util::guard::{is_admin, is_builder, is_validator};
 use ic_cdk::api::call::ManualReply;
+use ic_cdk::caller;
 use ic_cdk::export::candid::candid_method;
 use ic_cdk_macros::{init, query, update};
 use std::cmp::{max, min};
-
-use crate::common::types::CanisterId;
-use crate::model::build_config::{BuildConfig, BuildConfigInfo, SaveBuildConfig};
-use crate::model::error::Error;
-use crate::store::build_config;
-use crate::util::guard::{is_admin, is_builder, is_validator};
-
-#[derive(CandidType, Deserialize)]
-pub struct Config {
-    admin: Option<Vec<AdminId>>,
-    validator: Option<Vec<ValidatorId>>,
-    builder: Option<Vec<BuilderId>>,
-}
 
 #[init]
 #[candid_method(init)]

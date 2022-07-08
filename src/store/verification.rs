@@ -1,20 +1,19 @@
+use super::VERIFICATION_STORE;
+use crate::common::types::CanisterId;
+use crate::model::error::Error;
+use crate::model::pagination::{Pagination, PaginationInfo};
 use crate::model::stats::Stats;
+use crate::model::verification::{
+    BuildStatus, CanisterType, RegisterVerification, SubmitVerification, Verification,
+};
+use crate::util::pagination::total_pages;
+use crate::util::time;
 use chrono::{DateTime, Utc};
 use ic_cdk::api::call::ManualReply;
 use ic_cdk::export::candid::CandidType;
 use serde::Deserialize;
 use std::collections::HashMap;
 use std::str::FromStr;
-
-use super::VERIFICATION_STORE;
-use crate::common::types::CanisterId;
-use crate::model::error::Error;
-use crate::model::pagination::{Pagination, PaginationInfo};
-use crate::model::verification::{
-    BuildStatus, CanisterType, RegisterVerification, SubmitVerification, Verification,
-};
-use crate::util::pagination::total_pages;
-use crate::util::time;
 
 #[derive(CandidType, Deserialize, Default)]
 pub struct VerificationStore {

@@ -1,11 +1,9 @@
-use ic_cdk::api::call::ManualReply;
-use std::collections::HashSet;
-
-use ic_cdk::export::candid::CandidType;
-use serde::Deserialize;
-
 use super::VALIDATOR_STORE;
 use crate::common::types::ValidatorId;
+use ic_cdk::api::call::ManualReply;
+use ic_cdk::export::candid::CandidType;
+use serde::Deserialize;
+use std::collections::HashSet;
 
 #[derive(Default, Deserialize, CandidType)]
 pub struct ValidatorStore {

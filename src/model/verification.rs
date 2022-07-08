@@ -1,7 +1,6 @@
+use crate::common::types::{CanisterId, CanisterOwnerId};
 use ic_cdk::export::candid::CandidType;
 use serde::Deserialize;
-
-use crate::common::types::{CanisterId, CanisterOwnerId};
 
 #[derive(CandidType, Deserialize)]
 pub struct SubmitVerification {
