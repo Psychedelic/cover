@@ -31,6 +31,7 @@ pub fn submit_verification<F: Fn(CanisterId, BuildStatus)>(
         store.borrow_mut().verifications.insert(
             new_verification.canister_id,
             Verification {
+                delegate_canister_id: new_verification.delegate_canister_id,
                 canister_id: new_verification.canister_id,
                 canister_name: new_verification.canister_name,
                 repo_url: new_verification.repo_url,
@@ -131,6 +132,7 @@ pub fn register_verification<F: Fn(CanisterId, BuildStatus)>(
                     .insert(
                         register_verification.canister_id,
                         Verification {
+                            delegate_canister_id: register_verification.delegate_canister_id,
                             canister_id: register_verification.canister_id,
                             canister_name: register_verification.canister_name,
                             repo_url: register_verification.repo_url,
@@ -142,7 +144,7 @@ pub fn register_verification<F: Fn(CanisterId, BuildStatus)>(
                             rust_version: register_verification.rust_version,
                             dfx_version: register_verification.dfx_version,
                             optimize_count: register_verification.optimize_count,
-                            repo_visibility: None,
+                            repo_visibility: register_verification.repo_visibility,
                             updated_by: register_verification.owner_id,
                             updated_at: time::now_to_str(),
                         },
