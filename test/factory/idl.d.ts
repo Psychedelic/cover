@@ -9,6 +9,7 @@ export interface Activity {
 export interface BuildConfig {
   'updated_at' : string,
   'canister_id' : Principal,
+  'delegate_canister_id' : [] | [Principal],
   'dfx_version' : string,
   'owner_id' : Principal,
   'canister_name' : string,
@@ -71,6 +72,7 @@ export type Result = { 'Ok' : null } |
   { 'Err' : Error };
 export interface SaveBuildConfig {
   'canister_id' : Principal,
+  'delegate_canister_id' : [] | [Principal],
   'dfx_version' : string,
   'owner_id' : Principal,
   'canister_name' : string,

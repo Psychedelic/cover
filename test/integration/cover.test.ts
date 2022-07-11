@@ -77,7 +77,8 @@ test.serial('Build config test', async t => {
     optimize_count: 0,
     owner_id: aliceIdentity.getPrincipal(),
     repo_url: '',
-    rust_version: [] as []
+    rust_version: [] as [],
+    delegate_canister_id: [] as []
   };
 
   await t.notThrowsAsync(validatorActor.saveBuildConfig(config));

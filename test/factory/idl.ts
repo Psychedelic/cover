@@ -32,6 +32,7 @@ export const idlFactory = ({ IDL }) => {
   const BuildConfig = IDL.Record({
     'updated_at' : IDL.Text,
     'canister_id' : IDL.Principal,
+    'delegate_canister_id' : IDL.Opt(IDL.Principal),
     'dfx_version' : IDL.Text,
     'owner_id' : IDL.Principal,
     'canister_name' : IDL.Text,
@@ -96,6 +97,7 @@ export const idlFactory = ({ IDL }) => {
   const Result = IDL.Variant({ 'Ok' : IDL.Null, 'Err' : Error });
   const SaveBuildConfig = IDL.Record({
     'canister_id' : IDL.Principal,
+    'delegate_canister_id' : IDL.Opt(IDL.Principal),
     'dfx_version' : IDL.Text,
     'owner_id' : IDL.Principal,
     'canister_name' : IDL.Text,

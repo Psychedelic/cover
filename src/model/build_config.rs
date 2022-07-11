@@ -5,6 +5,7 @@ use serde::Deserialize;
 #[derive(CandidType, Deserialize)]
 pub struct BuildConfig {
     pub owner_id: CanisterOwnerId,
+    pub delegate_canister_id: Option<CanisterId>,
     pub canister_id: CanisterId,
     pub canister_name: String,
     pub repo_url: String,
@@ -18,6 +19,7 @@ pub struct BuildConfig {
 #[derive(CandidType, Deserialize)]
 pub struct SaveBuildConfig {
     pub owner_id: CanisterOwnerId,
+    pub delegate_canister_id: Option<CanisterId>,
     pub canister_id: CanisterId,
     pub canister_name: String,
     pub repo_url: String,
