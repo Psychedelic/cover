@@ -44,11 +44,13 @@ type ManualReply_1 = record {
 type PaginationInfo = record { page_index : nat64; items_per_page : nat64 };
 type RegisterVerification = record {
   canister_id : principal;
+  delegate_canister_id : opt principal;
   dfx_version : text;
   owner_id : principal;
   canister_name : text;
   commit_hash : text;
   repo_url : text;
+  repo_visibility : text;
   rust_version : opt text;
   optimize_count : nat8;
 };
@@ -74,6 +76,7 @@ type Stats = record {
 };
 type SubmitVerification = record {
   canister_id : principal;
+  delegate_canister_id : opt principal;
   dfx_version : text;
   owner_id : principal;
   build_status : BuildStatus;
@@ -81,7 +84,7 @@ type SubmitVerification = record {
   commit_hash : text;
   canister_type : opt CanisterType;
   repo_url : text;
-  repo_visibility : opt text;
+  repo_visibility : text;
   rust_version : opt text;
   optimize_count : nat8;
   build_url : text;
@@ -91,13 +94,14 @@ type Verification = record {
   updated_at : text;
   updated_by : principal;
   canister_id : principal;
+  delegate_canister_id : opt principal;
   dfx_version : text;
   build_status : BuildStatus;
   canister_name : text;
   commit_hash : text;
   canister_type : opt CanisterType;
   repo_url : text;
-  repo_visibility : opt text;
+  repo_visibility : text;
   rust_version : opt text;
   optimize_count : nat8;
   build_url : opt text;

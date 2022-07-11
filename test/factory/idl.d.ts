@@ -57,11 +57,13 @@ export interface PaginationInfo {
 }
 export interface RegisterVerification {
   'canister_id' : Principal,
+  'delegate_canister_id' : [] | [Principal],
   'dfx_version' : string,
   'owner_id' : Principal,
   'canister_name' : string,
   'commit_hash' : string,
   'repo_url' : string,
+  'repo_visibility' : string,
   'rust_version' : [] | [string],
   'optimize_count' : number,
 }
@@ -88,6 +90,7 @@ export interface Stats {
 }
 export interface SubmitVerification {
   'canister_id' : Principal,
+  'delegate_canister_id' : [] | [Principal],
   'dfx_version' : string,
   'owner_id' : Principal,
   'build_status' : BuildStatus,
@@ -95,7 +98,7 @@ export interface SubmitVerification {
   'commit_hash' : string,
   'canister_type' : [] | [CanisterType],
   'repo_url' : string,
-  'repo_visibility' : [] | [string],
+  'repo_visibility' : string,
   'rust_version' : [] | [string],
   'optimize_count' : number,
   'build_url' : string,
@@ -105,13 +108,14 @@ export interface Verification {
   'updated_at' : string,
   'updated_by' : Principal,
   'canister_id' : Principal,
+  'delegate_canister_id' : [] | [Principal],
   'dfx_version' : string,
   'build_status' : BuildStatus,
   'canister_name' : string,
   'commit_hash' : string,
   'canister_type' : [] | [CanisterType],
   'repo_url' : string,
-  'repo_visibility' : [] | [string],
+  'repo_visibility' : string,
   'rust_version' : [] | [string],
   'optimize_count' : number,
   'build_url' : [] | [string],

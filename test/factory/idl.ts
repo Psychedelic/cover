@@ -49,13 +49,14 @@ export const idlFactory = ({ IDL }) => {
     'updated_at' : IDL.Text,
     'updated_by' : IDL.Principal,
     'canister_id' : IDL.Principal,
+    'delegate_canister_id' : IDL.Opt(IDL.Principal),
     'dfx_version' : IDL.Text,
     'build_status' : BuildStatus,
     'canister_name' : IDL.Text,
     'commit_hash' : IDL.Text,
     'canister_type' : IDL.Opt(CanisterType),
     'repo_url' : IDL.Text,
-    'repo_visibility' : IDL.Opt(IDL.Text),
+    'repo_visibility' : IDL.Text,
     'rust_version' : IDL.Opt(IDL.Text),
     'optimize_count' : IDL.Nat8,
     'build_url' : IDL.Opt(IDL.Text),
@@ -81,11 +82,13 @@ export const idlFactory = ({ IDL }) => {
   });
   const RegisterVerification = IDL.Record({
     'canister_id' : IDL.Principal,
+    'delegate_canister_id' : IDL.Opt(IDL.Principal),
     'dfx_version' : IDL.Text,
     'owner_id' : IDL.Principal,
     'canister_name' : IDL.Text,
     'commit_hash' : IDL.Text,
     'repo_url' : IDL.Text,
+    'repo_visibility' : IDL.Text,
     'rust_version' : IDL.Opt(IDL.Text),
     'optimize_count' : IDL.Nat8,
   });
@@ -103,6 +106,7 @@ export const idlFactory = ({ IDL }) => {
   });
   const SubmitVerification = IDL.Record({
     'canister_id' : IDL.Principal,
+    'delegate_canister_id' : IDL.Opt(IDL.Principal),
     'dfx_version' : IDL.Text,
     'owner_id' : IDL.Principal,
     'build_status' : BuildStatus,
@@ -110,7 +114,7 @@ export const idlFactory = ({ IDL }) => {
     'commit_hash' : IDL.Text,
     'canister_type' : IDL.Opt(CanisterType),
     'repo_url' : IDL.Text,
-    'repo_visibility' : IDL.Opt(IDL.Text),
+    'repo_visibility' : IDL.Text,
     'rust_version' : IDL.Opt(IDL.Text),
     'optimize_count' : IDL.Nat8,
     'build_url' : IDL.Text,
