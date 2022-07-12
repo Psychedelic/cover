@@ -5,6 +5,7 @@ use serde::Deserialize;
 #[derive(CandidType, Deserialize)]
 pub struct SubmitVerification {
     pub owner_id: CanisterOwnerId,
+    pub delegate_canister_id: Option<CanisterId>,
     pub canister_id: CanisterId,
     pub canister_name: String,
     pub repo_url: String,
@@ -16,12 +17,13 @@ pub struct SubmitVerification {
     pub rust_version: Option<String>,
     pub dfx_version: String,
     pub optimize_count: u8,
-    pub repo_visibility: Option<String>,
+    pub repo_visibility: String,
 }
 
 #[derive(CandidType, Deserialize)]
 pub struct RegisterVerification {
     pub owner_id: CanisterOwnerId,
+    pub delegate_canister_id: Option<CanisterId>,
     pub canister_id: CanisterId,
     pub canister_name: String,
     pub repo_url: String,
@@ -29,10 +31,12 @@ pub struct RegisterVerification {
     pub rust_version: Option<String>,
     pub dfx_version: String,
     pub optimize_count: u8,
+    pub repo_visibility: String,
 }
 
 #[derive(CandidType, Deserialize)]
 pub struct Verification {
+    pub delegate_canister_id: Option<CanisterId>,
     pub canister_id: CanisterId,
     pub canister_name: String,
     pub repo_url: String,
@@ -44,7 +48,7 @@ pub struct Verification {
     pub rust_version: Option<String>,
     pub dfx_version: String,
     pub optimize_count: u8,
-    pub repo_visibility: Option<String>,
+    pub repo_visibility: String,
     pub updated_by: CanisterOwnerId,
     pub updated_at: String,
 }

@@ -1,5 +1,5 @@
 use super::VERIFICATION_STORE;
-use crate::common::types::CanisterId;
+use crate::common::types::{CanisterId, CanisterOwnerId};
 use crate::model::error::Error;
 use crate::model::pagination::{Pagination, PaginationInfo};
 use crate::model::stats::Stats;
@@ -21,6 +21,65 @@ pub struct VerificationStore {
     records: Vec<CanisterId>,
 }
 
+#[derive(CandidType, Deserialize)]
+pub struct VerificationLegacy {
+    pub canister_id: CanisterId,
+    pub canister_name: String,
+    pub repo_url: String,
+    pub commit_hash: String,
+    pub wasm_hash: Option<String>,
+    pub build_url: Option<String>,
+    pub build_status: BuildStatus,
+    pub canister_type: Option<CanisterType>,
+    pub rust_version: Option<String>,
+    pub dfx_version: String,
+    pub optimize_count: u8,
+    pub repo_visibility: Option<String>,
+    pub updated_by: CanisterOwnerId,
+    pub updated_at: String,
+}
+#[derive(CandidType, Deserialize, Default)]
+pub struct VerificationStoreLegacy {
+    verifications: HashMap<CanisterId, VerificationLegacy>,
+    records: Vec<CanisterId>,
+}
+
+impl VerificationStoreLegacy {
+    pub fn legacy(self) -> VerificationStore {
+        VerificationStore {
+            records: self.records,
+            verifications: self
+                .verifications
+                .into_iter()
+                .map(|(canister_id, legacy)| {
+                    (
+                        canister_id,
+                        Verification {
+                            delegate_canister_id: None,
+                            canister_id: legacy.canister_id,
+                            canister_name: legacy.canister_name,
+                            repo_url: legacy.repo_url,
+                            commit_hash: legacy.commit_hash,
+                            wasm_hash: legacy.wasm_hash,
+                            build_url: legacy.build_url,
+                            build_status: legacy.build_status,
+                            canister_type: legacy.canister_type,
+                            rust_version: legacy.rust_version,
+                            dfx_version: legacy.dfx_version,
+                            optimize_count: legacy.optimize_count,
+                            repo_visibility: legacy
+                                .repo_visibility
+                                .unwrap_or_else(|| String::from("")),
+                            updated_by: legacy.updated_by,
+                            updated_at: legacy.updated_at,
+                        },
+                    )
+                })
+                .collect(),
+        }
+    }
+}
+
 pub fn submit_verification<F: Fn(CanisterId, BuildStatus)>(
     new_verification: SubmitVerification,
     activity_handler: F,
@@ -31,6 +90,7 @@ pub fn submit_verification<F: Fn(CanisterId, BuildStatus)>(
         store.borrow_mut().verifications.insert(
             new_verification.canister_id,
             Verification {
+                delegate_canister_id: new_verification.delegate_canister_id,
                 canister_id: new_verification.canister_id,
                 canister_name: new_verification.canister_name,
                 repo_url: new_verification.repo_url,
@@ -131,6 +191,7 @@ pub fn register_verification<F: Fn(CanisterId, BuildStatus)>(
                     .insert(
                         register_verification.canister_id,
                         Verification {
+                            delegate_canister_id: register_verification.delegate_canister_id,
                             canister_id: register_verification.canister_id,
                             canister_name: register_verification.canister_name,
                             repo_url: register_verification.repo_url,
@@ -142,7 +203,7 @@ pub fn register_verification<F: Fn(CanisterId, BuildStatus)>(
                             rust_version: register_verification.rust_version,
                             dfx_version: register_verification.dfx_version,
                             optimize_count: register_verification.optimize_count,
-                            repo_visibility: None,
+                            repo_visibility: register_verification.repo_visibility,
                             updated_by: register_verification.owner_id,
                             updated_at: time::now_to_str(),
                         },

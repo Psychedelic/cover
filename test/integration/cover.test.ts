@@ -77,7 +77,8 @@ test.serial('Build config test', async t => {
     optimize_count: 0,
     owner_id: aliceIdentity.getPrincipal(),
     repo_url: '',
-    rust_version: [] as []
+    rust_version: [] as [],
+    delegate_canister_id: [] as []
   };
 
   await t.notThrowsAsync(validatorActor.saveBuildConfig(config));
@@ -123,7 +124,9 @@ test.serial('Verification test', async t => {
     optimize_count: 1,
     owner_id: bobIdentity.getPrincipal(),
     repo_url: 'url/test',
-    rust_version: ['1.2'] as [string]
+    rust_version: ['1.2'] as [string],
+    delegate_canister_id: [] as [],
+    repo_visibility: 'public'
   };
 
   // Register a verification
@@ -154,9 +157,10 @@ test.serial('Verification test', async t => {
     optimize_count: 1,
     owner_id: bobIdentity.getPrincipal(),
     repo_url: 'url/test',
-    repo_visibility: ['public'] as [string],
+    repo_visibility: 'public',
     rust_version: ['1.2.3'] as [string],
-    wasm_hash: ['hash'] as [string]
+    wasm_hash: ['hash'] as [string],
+    delegate_canister_id: [] as []
   };
 
   await t.throwsAsync(bobActor.submitVerification(submitVerification));
@@ -174,7 +178,7 @@ test.serial('Verification test', async t => {
     dfx_version: '0.8.2',
     optimize_count: 1,
     repo_url: 'url/test',
-    repo_visibility: ['public'],
+    repo_visibility: 'public',
     rust_version: ['1.2.3'],
     wasm_hash: ['hash']
   });
@@ -188,7 +192,9 @@ test.serial('Verification test', async t => {
     optimize_count: 0,
     owner_id: aliceIdentity.getPrincipal(),
     repo_url: '',
-    rust_version: ['0.8.3']
+    rust_version: ['0.8.3'],
+    delegate_canister_id: [],
+    repo_visibility: 'public'
   });
   const verifications = await validatorActor.getVerifications({items_per_page: 2n, page_index: 1n});
   t.is(verifications.data.length, 2);

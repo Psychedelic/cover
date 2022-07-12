@@ -36,6 +36,7 @@ pub fn save_build_config(config: SaveBuildConfig) {
             (config.owner_id, config.canister_id),
             BuildConfig {
                 owner_id: config.owner_id,
+                delegate_canister_id: config.delegate_canister_id,
                 canister_id: config.canister_id,
                 canister_name: config.canister_name,
                 repo_url: config.repo_url,

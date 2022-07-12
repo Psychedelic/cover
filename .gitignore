@@ -29,3 +29,5 @@ storybook-static
 /tmp/**/**
 
 **/.vim/
+
+test/dist

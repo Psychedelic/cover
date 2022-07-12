@@ -15,7 +15,7 @@ use ic_cdk_macros::{post_upgrade, pre_upgrade};
 use std::cell::RefCell;
 use std::ops::Deref;
 use validator::ValidatorStore;
-use verification::VerificationStore;
+use verification::{VerificationStore, VerificationStoreLegacy};
 
 thread_local! {
     static ACTIVITY_STORE: RefCell<ActivityStore> = RefCell::new(ActivityStore::default());
@@ -64,7 +64,7 @@ type InternalStableStore = (
     BuilderStore,
     BuildConfigStore,
     ValidatorStore,
-    VerificationStore,
+    VerificationStoreLegacy,
 );
 
 #[post_upgrade]
@@ -85,7 +85,8 @@ pub fn post_upgrade() {
                             BUILD_CONFIG_STORE.with(|build_config_store| {
                                 VALIDATOR_STORE.with(|validator_store| {
                                     VERIFICATION_STORE.with(|verification_store| {
-                                        *verification_store.borrow_mut() = verification_store_mut;
+                                        *verification_store.borrow_mut() =
+                                            verification_store_mut.legacy();
                                         *build_config_store.borrow_mut() = build_config_store_mut;
                                         *builder_store.borrow_mut() = builder_store_mut;
                                         *admin_store.borrow_mut() = admin_store_mut;
