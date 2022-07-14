@@ -130,6 +130,7 @@ export const idlFactory = ({ IDL }) => {
     'deleteBuildConfig' : IDL.Func([IDL.Principal], [], []),
     'deleteBuilder' : IDL.Func([IDL.Principal], [], []),
     'deleteValidator' : IDL.Func([IDL.Principal], [], []),
+    'dfxInfo' : IDL.Func([], [IDL.Text], ['query']),
     'getActivities' : IDL.Func([PaginationInfo], [ManualReply], ['query']),
     'getAdmins' : IDL.Func([], [IDL.Vec(IDL.Principal)], ['query']),
     'getBuildConfigById' : IDL.Func(
@@ -152,7 +153,9 @@ export const idlFactory = ({ IDL }) => {
       ),
     'getVerifications' : IDL.Func([PaginationInfo], [ManualReply_1], ['query']),
     'getVerificationsStats' : IDL.Func([], [Stats], ['query']),
+    'gitCommitHash' : IDL.Func([], [IDL.Text], ['query']),
     'registerVerification' : IDL.Func([RegisterVerification], [Result], []),
+    'rustToolchainInfo' : IDL.Func([], [IDL.Text], ['query']),
     'saveBuildConfig' : IDL.Func([SaveBuildConfig], [], []),
     'submitVerification' : IDL.Func([SubmitVerification], [], []),
   });
