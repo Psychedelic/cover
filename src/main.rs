@@ -14,6 +14,7 @@ use crate::model::stats::Stats;
 use crate::model::verification::{RegisterVerification, SubmitVerification, Verification};
 use crate::store::{activity, admin, build_config, builder, validator, verification};
 use crate::util::guard::{is_admin, is_builder, is_validator};
+use compile_time_run::run_command_str;
 use ic_cdk::api::call::ManualReply;
 use ic_cdk::caller;
 use ic_cdk::export::candid::candid_method;
@@ -25,7 +26,6 @@ use std::cmp::{max, min};
 fn init(config: Option<Config>) {
     // default
     admin::add_admin(&caller());
-
     if let Some(config) = config {
         if let Some(admin) = config.admin {
             admin.iter().for_each(admin::add_admin);
@@ -40,6 +40,27 @@ fn init(config: Option<Config>) {
 }
 
 // =====================================================================================================
+// Metadata
+// =====================================================================================================
+#[query(name = "gitCommitHash")]
+#[candid_method(query, rename = "gitCommitHash")]
+fn git_commit_hash() -> &'static str {
+    run_command_str!("git", "rev-parse", "HEAD")
+}
+
+#[query(name = "rustToolchainInfo")]
+#[candid_method(query, rename = "rustToolchainInfo")]
+fn rust_toolchain_info() -> &'static str {
+    run_command_str!("rustup", "show")
+}
+
+#[query(name = "dfxInfo")]
+#[candid_method(query, rename = "dfxInfo")]
+fn dfx_info() -> &'static str {
+    run_command_str!("dfx", "--version")
+}
+
+// =====================================================================================================
 // Activity
 // =====================================================================================================
 #[query(name = "getActivities", manual_reply = true)]
@@ -47,7 +68,6 @@ fn init(config: Option<Config>) {
 fn get_activities(mut pagination_info: PaginationInfo) -> ManualReply<Pagination<Activity>> {
     pagination_info.items_per_page = max(MIN_ITEMS_PER_PAGE, pagination_info.items_per_page);
     pagination_info.items_per_page = min(MAX_ITEMS_PER_PAGE, pagination_info.items_per_page);
-
     activity::get_activities(pagination_info, |result| ManualReply::one(result))
 }
 
@@ -167,7 +187,6 @@ fn get_verification_by_canister_id(canister_id: CanisterId) -> ManualReply<Optio
 fn get_verifications(mut pagination_info: PaginationInfo) -> ManualReply<Pagination<Verification>> {
     pagination_info.items_per_page = max(MIN_ITEMS_PER_PAGE, pagination_info.items_per_page);
     pagination_info.items_per_page = min(MAX_ITEMS_PER_PAGE, pagination_info.items_per_page);
-
     verification::get_verifications(&pagination_info, |result| ManualReply::one(result))
 }
 
