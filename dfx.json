@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "dfx": "0.10.1",
+  "dfx": "0.11.0",
   "canisters": {
     "cover": {
       "candid": "cover.did",
