@@ -17,7 +17,7 @@ type BuildConfig = record {
 };
 type BuildConfigInfo = record { canister_id : principal; owner_id : principal };
 type BuildStatus = variant { Error; Building; Success; Pending };
-type CanisterType = variant { Rust; Motoko };
+type CanisterType = variant { Rust; Custom; Motoko };
 type Config = record {
   admin : opt vec principal;
   validator : opt vec principal;
@@ -68,6 +68,7 @@ type SaveBuildConfig = record {
   optimize_count : nat8;
 };
 type Stats = record {
+  custom_canisters_count : nat64;
   build_error_count : nat64;
   build_in_progress_count : nat64;
   rust_canisters_count : nat64;
