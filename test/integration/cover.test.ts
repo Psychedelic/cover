@@ -213,6 +213,7 @@ test.serial('Verification test', async t => {
     total_canisters: 2n,
     motoko_canisters_count: 1n,
     rust_canisters_count: 0n,
+    custom_canisters_count: 0n,
     build_pending_count: 1n,
     build_in_progress_count: 0n,
     build_error_count: 0n,
