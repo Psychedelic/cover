@@ -33,20 +33,20 @@ jobs:
           override: true
           target: wasm32-unknown-unknown
 
-      # - name: Cache DFX
-      #  id: cache-dfx
-      #  uses: actions/cache@v2
-      #  with:
-      #    path: /usr/local/bin/dfx
-      #    key: Ubuntu-dfx-version-0.11.0
+      - name: Cache DFX
+        id: cache-dfx
+        uses: actions/cache@v2
+        with:
+          path: /usr/local/bin/dfx
+          key: Ubuntu-dfx-version-0.11.0
 
-      # - name: Install DFX
-      #  if: steps.cache-dfx.outputs.cache-hit != 'true'
-      #  env:
-      #    DFX_VERSION: 0.11.0
-      #  run: |
-      #    echo "No DFX found. Start downloading..."
-      #    curl -fsSL https://sdk.dfinity.org/install.sh | bash
+      - name: Install DFX
+        if: steps.cache-dfx.outputs.cache-hit != 'true'
+        env:
+          DFX_VERSION: 0.11.0
+        run: |
+          echo "No DFX found. Start downloading..."
+          curl -fsSL https://sdk.dfinity.org/install.sh | bash
 
       - name: Format Check
         run: cargo fmt --all -- --check
