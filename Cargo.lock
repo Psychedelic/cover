@@ -80,9 +80,9 @@ dependencies = [
 
 [[package]]
 name = "bit-set"
-version = "0.5.2"
+version = "0.5.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6e11e16035ea35e4e5997b393eacbf6f63983188f7a2ad25bfb13465f5ad59de"
+checksum = "0700ddab506f33b20a03b13996eccd309a48e5ff77d0d95926aa0210fb4e95f1"
 dependencies = [
  "bit-vec",
 ]
@@ -353,9 +353,9 @@ checksum = "7f24254aa9a54b5c858eaee2f5bccdb46aaf0e486a595ed5fd8f86ba55232a70"
 
 [[package]]
 name = "ic-cdk"
-version = "0.5.3"
+version = "0.5.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8ee719e8d430939dcaf06cdbd9e60e2389f10ec62dc3251ae421ec93f9ca79e3"
+checksum = "141341c2cb26c4e5f196d5b64305c677b1abebe093eefbe2c622b4a2e6de8a9f"
 dependencies = [
  "candid",
  "cfg-if",
@@ -364,9 +364,9 @@ dependencies = [
 
 [[package]]
 name = "ic-cdk-macros"
-version = "0.5.3"
+version = "0.5.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c63eb6651f1b4d2c966c4c45d054bb64de9791aadb6834c8d2ce825946099eac"
+checksum = "a5196f57df320b206129d4aae96a0cea72ea2759a5c82651bbb60d721f834998"
 dependencies = [
  "candid",
  "ic-cdk",
@@ -654,9 +654,9 @@ dependencies = [
 
 [[package]]
 name = "proc-macro2"
-version = "1.0.40"
+version = "1.0.41"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dd96a1e8ed2596c337f8eae5f24924ec83f5ad5ab21ea8e455d3566c69fbcaf7"
+checksum = "cdcc2916cde080c1876ff40292a396541241fe0072ef928cd76582e9ea5d60d2"
 dependencies = [
  "unicode-ident",
 ]
@@ -672,9 +672,9 @@ dependencies = [
 
 [[package]]
 name = "redox_syscall"
-version = "0.2.13"
+version = "0.2.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "62f25bc4c7e55e0b0b7a1d43fb893f4fa1361d0abe38b9ce4f323c2adfe6ef42"
+checksum = "534cfe58d6a18cc17120fbf4635d53d14691c1fe4d951064df9bd326178d7d5a"
 dependencies = [
  "bitflags",
 ]
