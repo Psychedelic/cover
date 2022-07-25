@@ -65,4 +65,5 @@ pub enum BuildStatus {
 pub enum CanisterType {
     Rust,
     Motoko,
+    Custom,
 }

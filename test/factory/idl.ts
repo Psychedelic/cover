@@ -45,7 +45,11 @@ export const idlFactory = ({ IDL }) => {
     'canister_id' : IDL.Principal,
     'owner_id' : IDL.Principal,
   });
-  const CanisterType = IDL.Variant({ 'Rust' : IDL.Null, 'Motoko' : IDL.Null });
+  const CanisterType = IDL.Variant({
+    'Rust' : IDL.Null,
+    'Custom' : IDL.Null,
+    'Motoko' : IDL.Null,
+  });
   const Verification = IDL.Record({
     'updated_at' : IDL.Text,
     'updated_by' : IDL.Principal,
@@ -73,6 +77,7 @@ export const idlFactory = ({ IDL }) => {
     'is_last_page' : IDL.Bool,
   });
   const Stats = IDL.Record({
+    'custom_canisters_count' : IDL.Nat64,
     'build_error_count' : IDL.Nat64,
     'build_in_progress_count' : IDL.Nat64,
     'rust_canisters_count' : IDL.Nat64,

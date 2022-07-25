@@ -169,6 +169,7 @@ pub fn get_verifications_stats() -> Stats {
             total_canisters: verifications.len(),
             motoko_canisters_count: 0,
             rust_canisters_count: 0,
+            custom_canisters_count: 0,
             build_pending_count: 0,
             build_in_progress_count: 0,
             build_error_count: 0,
@@ -180,6 +181,7 @@ pub fn get_verifications_stats() -> Stats {
                 match canister_type {
                     CanisterType::Rust => stats.rust_canisters_count += 1,
                     CanisterType::Motoko => stats.motoko_canisters_count += 1,
+                    CanisterType::Custom => stats.custom_canisters_count += 1,
                 }
             };
 

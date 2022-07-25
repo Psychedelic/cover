@@ -12,6 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+
       - uses: actions/cache@v2
         with:
           path: |
@@ -21,6 +22,7 @@ jobs:
             ~/.cargo/git/db/
             target/
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
       - name: Setup toolchain
         uses: actions-rs/toolchain@v1
         with:
@@ -30,32 +32,42 @@ jobs:
           default: true
           override: true
           target: wasm32-unknown-unknown
+
       - name: Cache DFX
         id: cache-dfx
         uses: actions/cache@v2
         with:
           path: /usr/local/bin/dfx
-          key: Ubuntu-dfx-version-0.10.1
+          key: Ubuntu-dfx-version-0.11.0
+
       - name: Install DFX
         if: steps.cache-dfx.outputs.cache-hit != 'true'
         env:
-          DFX_VERSION: 0.10.1
+          DFX_VERSION: 0.11.0
         run: |
           echo "No DFX found. Start downloading..."
           curl -fsSL https://sdk.dfinity.org/install.sh | bash
+
       - name: Format Check
         run: cargo fmt --all -- --check
+
       - name: Clippy Check
         run: cargo clippy --all-targets --all-features -- -D warnings -D clippy::all
-      - name: Test
-        run: cargo test
+
+      # - name: Test
+      #   run: cargo test
+
       - name: Build wasm
         run: cargo build --target wasm32-unknown-unknown --package cover --release
-      - name: Build bin
-        run: cargo build --package cover --release --bin cover
+
+      # - name: Build bin
+      #   run: cargo build --package cover --release --bin cover
+
       - name: Output Debug
         run: ls -al target/debug
+
       - name: Output Release
         run: ls -al target/release
+
       - name: Output Wasm
         run: ls -al target/wasm32-unknown-unknown/release

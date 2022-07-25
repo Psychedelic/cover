@@ -27,6 +27,7 @@ export type BuildStatus = { 'Error' : null } |
   { 'Success' : null } |
   { 'Pending' : null };
 export type CanisterType = { 'Rust' : null } |
+  { 'Custom' : null } |
   { 'Motoko' : null };
 export interface Config {
   'admin' : [] | [Array<Principal>],
@@ -82,6 +83,7 @@ export interface SaveBuildConfig {
   'optimize_count' : number,
 }
 export interface Stats {
+  'custom_canisters_count' : bigint,
   'build_error_count' : bigint,
   'build_in_progress_count' : bigint,
   'rust_canisters_count' : bigint,
