@@ -7,7 +7,7 @@ RUN \
         build-essential pkg-config libssl-dev llvm-dev liblmdb-dev clang cmake git
 
 # Replace your Rust version here
-ARG rust_version=1.62.0
+ARG rust_version=1.63.0
 ENV RUSTUP_HOME=/opt/rustup \
     CARGO_HOME=/opt/cargo \
     PATH=/opt/cargo/bin:$PATH
@@ -18,5 +18,5 @@ RUN curl --fail https://sh.rustup.rs/ -sSf \
 
 # Install dfx; the version is picked up from the DFX_VERSION environment variable
 # Replace your dfx version here
-ENV DFX_VERSION=0.11.0
+ENV DFX_VERSION=0.11.2
 RUN sh -ci "$(curl -fsSL https://sdk.dfinity.org/install.sh)"
