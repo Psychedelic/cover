@@ -47,7 +47,7 @@ fn init(config: Option<Config>) {
 #[candid_method(query, rename = "coverMetadata")]
 fn cover_metadata() -> CoverMetadata {
     CoverMetadata {
-        canister_name: run_command_str!("echo", "${CANISTER_NAME:-cover}"),
+        canister_name: "cover_test",
         repo_url: "psychedelic/cover",
         commit_hash: run_command_str!("git", "rev-parse", "HEAD"),
         dfx_version: "0.11.2",
