@@ -15,6 +15,7 @@ use crate::model::stats::Stats;
 use crate::model::verification::{RegisterVerification, SubmitVerification, Verification};
 use crate::store::{activity, admin, build_config, builder, validator, verification};
 use crate::util::guard::{is_admin, is_builder, is_validator};
+use compile_time_run::run_command_str;
 use ic_cdk::api::call::ManualReply;
 use ic_cdk::caller;
 use ic_cdk::export::candid::candid_method;
@@ -46,12 +47,12 @@ fn init(config: Option<Config>) {
 #[candid_method(query, rename = "coverMetadata")]
 fn cover_metadata() -> CoverMetadata {
     CoverMetadata {
-        canister_name: "",
-        repo_url: "",
-        commit_hash: "",
-        dfx_version: "",
-        rust_version: Some(""),
-        optimize_count: 0,
+        canister_name: "cover",
+        repo_url: "psychedelic/cover",
+        commit_hash: run_command_str!("git", "rev-parse", "HEAD"),
+        dfx_version: "0.11.2",
+        rust_version: Some("1.63.0"),
+        optimize_count: 1,
     }
 }
 
