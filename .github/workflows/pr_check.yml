@@ -4,7 +4,8 @@ on:
   pull_request:
     branches: [main, develop]
     paths:
-      - 'src/**.rs'
+      - 'src/**'
+      - 'test/**'
       - 'Cargo.*'
 
 jobs:
@@ -38,12 +39,12 @@ jobs:
         uses: actions/cache@v2
         with:
           path: /usr/local/bin/dfx
-          key: Ubuntu-dfx-version-0.11.0
+          key: ${{ runner.os }}-dfx-version-0.11.2
 
       - name: Install DFX
         if: steps.cache-dfx.outputs.cache-hit != 'true'
         env:
-          DFX_VERSION: 0.11.0
+          DFX_VERSION: 0.11.2
         run: |
           echo "No DFX found. Start downloading..."
           curl -fsSL https://sdk.dfinity.org/install.sh | bash
@@ -54,20 +55,5 @@ jobs:
       - name: Clippy Check
         run: cargo clippy --all-targets --all-features -- -D warnings -D clippy::all
 
-      # - name: Test
-      #   run: cargo test
-
-      - name: Build wasm
-        run: cargo build --target wasm32-unknown-unknown --package cover --release
-
-      # - name: Build bin
-      #   run: cargo build --package cover --release --bin cover
-
-      - name: Output Debug
-        run: ls -al target/debug
-
-      - name: Output Release
-        run: ls -al target/release
-
-      - name: Output Wasm
-        run: ls -al target/wasm32-unknown-unknown/release
+      - name: Test
+        run: make test

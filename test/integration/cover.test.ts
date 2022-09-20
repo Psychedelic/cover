@@ -20,70 +20,88 @@ import {
 const TEST_CANISTER_ID = Principal.fromText('3x7en-uqaaa-aaaai-abgca-cai');
 const ANOTHER_TEST_CANISTER_ID = Principal.fromText('bymdn-oaaaa-aaaai-abeva-cai');
 
+test.serial('CoverMetadata test', async t => {
+  (
+    await Promise.all(
+      [adminActor, anotherAdminActor, bobActor, aliceActor, johnActor, validatorActor, builderActor].map(actor =>
+        actor.coverMetadata()
+      )
+    )
+  ).forEach(coverMetadata => {
+    t.true(coverMetadata.canister_name.includes('cover'));
+    t.regex(coverMetadata.commit_hash, /^(?:[A-Fa-f0-9]{2})+$/u);
+    t.is(coverMetadata.dfx_version, '0.11.2');
+    t.is(coverMetadata.optimize_count, 0);
+    t.is(coverMetadata.repo_url, 'psychedelic/cover');
+    t.deepEqual(coverMetadata.rust_version, ['1.63.0']);
+  });
+});
+
 test.serial('Admin test', async t => {
   await t.notThrowsAsync(adminActor.addAdmin(anotherAdminIdentity.getPrincipal()));
-
   await t.throwsAsync(aliceActor.addAdmin(anotherAdminIdentity.getPrincipal()));
 
+  await t.notThrowsAsync(adminActor.addAdmin(aliceIdentity.getPrincipal()));
   await t.notThrowsAsync(adminActor.addAdmin(bobIdentity.getPrincipal()));
-
   await t.notThrowsAsync(adminActor.deleteAdmin(bobIdentity.getPrincipal()));
 
   const admins = await adminActor.getAdmins();
-
   const adminList = admins.map(a => a.toText());
 
   t.true(adminList.includes(anotherAdminIdentity.getPrincipal().toText()));
+  t.true(adminList.includes(aliceIdentity.getPrincipal().toText()));
+
+  // Caller, admin, anotherAdmin, alice
+  t.is(adminList.length, 4);
 });
 
 test.serial('Validator test', async t => {
   await t.notThrowsAsync(adminActor.addValidator(validatorIdentity.getPrincipal()));
-
   await t.throwsAsync(validatorActor.addValidator(bobIdentity.getPrincipal()));
 
   await t.notThrowsAsync(adminActor.addValidator(aliceIdentity.getPrincipal()));
-
-  await t.notThrowsAsync(adminActor.deleteValidator(aliceIdentity.getPrincipal()));
+  await t.notThrowsAsync(adminActor.addValidator(bobIdentity.getPrincipal()));
+  await t.notThrowsAsync(adminActor.deleteValidator(bobIdentity.getPrincipal()));
 
   const validators = await adminActor.getValidators();
-
   const validatorList = validators.map(v => v.toText());
 
   t.true(validatorList.includes(validatorIdentity.getPrincipal().toText()));
+  t.true(validatorList.includes(aliceIdentity.getPrincipal().toText()));
+  t.is(validatorList.length, 2);
 });
 
 test.serial('Builder test', async t => {
   await t.notThrowsAsync(adminActor.addBuilder(builderIdentity.getPrincipal()));
-
   await t.throwsAsync(johnActor.addBuilder(bobIdentity.getPrincipal()));
 
   await t.notThrowsAsync(adminActor.addBuilder(aliceIdentity.getPrincipal()));
-
-  await t.notThrowsAsync(adminActor.deleteBuilder(aliceIdentity.getPrincipal()));
+  await t.notThrowsAsync(adminActor.addBuilder(bobIdentity.getPrincipal()));
+  await t.notThrowsAsync(adminActor.deleteBuilder(bobIdentity.getPrincipal()));
 
   const builders = await adminActor.getBuilders();
-
   const builderList = builders.map(b => b.toText());
 
   t.true(builderList.includes(builderIdentity.getPrincipal().toText()));
+  t.true(builderList.includes(aliceIdentity.getPrincipal().toText()));
+  t.is(builderList.length, 2);
 });
 
 test.serial('Build config test', async t => {
   const config = {
     canister_id: TEST_CANISTER_ID,
-    canister_name: '',
-    commit_hash: '',
-    dfx_version: '',
+    canister_name: 'canister_name',
+    commit_hash: 'commit_hash',
+    dfx_version: 'dfx_version',
     optimize_count: 0,
     owner_id: aliceIdentity.getPrincipal(),
-    repo_url: '',
+    repo_url: 'repo_url',
     rust_version: [] as [],
     delegate_canister_id: [] as []
   };
 
   await t.notThrowsAsync(validatorActor.saveBuildConfig(config));
-
-  await t.throwsAsync(aliceActor.saveBuildConfig(config));
+  await t.throwsAsync(bobActor.saveBuildConfig(config));
 
   // Get build config by id
   const result = await aliceActor.getBuildConfigById(TEST_CANISTER_ID);
