@@ -16,14 +16,14 @@ $ make local
 
 ```bash
 # for first time deployment
-$ dfx canister --network ic create cover
-$ dfx canister --network ic install cover -m install
+$ dfx canister --network ic create cover_test
+$ dfx canister --network ic install cover_test -m install
 
 # reinstall
-$ dfx canister --network ic install cover -m reinstall
+$ dfx canister --network ic install cover_test -m reinstall
 
 # upgrade
-$ dfx canister --network ic install cover -m upgrade
+$ dfx canister --network ic install cover_test -m upgrade
 ```
 
 ## Integration Test
