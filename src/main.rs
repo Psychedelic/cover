@@ -8,13 +8,13 @@ use crate::common::types::{AdminId, BuilderId, CanisterId, ValidatorId};
 use crate::model::activity::Activity;
 use crate::model::build_config::{BuildConfig, BuildConfigInfo, SaveBuildConfig};
 use crate::model::config::Config;
+use crate::model::cover_metadata::CoverMetadata;
 use crate::model::error::Error;
 use crate::model::pagination::{Pagination, PaginationInfo};
 use crate::model::stats::Stats;
 use crate::model::verification::{RegisterVerification, SubmitVerification, Verification};
 use crate::store::{activity, admin, build_config, builder, validator, verification};
 use crate::util::guard::{is_admin, is_builder, is_validator};
-use compile_time_run::run_command_str;
 use ic_cdk::api::call::ManualReply;
 use ic_cdk::caller;
 use ic_cdk::export::candid::candid_method;
@@ -40,24 +40,19 @@ fn init(config: Option<Config>) {
 }
 
 // =====================================================================================================
-// Metadata
+// CoverMetadata
 // =====================================================================================================
-#[query(name = "gitCommitHash")]
-#[candid_method(query, rename = "gitCommitHash")]
-fn git_commit_hash() -> &'static str {
-    run_command_str!("git", "rev-parse", "HEAD")
-}
-
-#[query(name = "rustToolchainInfo")]
-#[candid_method(query, rename = "rustToolchainInfo")]
-fn rust_toolchain_info() -> &'static str {
-    run_command_str!("rustup", "show")
-}
-
-#[query(name = "dfxInfo")]
-#[candid_method(query, rename = "dfxInfo")]
-fn dfx_info() -> &'static str {
-    run_command_str!("dfx", "--version")
+#[query(name = "coverMetadata")]
+#[candid_method(query, rename = "coverMetadata")]
+fn cover_metadata() -> CoverMetadata {
+    CoverMetadata {
+        canister_name: "",
+        repo_url: "",
+        commit_hash: "",
+        dfx_version: "",
+        rust_version: Some(""),
+        optimize_count: 0,
+    }
 }
 
 // =====================================================================================================

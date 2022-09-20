@@ -5,6 +5,14 @@ export const idlFactory = ({ IDL }) => {
     'validator' : IDL.Opt(IDL.Vec(IDL.Principal)),
     'builder' : IDL.Opt(IDL.Vec(IDL.Principal)),
   });
+  const CoverMetadata = IDL.Record({
+    'dfx_version' : IDL.Text,
+    'canister_name' : IDL.Text,
+    'commit_hash' : IDL.Text,
+    'repo_url' : IDL.Text,
+    'rust_version' : IDL.Opt(IDL.Text),
+    'optimize_count' : IDL.Nat8,
+  });
   const PaginationInfo = IDL.Record({
     'page_index' : IDL.Nat64,
     'items_per_page' : IDL.Nat64,
@@ -131,11 +139,11 @@ export const idlFactory = ({ IDL }) => {
     'addAdmin' : IDL.Func([IDL.Principal], [], []),
     'addBuilder' : IDL.Func([IDL.Principal], [], []),
     'addValidator' : IDL.Func([IDL.Principal], [], []),
+    'coverMetadata' : IDL.Func([], [CoverMetadata], ['query']),
     'deleteAdmin' : IDL.Func([IDL.Principal], [], []),
     'deleteBuildConfig' : IDL.Func([IDL.Principal], [], []),
     'deleteBuilder' : IDL.Func([IDL.Principal], [], []),
     'deleteValidator' : IDL.Func([IDL.Principal], [], []),
-    'dfxInfo' : IDL.Func([], [IDL.Text], ['query']),
     'getActivities' : IDL.Func([PaginationInfo], [ManualReply], ['query']),
     'getAdmins' : IDL.Func([], [IDL.Vec(IDL.Principal)], ['query']),
     'getBuildConfigById' : IDL.Func(
@@ -158,9 +166,7 @@ export const idlFactory = ({ IDL }) => {
       ),
     'getVerifications' : IDL.Func([PaginationInfo], [ManualReply_1], ['query']),
     'getVerificationsStats' : IDL.Func([], [Stats], ['query']),
-    'gitCommitHash' : IDL.Func([], [IDL.Text], ['query']),
     'registerVerification' : IDL.Func([RegisterVerification], [Result], []),
-    'rustToolchainInfo' : IDL.Func([], [IDL.Text], ['query']),
     'saveBuildConfig' : IDL.Func([SaveBuildConfig], [], []),
     'submitVerification' : IDL.Func([SubmitVerification], [], []),
   });
