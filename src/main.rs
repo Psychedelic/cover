@@ -52,7 +52,7 @@ fn cover_metadata() -> CoverMetadata {
         commit_hash: run_command_str!("git", "rev-parse", "HEAD"),
         dfx_version: "0.11.2",
         rust_version: Some("1.63.0"),
-        optimize_count: 1,
+        optimize_count: 0,
     }
 }
 
