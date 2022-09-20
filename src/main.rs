@@ -8,6 +8,7 @@ use crate::common::types::{AdminId, BuilderId, CanisterId, ValidatorId};
 use crate::model::activity::Activity;
 use crate::model::build_config::{BuildConfig, BuildConfigInfo, SaveBuildConfig};
 use crate::model::config::Config;
+use crate::model::cover_metadata::CoverMetadata;
 use crate::model::error::Error;
 use crate::model::pagination::{Pagination, PaginationInfo};
 use crate::model::stats::Stats;
@@ -40,24 +41,19 @@ fn init(config: Option<Config>) {
 }
 
 // =====================================================================================================
-// Metadata
+// CoverMetadata
 // =====================================================================================================
-#[query(name = "gitCommitHash")]
-#[candid_method(query, rename = "gitCommitHash")]
-fn git_commit_hash() -> &'static str {
-    run_command_str!("git", "rev-parse", "HEAD")
-}
-
-#[query(name = "rustToolchainInfo")]
-#[candid_method(query, rename = "rustToolchainInfo")]
-fn rust_toolchain_info() -> &'static str {
-    run_command_str!("rustup", "show")
-}
-
-#[query(name = "dfxInfo")]
-#[candid_method(query, rename = "dfxInfo")]
-fn dfx_info() -> &'static str {
-    run_command_str!("dfx", "--version")
+#[query(name = "coverMetadata")]
+#[candid_method(query, rename = "coverMetadata")]
+fn cover_metadata() -> CoverMetadata {
+    CoverMetadata {
+        canister_name: run_command_str!("bash", "canister_name.sh"),
+        repo_url: "psychedelic/cover",
+        commit_hash: run_command_str!("git", "rev-parse", "HEAD"),
+        dfx_version: "0.11.2",
+        rust_version: Some("1.63.0"),
+        optimize_count: 0,
+    }
 }
 
 // =====================================================================================================

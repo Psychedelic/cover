@@ -34,6 +34,14 @@ export interface Config {
   'validator' : [] | [Array<Principal>],
   'builder' : [] | [Array<Principal>],
 }
+export interface CoverMetadata {
+  'dfx_version' : string,
+  'canister_name' : string,
+  'commit_hash' : string,
+  'repo_url' : string,
+  'rust_version' : [] | [string],
+  'optimize_count' : number,
+}
 export type Error = { 'BuildInProgress' : null };
 export interface ManualReply {
   'page_index' : bigint,
@@ -129,11 +137,11 @@ export interface _SERVICE {
   'addAdmin' : ActorMethod<[Principal], undefined>,
   'addBuilder' : ActorMethod<[Principal], undefined>,
   'addValidator' : ActorMethod<[Principal], undefined>,
+  'coverMetadata' : ActorMethod<[], CoverMetadata>,
   'deleteAdmin' : ActorMethod<[Principal], undefined>,
   'deleteBuildConfig' : ActorMethod<[Principal], undefined>,
   'deleteBuilder' : ActorMethod<[Principal], undefined>,
   'deleteValidator' : ActorMethod<[Principal], undefined>,
-  'dfxInfo' : ActorMethod<[], string>,
   'getActivities' : ActorMethod<[PaginationInfo], ManualReply>,
   'getAdmins' : ActorMethod<[], Array<Principal>>,
   'getBuildConfigById' : ActorMethod<[Principal], [] | [BuildConfig]>,
@@ -147,9 +155,7 @@ export interface _SERVICE {
   'getVerificationByCanisterId' : ActorMethod<[Principal], [] | [Verification]>,
   'getVerifications' : ActorMethod<[PaginationInfo], ManualReply_1>,
   'getVerificationsStats' : ActorMethod<[], Stats>,
-  'gitCommitHash' : ActorMethod<[], string>,
   'registerVerification' : ActorMethod<[RegisterVerification], Result>,
-  'rustToolchainInfo' : ActorMethod<[], string>,
   'saveBuildConfig' : ActorMethod<[SaveBuildConfig], undefined>,
   'submitVerification' : ActorMethod<[SubmitVerification], undefined>,
 }

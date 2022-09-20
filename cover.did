@@ -23,6 +23,14 @@ type Config = record {
   validator : opt vec principal;
   builder : opt vec principal;
 };
+type CoverMetadata = record {
+  dfx_version : text;
+  canister_name : text;
+  commit_hash : text;
+  repo_url : text;
+  rust_version : opt text;
+  optimize_count : nat8;
+};
 type Error = variant { BuildInProgress };
 type ManualReply = record {
   page_index : nat64;
@@ -114,11 +122,11 @@ service : (opt Config) -> {
   addAdmin : (principal) -> ();
   addBuilder : (principal) -> ();
   addValidator : (principal) -> ();
+  coverMetadata : () -> (CoverMetadata) query;
   deleteAdmin : (principal) -> ();
   deleteBuildConfig : (principal) -> ();
   deleteBuilder : (principal) -> ();
   deleteValidator : (principal) -> ();
-  dfxInfo : () -> (text) query;
   getActivities : (PaginationInfo) -> (ManualReply) query;
   getAdmins : () -> (vec principal) query;
   getBuildConfigById : (principal) -> (opt BuildConfig) query;
@@ -129,9 +137,7 @@ service : (opt Config) -> {
   getVerificationByCanisterId : (principal) -> (opt Verification) query;
   getVerifications : (PaginationInfo) -> (ManualReply_1) query;
   getVerificationsStats : () -> (Stats) query;
-  gitCommitHash : () -> (text) query;
   registerVerification : (RegisterVerification) -> (Result);
-  rustToolchainInfo : () -> (text) query;
   saveBuildConfig : (SaveBuildConfig) -> ();
   submitVerification : (SubmitVerification) -> ();
 }
