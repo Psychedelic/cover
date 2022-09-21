@@ -12,9 +12,11 @@ jobs:
   format_clippy_test_build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+        name: Checkout
 
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
+        name: Cache Rust
         with:
           path: |
             ~/.cargo/bin/
@@ -36,7 +38,7 @@ jobs:
 
       - name: Cache DFX
         id: cache-dfx
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: /usr/local/bin/dfx
           key: ${{ runner.os }}-dfx-version-0.11.2
@@ -55,5 +57,13 @@ jobs:
       - name: Clippy Check
         run: cargo clippy --all-targets --all-features -- -D warnings -D clippy::all
 
+      - uses: actions/cache@v3
+        name: Cache node
+        with:
+          path: test/node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('test/package-lock.json') }}
+
       - name: Test
-        run: make test
+        run: |
+          npm --prefix test ci
+          make test

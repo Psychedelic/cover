@@ -1,4 +1,4 @@
-.PHONY: init candid build local test format lint clean
+.PHONY: init candid build idl build-ic-test build-ic-production local stop-replica test deploy-ic-test deploy-ic-production format lint clean
 
 LOCAL_ADMIN_PRINCIPAL=$(shell dfx identity get-principal)
 TEST_ADMIN_PRINCIPAL=$(shell cat test/admin-test-principal)
