@@ -4,8 +4,8 @@ import {Actor, HttpAgent, Identity} from '@dfinity/agent';
 import {Ed25519KeyIdentity} from '@dfinity/identity';
 import fetch from 'isomorphic-fetch';
 
-import {idlFactory} from './factory/idl';
-import {_SERVICE as Service} from './factory/idl.d';
+import {idlFactory} from './idl/cover.did';
+import {_SERVICE as Service} from './idl/cover.did.d';
 
 export const aliceIdentity = Ed25519KeyIdentity.generate();
 export const bobIdentity = Ed25519KeyIdentity.generate();

@@ -2,6 +2,6 @@ dist
 coverage
 public
 build
-factory
+idl
 target
 .dfx

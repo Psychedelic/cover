@@ -1,4 +1,4 @@
-.PHONY: init candid build local test format lint clean
+.PHONY: init candid build idl build-ic-test build-ic-production local stop-replica test deploy-ic-test deploy-ic-production format lint clean
 
 LOCAL_ADMIN_PRINCIPAL=$(shell dfx identity get-principal)
 TEST_ADMIN_PRINCIPAL=$(shell cat test/admin-test-principal)
@@ -9,14 +9,16 @@ init:
 
 candid:
 	cargo run > cover.did
-	didc bind -t ts cover.did > test/factory/idl.d.ts
-	echo "// @ts-nocheck" > test/factory/idl.ts
-	didc bind -t js cover.did >> test/factory/idl.ts
 
 build: candid
 	dfx ping local || dfx start --clean --background
 	dfx canister create cover
 	dfx build cover
+
+idl: build
+	echo "// @ts-nocheck" > test/idl/cover.did.ts
+	cat .dfx/local/canisters/cover/cover.did.js >> test/idl/cover.did.ts
+	cp .dfx/local/canisters/cover/cover.did.d.ts test/idl/cover.did.d.ts
 
 build-ic-test:
 	dfx build --network ic cover_test
@@ -30,7 +32,7 @@ local: build
 stop-replica:
 	dfx stop
 
-test: stop-replica build
+test: stop-replica idl
 	dfx canister install cover --argument '(opt record{admin=opt vec{principal"$(TEST_ADMIN_PRINCIPAL)"}})'
 	npm --prefix test t
 	dfx stop
