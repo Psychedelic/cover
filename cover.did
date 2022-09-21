@@ -1,10 +1,10 @@
 type Activity = record {
-  create_at : text;
+  create_at : nat64;
   canister_id : principal;
   build_status : BuildStatus;
 };
 type BuildConfig = record {
-  updated_at : text;
+  updated_at : nat64;
   canister_id : principal;
   delegate_canister_id : opt principal;
   dfx_version : text;
@@ -102,7 +102,7 @@ type SubmitVerification = record {
   wasm_hash : opt text;
 };
 type Verification = record {
-  updated_at : text;
+  updated_at : nat64;
   updated_by : principal;
   canister_id : principal;
   delegate_canister_id : opt principal;

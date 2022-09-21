@@ -1,8 +1,8 @@
 use super::BUILD_CONFIG_STORE;
 use crate::common::types::{CanisterId, CanisterOwnerId};
 use crate::model::build_config::{BuildConfig, SaveBuildConfig};
-use crate::util::time;
 use ic_cdk::api::call::ManualReply;
+use ic_cdk::api::time;
 use ic_cdk::export::candid::CandidType;
 use serde::Deserialize;
 use std::collections::BTreeMap;
@@ -31,7 +31,7 @@ pub fn get_build_configs<F: Fn(Vec<&BuildConfig>) -> ManualReply<Vec<BuildConfig
 
 pub fn save_build_config(config: SaveBuildConfig) {
     BUILD_CONFIG_STORE.with(|store| {
-        let now = time::now_to_str();
+        let now = time();
         store.borrow_mut().configs.insert(
             (config.owner_id, config.canister_id),
             BuildConfig {

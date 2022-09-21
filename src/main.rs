@@ -204,6 +204,11 @@ fn get_verifications_stats() -> Stats {
     verification::get_verifications_stats()
 }
 
+#[query]
+fn get_time() -> u64 {
+    ic_cdk::api::time()
+}
+
 #[cfg(any(target_arch = "wasm32"))]
 fn main() {}
 

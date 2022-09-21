@@ -50,7 +50,7 @@ pub struct Verification {
     pub optimize_count: u8,
     pub repo_visibility: String,
     pub updated_by: CanisterOwnerId,
-    pub updated_at: String,
+    pub updated_at: u64, // Current system time given as nanoseconds since 1970-01-01
 }
 
 #[derive(CandidType, Deserialize, Clone, Copy)]

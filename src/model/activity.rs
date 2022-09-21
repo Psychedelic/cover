@@ -7,5 +7,5 @@ use serde::Deserialize;
 pub struct Activity {
     pub canister_id: CanisterId,
     pub build_status: BuildStatus,
-    pub create_at: String,
+    pub create_at: u64,
 }
