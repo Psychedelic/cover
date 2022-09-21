@@ -1,7 +1,7 @@
 import {Principal} from '@dfinity/principal';
 import test from 'ava';
 
-import {CanisterType} from '../factory/idl.d';
+import {CanisterType} from '../idl/cover.did.d';
 import {
   adminActor,
   aliceActor,
