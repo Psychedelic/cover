@@ -1,5 +1,5 @@
 use super::BUILD_CONFIG_STORE;
-use crate::common::types::{CanisterId, CallerId};
+use crate::common::types::{CallerId, CanisterId};
 use crate::model::build_config::{BuildConfig, SaveBuildConfig};
 use ic_cdk::api::call::ManualReply;
 use ic_cdk::api::time;

@@ -1,4 +1,4 @@
-use crate::common::types::{CanisterId, CallerId};
+use crate::common::types::{CallerId, CanisterId};
 use ic_cdk::export::candid::CandidType;
 use serde::Deserialize;
 
