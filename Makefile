@@ -38,10 +38,10 @@ test: stop-replica idl
 	dfx stop
 
 deploy-ic-test:
-	dfx canister --network ic install cover_test --upgrade
+	dfx canister --network ic install cover_test -m upgrade
 
 deploy-ic-production:
-	dfx canister --network ic install cover --upgrade
+	dfx canister --network ic install cover -m upgrade
 
 format:
 	npm --prefix test run prettier
