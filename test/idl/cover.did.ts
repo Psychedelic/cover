@@ -24,8 +24,8 @@ export const idlFactory = ({ IDL }) => {
     'Pending' : IDL.Null,
   });
   const Activity = IDL.Record({
-    'create_at' : IDL.Text,
     'canister_id' : IDL.Principal,
+    'created_at' : IDL.Nat64,
     'build_status' : BuildStatus,
   });
   const ManualReply = IDL.Record({
@@ -38,11 +38,11 @@ export const idlFactory = ({ IDL }) => {
     'is_last_page' : IDL.Bool,
   });
   const BuildConfig = IDL.Record({
-    'updated_at' : IDL.Text,
+    'updated_at' : IDL.Nat64,
     'canister_id' : IDL.Principal,
+    'caller_id' : IDL.Principal,
     'delegate_canister_id' : IDL.Opt(IDL.Principal),
     'dfx_version' : IDL.Text,
-    'owner_id' : IDL.Principal,
     'canister_name' : IDL.Text,
     'commit_hash' : IDL.Text,
     'repo_url' : IDL.Text,
@@ -51,7 +51,7 @@ export const idlFactory = ({ IDL }) => {
   });
   const BuildConfigInfo = IDL.Record({
     'canister_id' : IDL.Principal,
-    'owner_id' : IDL.Principal,
+    'caller_id' : IDL.Principal,
   });
   const CanisterType = IDL.Variant({
     'Rust' : IDL.Null,
@@ -59,7 +59,7 @@ export const idlFactory = ({ IDL }) => {
     'Motoko' : IDL.Null,
   });
   const Verification = IDL.Record({
-    'updated_at' : IDL.Text,
+    'updated_at' : IDL.Nat64,
     'updated_by' : IDL.Principal,
     'canister_id' : IDL.Principal,
     'delegate_canister_id' : IDL.Opt(IDL.Principal),
@@ -96,9 +96,9 @@ export const idlFactory = ({ IDL }) => {
   });
   const RegisterVerification = IDL.Record({
     'canister_id' : IDL.Principal,
+    'caller_id' : IDL.Principal,
     'delegate_canister_id' : IDL.Opt(IDL.Principal),
     'dfx_version' : IDL.Text,
-    'owner_id' : IDL.Principal,
     'canister_name' : IDL.Text,
     'commit_hash' : IDL.Text,
     'repo_url' : IDL.Text,
@@ -110,9 +110,9 @@ export const idlFactory = ({ IDL }) => {
   const Result = IDL.Variant({ 'Ok' : IDL.Null, 'Err' : Error });
   const SaveBuildConfig = IDL.Record({
     'canister_id' : IDL.Principal,
+    'caller_id' : IDL.Principal,
     'delegate_canister_id' : IDL.Opt(IDL.Principal),
     'dfx_version' : IDL.Text,
-    'owner_id' : IDL.Principal,
     'canister_name' : IDL.Text,
     'commit_hash' : IDL.Text,
     'repo_url' : IDL.Text,
@@ -121,9 +121,9 @@ export const idlFactory = ({ IDL }) => {
   });
   const SubmitVerification = IDL.Record({
     'canister_id' : IDL.Principal,
+    'caller_id' : IDL.Principal,
     'delegate_canister_id' : IDL.Opt(IDL.Principal),
     'dfx_version' : IDL.Text,
-    'owner_id' : IDL.Principal,
     'build_status' : BuildStatus,
     'canister_name' : IDL.Text,
     'commit_hash' : IDL.Text,

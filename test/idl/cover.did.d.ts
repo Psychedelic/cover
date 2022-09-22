@@ -2,16 +2,16 @@ import type { Principal } from '@dfinity/principal';
 import type { ActorMethod } from '@dfinity/agent';
 
 export interface Activity {
-  'create_at' : string,
   'canister_id' : Principal,
+  'created_at' : bigint,
   'build_status' : BuildStatus,
 }
 export interface BuildConfig {
-  'updated_at' : string,
+  'updated_at' : bigint,
   'canister_id' : Principal,
+  'caller_id' : Principal,
   'delegate_canister_id' : [] | [Principal],
   'dfx_version' : string,
-  'owner_id' : Principal,
   'canister_name' : string,
   'commit_hash' : string,
   'repo_url' : string,
@@ -20,7 +20,7 @@ export interface BuildConfig {
 }
 export interface BuildConfigInfo {
   'canister_id' : Principal,
-  'owner_id' : Principal,
+  'caller_id' : Principal,
 }
 export type BuildStatus = { 'Error' : null } |
   { 'Building' : null } |
@@ -67,9 +67,9 @@ export interface PaginationInfo {
 }
 export interface RegisterVerification {
   'canister_id' : Principal,
+  'caller_id' : Principal,
   'delegate_canister_id' : [] | [Principal],
   'dfx_version' : string,
-  'owner_id' : Principal,
   'canister_name' : string,
   'commit_hash' : string,
   'repo_url' : string,
@@ -81,9 +81,9 @@ export type Result = { 'Ok' : null } |
   { 'Err' : Error };
 export interface SaveBuildConfig {
   'canister_id' : Principal,
+  'caller_id' : Principal,
   'delegate_canister_id' : [] | [Principal],
   'dfx_version' : string,
-  'owner_id' : Principal,
   'canister_name' : string,
   'commit_hash' : string,
   'repo_url' : string,
@@ -102,9 +102,9 @@ export interface Stats {
 }
 export interface SubmitVerification {
   'canister_id' : Principal,
+  'caller_id' : Principal,
   'delegate_canister_id' : [] | [Principal],
   'dfx_version' : string,
-  'owner_id' : Principal,
   'build_status' : BuildStatus,
   'canister_name' : string,
   'commit_hash' : string,
@@ -117,7 +117,7 @@ export interface SubmitVerification {
   'wasm_hash' : [] | [string],
 }
 export interface Verification {
-  'updated_at' : string,
+  'updated_at' : bigint,
   'updated_by' : Principal,
   'canister_id' : Principal,
   'delegate_canister_id' : [] | [Principal],
