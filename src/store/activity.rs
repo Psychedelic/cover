@@ -13,7 +13,7 @@ const MAX_ACTIVITIES_NUMBER: usize = 120;
 
 #[derive(Default, CandidType, Deserialize)]
 pub struct ActivityStore {
-    activities: LinkedList<Activity>,
+    pub activities: LinkedList<Activity>,
 }
 
 pub fn add_activity(canister_id: CanisterId, build_status: BuildStatus) {
@@ -26,7 +26,7 @@ pub fn add_activity(canister_id: CanisterId, build_status: BuildStatus) {
         store_ref_mut.activities.push_front(Activity {
             canister_id,
             build_status,
-            create_at: time(),
+            created_at: time(),
         })
     })
 }

@@ -5,6 +5,7 @@ edition = "2018"
 authors = ["Fleek Team <support@fleek.co>"]
 
 [dependencies]
+chrono = "0.4.19"
 serde = "1.0.144"
 candid = "0.7.16"
 ic-cdk = "0.5.6"

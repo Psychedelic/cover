@@ -1,6 +1,6 @@
 type Activity = record {
-  create_at : nat64;
   canister_id : principal;
+  created_at : nat64;
   build_status : BuildStatus;
 };
 type BuildConfig = record {

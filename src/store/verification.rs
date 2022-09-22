@@ -15,8 +15,8 @@ use std::collections::HashMap;
 
 #[derive(CandidType, Deserialize, Default)]
 pub struct VerificationStore {
-    verifications: HashMap<CanisterId, Verification>,
-    records: Vec<CanisterId>,
+    pub verifications: HashMap<CanisterId, Verification>,
+    pub records: Vec<CanisterId>,
 }
 
 pub fn submit_verification<F: Fn(CanisterId, BuildStatus)>(
