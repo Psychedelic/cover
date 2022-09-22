@@ -6,16 +6,19 @@ type Activity = record {
 type BuildConfig = record {
   updated_at : nat64;
   canister_id : principal;
+  caller_id : principal;
   delegate_canister_id : opt principal;
   dfx_version : text;
-  owner_id : principal;
   canister_name : text;
   commit_hash : text;
   repo_url : text;
   rust_version : opt text;
   optimize_count : nat8;
 };
-type BuildConfigInfo = record { canister_id : principal; owner_id : principal };
+type BuildConfigInfo = record {
+  canister_id : principal;
+  caller_id : principal;
+};
 type BuildStatus = variant { Error; Building; Success; Pending };
 type CanisterType = variant { Rust; Custom; Motoko };
 type Config = record {
@@ -53,9 +56,9 @@ type ManualReply_1 = record {
 type PaginationInfo = record { page_index : nat64; items_per_page : nat64 };
 type RegisterVerification = record {
   canister_id : principal;
+  caller_id : principal;
   delegate_canister_id : opt principal;
   dfx_version : text;
-  owner_id : principal;
   canister_name : text;
   commit_hash : text;
   repo_url : text;
@@ -66,9 +69,9 @@ type RegisterVerification = record {
 type Result = variant { Ok; Err : Error };
 type SaveBuildConfig = record {
   canister_id : principal;
+  caller_id : principal;
   delegate_canister_id : opt principal;
   dfx_version : text;
-  owner_id : principal;
   canister_name : text;
   commit_hash : text;
   repo_url : text;
@@ -87,9 +90,9 @@ type Stats = record {
 };
 type SubmitVerification = record {
   canister_id : principal;
+  caller_id : principal;
   delegate_canister_id : opt principal;
   dfx_version : text;
-  owner_id : principal;
   build_status : BuildStatus;
   canister_name : text;
   commit_hash : text;

@@ -42,7 +42,7 @@ pub fn submit_verification<F: Fn(CanisterId, BuildStatus)>(
                 dfx_version: new_verification.dfx_version,
                 optimize_count: new_verification.optimize_count,
                 repo_visibility: new_verification.repo_visibility,
-                updated_by: new_verification.owner_id,
+                updated_by: new_verification.caller_id,
                 updated_at: time(),
             },
         );
@@ -139,7 +139,7 @@ pub fn register_verification<F: Fn(CanisterId, BuildStatus)>(
                             dfx_version: register_verification.dfx_version,
                             optimize_count: register_verification.optimize_count,
                             repo_visibility: register_verification.repo_visibility,
-                            updated_by: register_verification.owner_id,
+                            updated_by: register_verification.caller_id,
                             updated_at: time(),
                         },
                     )

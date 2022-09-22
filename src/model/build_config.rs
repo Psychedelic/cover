@@ -1,10 +1,10 @@
-use crate::common::types::{CanisterId, CanisterOwnerId};
+use crate::common::types::{CanisterId, CallerId};
 use ic_cdk::export::candid::CandidType;
 use serde::Deserialize;
 
 #[derive(CandidType, Deserialize)]
 pub struct BuildConfig {
-    pub owner_id: CanisterOwnerId,
+    pub caller_id: CallerId,
     pub delegate_canister_id: Option<CanisterId>,
     pub canister_id: CanisterId,
     pub canister_name: String,
@@ -18,7 +18,7 @@ pub struct BuildConfig {
 
 #[derive(CandidType, Deserialize)]
 pub struct SaveBuildConfig {
-    pub owner_id: CanisterOwnerId,
+    pub caller_id: CallerId,
     pub delegate_canister_id: Option<CanisterId>,
     pub canister_id: CanisterId,
     pub canister_name: String,
@@ -31,6 +31,6 @@ pub struct SaveBuildConfig {
 
 #[derive(CandidType, Deserialize)]
 pub struct BuildConfigInfo {
-    pub owner_id: CanisterOwnerId,
+    pub caller_id: CallerId,
     pub canister_id: CanisterId,
 }

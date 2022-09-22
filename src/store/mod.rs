@@ -84,12 +84,12 @@ pub struct ActivityLegacy {
 
 #[derive(CandidType, Default, Deserialize)]
 pub struct BuildConfigStoreLegacy {
-    pub configs: BTreeMap<(CanisterOwnerId, CanisterId), BuildConfigLegacy>,
+    pub configs: BTreeMap<(CallerId, CanisterId), BuildConfigLegacy>,
 }
 
 #[derive(CandidType, Deserialize)]
 pub struct BuildConfigLegacy {
-    pub owner_id: CanisterOwnerId,
+    pub owner_id: CallerId,
     pub delegate_canister_id: Option<CanisterId>,
     pub canister_id: CanisterId,
     pub canister_name: String,
@@ -122,7 +122,7 @@ pub struct VerificationLegacy {
     pub dfx_version: String,
     pub optimize_count: u8,
     pub repo_visibility: String,
-    pub updated_by: CanisterOwnerId,
+    pub updated_by: CallerId,
     pub updated_at: String,
 }
 
@@ -209,7 +209,7 @@ pub fn post_upgrade() {
                                                     (
                                                         k,
                                                         BuildConfig {
-                                                            owner_id: build_config_legacy.owner_id,
+                                                            caller_id: build_config_legacy.owner_id,
                                                             delegate_canister_id:
                                                                 build_config_legacy
                                                                     .delegate_canister_id,

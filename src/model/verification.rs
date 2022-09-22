@@ -1,10 +1,10 @@
-use crate::common::types::{CanisterId, CanisterOwnerId};
+use crate::common::types::{CanisterId, CallerId};
 use ic_cdk::export::candid::CandidType;
 use serde::Deserialize;
 
 #[derive(CandidType, Deserialize)]
 pub struct SubmitVerification {
-    pub owner_id: CanisterOwnerId,
+    pub caller_id: CallerId,
     pub delegate_canister_id: Option<CanisterId>,
     pub canister_id: CanisterId,
     pub canister_name: String,
@@ -22,7 +22,7 @@ pub struct SubmitVerification {
 
 #[derive(CandidType, Deserialize)]
 pub struct RegisterVerification {
-    pub owner_id: CanisterOwnerId,
+    pub caller_id: CallerId,
     pub delegate_canister_id: Option<CanisterId>,
     pub canister_id: CanisterId,
     pub canister_name: String,
@@ -49,8 +49,8 @@ pub struct Verification {
     pub dfx_version: String,
     pub optimize_count: u8,
     pub repo_visibility: String,
-    pub updated_by: CanisterOwnerId,
-    pub updated_at: u64, // Current system time given as nanoseconds since 1970-01-01
+    pub updated_by: CallerId,
+    pub updated_at: u64,
 }
 
 #[derive(CandidType, Deserialize, Clone, Copy)]
