@@ -9,7 +9,7 @@ use std::collections::BTreeMap;
 
 #[derive(CandidType, Default, Deserialize)]
 pub struct BuildConfigStore {
-    pub configs: BTreeMap<(CallerId, CanisterId), BuildConfig>,
+    configs: BTreeMap<(CallerId, CanisterId), BuildConfig>,
 }
 
 pub fn get_build_configs<F: Fn(Vec<&BuildConfig>) -> ManualReply<Vec<BuildConfig>>>(

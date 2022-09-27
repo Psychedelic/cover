@@ -13,7 +13,7 @@ const MAX_ACTIVITIES_NUMBER: usize = 120;
 
 #[derive(Default, CandidType, Deserialize)]
 pub struct ActivityStore {
-    pub activities: LinkedList<Activity>,
+    activities: LinkedList<Activity>,
 }
 
 pub fn add_activity(canister_id: CanisterId, build_status: BuildStatus) {
