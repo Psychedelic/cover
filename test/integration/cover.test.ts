@@ -94,7 +94,7 @@ test.serial('Build config test', async t => {
     commit_hash: 'commit_hash',
     dfx_version: 'dfx_version',
     optimize_count: 0,
-    owner_id: aliceIdentity.getPrincipal(),
+    caller_id: aliceIdentity.getPrincipal(),
     repo_url: 'repo_url',
     rust_version: [] as [],
     delegate_canister_id: [] as []
@@ -117,13 +117,13 @@ test.serial('Build config test', async t => {
   await t.throwsAsync(
     bobActor.getBuildConfigValidator({
       canister_id: TEST_CANISTER_ID,
-      owner_id: aliceIdentity.getPrincipal()
+      caller_id: aliceIdentity.getPrincipal()
     })
   );
 
   const res = await validatorActor.getBuildConfigValidator({
     canister_id: TEST_CANISTER_ID,
-    owner_id: aliceIdentity.getPrincipal()
+    caller_id: aliceIdentity.getPrincipal()
   });
   t.is(res.length, 1);
   t.like(res[0], config);
@@ -140,7 +140,7 @@ test.serial('Verification test', async t => {
     commit_hash: 'abc',
     dfx_version: '0.8.3',
     optimize_count: 1,
-    owner_id: bobIdentity.getPrincipal(),
+    caller_id: bobIdentity.getPrincipal(),
     repo_url: 'url/test',
     rust_version: ['1.2'] as [string],
     delegate_canister_id: [] as [],
@@ -173,7 +173,7 @@ test.serial('Verification test', async t => {
     commit_hash: 'abc',
     dfx_version: '0.8.2',
     optimize_count: 1,
-    owner_id: bobIdentity.getPrincipal(),
+    caller_id: bobIdentity.getPrincipal(),
     repo_url: 'url/test',
     repo_visibility: 'public',
     rust_version: ['1.2.3'] as [string],
@@ -208,7 +208,7 @@ test.serial('Verification test', async t => {
     commit_hash: 'anotherHash',
     dfx_version: '0.8.2',
     optimize_count: 0,
-    owner_id: aliceIdentity.getPrincipal(),
+    caller_id: aliceIdentity.getPrincipal(),
     repo_url: '',
     rust_version: ['0.8.3'],
     delegate_canister_id: [],

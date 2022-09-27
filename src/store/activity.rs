@@ -4,8 +4,8 @@ use crate::model::activity::Activity;
 use crate::model::pagination::{Pagination, PaginationInfo};
 use crate::model::verification::BuildStatus;
 use crate::util::pagination::total_pages;
-use crate::util::time;
 use ic_cdk::api::call::ManualReply;
+use ic_cdk::api::time;
 use ic_cdk::export::candid::CandidType;
 use serde::Deserialize;
 use std::collections::LinkedList;
@@ -13,7 +13,7 @@ const MAX_ACTIVITIES_NUMBER: usize = 120;
 
 #[derive(Default, CandidType, Deserialize)]
 pub struct ActivityStore {
-    activities: LinkedList<Activity>,
+    pub activities: LinkedList<Activity>,
 }
 
 pub fn add_activity(canister_id: CanisterId, build_status: BuildStatus) {
@@ -26,7 +26,7 @@ pub fn add_activity(canister_id: CanisterId, build_status: BuildStatus) {
         store_ref_mut.activities.push_front(Activity {
             canister_id,
             build_status,
-            create_at: time::now_to_str(),
+            created_at: time(),
         })
     })
 }

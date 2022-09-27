@@ -7,18 +7,16 @@ use crate::model::verification::{
     BuildStatus, CanisterType, RegisterVerification, SubmitVerification, Verification,
 };
 use crate::util::pagination::total_pages;
-use crate::util::time;
-use chrono::{DateTime, Utc};
 use ic_cdk::api::call::ManualReply;
+use ic_cdk::api::time;
 use ic_cdk::export::candid::CandidType;
 use serde::Deserialize;
 use std::collections::HashMap;
-use std::str::FromStr;
 
 #[derive(CandidType, Deserialize, Default)]
 pub struct VerificationStore {
-    verifications: HashMap<CanisterId, Verification>,
-    records: Vec<CanisterId>,
+    pub verifications: HashMap<CanisterId, Verification>,
+    pub records: Vec<CanisterId>,
 }
 
 pub fn submit_verification<F: Fn(CanisterId, BuildStatus)>(
@@ -44,8 +42,8 @@ pub fn submit_verification<F: Fn(CanisterId, BuildStatus)>(
                 dfx_version: new_verification.dfx_version,
                 optimize_count: new_verification.optimize_count,
                 repo_visibility: new_verification.repo_visibility,
-                updated_by: new_verification.owner_id,
-                updated_at: time::now_to_str(),
+                updated_by: new_verification.caller_id,
+                updated_at: time(),
             },
         );
         activity_handler(canister_id, build_status);
@@ -112,12 +110,8 @@ pub fn register_verification<F: Fn(CanisterId, BuildStatus)>(
             .map(|verification| match verification.build_status {
                 BuildStatus::Pending | BuildStatus::Building => {
                     //user have to wait 5 minutes until next register
-                    let time_update: DateTime<Utc> =
-                        DateTime::from_str(&*verification.updated_at).unwrap();
-                    let minutes_from_last_update = time::get_now()
-                        .signed_duration_since(time_update)
-                        .num_minutes();
-                    if minutes_from_last_update > 5 {
+                    let nanosec_from_last_update = time() - verification.updated_at;
+                    if nanosec_from_last_update > 300_000_000_000 {
                         Ok(())
                     } else {
                         Err(Error::BuildInProgress)
@@ -145,8 +139,8 @@ pub fn register_verification<F: Fn(CanisterId, BuildStatus)>(
                             dfx_version: register_verification.dfx_version,
                             optimize_count: register_verification.optimize_count,
                             repo_visibility: register_verification.repo_visibility,
-                            updated_by: register_verification.owner_id,
-                            updated_at: time::now_to_str(),
+                            updated_by: register_verification.caller_id,
+                            updated_at: time(),
                         },
                     )
                     .is_none()

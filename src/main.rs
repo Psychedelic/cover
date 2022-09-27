@@ -122,7 +122,7 @@ fn save_build_config(config: SaveBuildConfig) {
 )]
 #[candid_method(query, rename = "getBuildConfigValidator")]
 fn get_build_config_validator(info: BuildConfigInfo) -> ManualReply<Option<BuildConfig>> {
-    build_config::get_build_config_by_id(&info.owner_id, &info.canister_id, |result| {
+    build_config::get_build_config_by_id(&info.caller_id, &info.canister_id, |result| {
         ManualReply::one(result)
     })
 }
