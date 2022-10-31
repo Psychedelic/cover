@@ -8,7 +8,7 @@ RUN \
         build-essential pkg-config libssl-dev llvm-dev liblmdb-dev clang cmake git jq
 
 # Replace your Rust version here
-ARG rust_version=1.63.0
+ARG rust_version=1.64.0
 ENV RUSTUP_HOME=/opt/rustup \
     CARGO_HOME=/opt/cargo \
     PATH=/opt/cargo/bin:$PATH

@@ -41,14 +41,14 @@ pub fn get_activities<F: Fn(&Pagination<&Activity>) -> ManualReply<Pagination<Ac
         let total_pages = total_pages(total_items, pagination_info.items_per_page);
 
         let mut data: Vec<&Activity> = vec![];
-        if 0 < pagination_info.page_index && pagination_info.page_index <= total_pages {
+        if pagination_info.page_index > 0 && pagination_info.page_index <= total_pages {
             // check if last page
             let data_length = match pagination_info.page_index == total_pages {
                 true => total_items - (pagination_info.items_per_page * (total_pages - 1)),
                 false => pagination_info.items_per_page,
             };
 
-            //calculate where the pagination should start and end
+            // calculate where the pagination should start and end
             let start =
                 ((pagination_info.page_index - 1) * pagination_info.items_per_page) as usize;
             let end = start + data_length as usize;
