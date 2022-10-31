@@ -78,15 +78,15 @@ pub fn get_verifications<
                 false => pagination_info.items_per_page,
             };
 
-            //calculate where the pagination should start and end
+            // calculate where the pagination should start and end
             let start = (total_items
                 - (pagination_info.page_index - 1) * pagination_info.items_per_page)
                 as usize;
             let end = start - data_length as usize;
 
-            //because latest items will get appended to the end of 'records'
-            //so in order to get latest data first, we'll iterate 'records' and push verification into 'data' in reverse order
-            //end will be included and start will be excluded
+            // because latest items will get appended to the end of 'records'
+            // so in order to get latest data first, we'll iterate 'records' and push verification into 'data' in reverse order
+            // end will be included and start will be excluded
             for i in (end..start).rev() {
                 data.push(&store_ref.verifications[&store_ref.records[i]])
             }
