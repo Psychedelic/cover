@@ -33,7 +33,7 @@ test.serial('CoverMetadata test', async t => {
     t.is(coverMetadata.dfx_version, '0.11.2');
     t.is(coverMetadata.optimize_count, 0);
     t.is(coverMetadata.repo_url, 'psychedelic/cover');
-    t.deepEqual(coverMetadata.rust_version, ['1.63.0']);
+    t.deepEqual(coverMetadata.rust_version, ['1.64.0']);
   });
 });
 

@@ -29,8 +29,7 @@ jobs:
       - name: Setup toolchain
         uses: actions-rs/toolchain@v1
         with:
-          profile: minimal
-          toolchain: 1.63.0
+          toolchain: 1.64.0
           components: rustfmt, clippy
           default: true
           override: true
