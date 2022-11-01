@@ -99,21 +99,21 @@ fn get_admins() -> ManualReply<Vec<AdminId>> {
 // =====================================================================================================
 // Build Config
 // =====================================================================================================
-#[query(name = "getBuildConfigs", manual_reply = true)]
-#[candid_method(query, rename = "getBuildConfigs")]
-fn get_build_configs() -> ManualReply<Vec<BuildConfig>> {
+#[query(name = "getMyBuildConfigs", manual_reply = true)]
+#[candid_method(query, rename = "getMyBuildConfigs")]
+fn get_my_build_configs() -> ManualReply<Vec<BuildConfig>> {
     build_config::get_build_configs(&caller(), |result| ManualReply::one(result))
 }
 
-#[query(name = "getBuildConfigById", manual_reply = true)]
-#[candid_method(query, rename = "getBuildConfigById")]
-fn get_build_config_by_id(canister_id: CanisterId) -> ManualReply<Option<BuildConfig>> {
+#[query(name = "getMyBuildConfigById", manual_reply = true)]
+#[candid_method(query, rename = "getMyBuildConfigById")]
+fn get_my_build_config_by_id(canister_id: CanisterId) -> ManualReply<Option<BuildConfig>> {
     build_config::get_build_config_by_id(&caller(), &canister_id, |result| ManualReply::one(result))
 }
 
-#[update(name = "deleteBuildConfig")]
-#[candid_method(update, rename = "deleteBuildConfig")]
-fn delete_build_config(canister_id: CanisterId) {
+#[update(name = "deleteMyBuildConfig")]
+#[candid_method(update, rename = "deleteMyBuildConfig")]
+fn delete_my_build_config(canister_id: CanisterId) {
     build_config::delete_build_config(&caller(), &canister_id);
     activity::add_my_activity(
         canister_id,
