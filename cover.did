@@ -27,6 +27,7 @@ type Config = record {
   builder : opt vec principal;
 };
 type CoverMetadata = record {
+  controller : opt text;
   dfx_version : text;
   canister_name : text;
   commit_hash : text;

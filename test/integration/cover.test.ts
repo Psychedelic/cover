@@ -34,6 +34,7 @@ test.serial('CoverMetadata test', async t => {
     t.is(coverMetadata.optimize_count, 0);
     t.is(coverMetadata.repo_url, 'psychedelic/cover');
     t.deepEqual(coverMetadata.rust_version, ['1.64.0']);
+    t.deepEqual(coverMetadata.controller, ['j3dqd-46f74-s45g5-yt6qa-c5vyq-4zv7t-y4iie-omikc-cjngg-olpgg-rqe']);
   });
 });
 
@@ -201,7 +202,6 @@ test.serial('Verification test', async t => {
     wasm_hash: ['hash']
   });
 
-  // Get verifications
   await validatorActor.registerVerification({
     canister_id: ANOTHER_TEST_CANISTER_ID,
     canister_name: '',
@@ -275,4 +275,43 @@ test.serial('Activity test', async t => {
     items_per_page: 120n,
     is_last_page: true
   });
+
+  await builderActor.submitVerification({
+    canister_id: ANOTHER_TEST_CANISTER_ID,
+    build_status: {Success: null},
+    build_url: 'build/test',
+    canister_name: 'test',
+    canister_type: [{Motoko: null}] as [CanisterType],
+    commit_hash: 'abc',
+    dfx_version: '0.8.2',
+    optimize_count: 1,
+    caller_id: Principal.anonymous(),
+    repo_url: 'url/test',
+    repo_visibility: 'public',
+    rust_version: ['1.2.3'] as [string],
+    wasm_hash: ['hash'] as [string],
+    delegate_canister_id: [] as []
+  });
+  await builderActor.submitVerification({
+    build_status: {Success: null},
+    build_url: 'build/test',
+    canister_id: TEST_CANISTER_ID,
+    canister_name: 'test',
+    canister_type: [{Motoko: null}] as [CanisterType],
+    commit_hash: 'abc',
+    dfx_version: '0.8.2',
+    optimize_count: 1,
+    caller_id: Principal.anonymous(),
+    repo_url: 'url/test',
+    repo_visibility: 'public',
+    rust_version: ['1.2.3'] as [string],
+    wasm_hash: ['hash'] as [string],
+    delegate_canister_id: [] as []
+  });
+
+  t.is((await aliceActor.getMyActivities({items_per_page: 1000n, page_index: 1n})).data.length, 3);
+  t.is((await bobActor.getMyActivities({items_per_page: 1000n, page_index: 1n})).data.length, 2);
+
+  t.is((await aliceActor.getActivities({items_per_page: 1000n, page_index: 1n})).data.length, 5);
+  t.is((await bobActor.getActivities({items_per_page: 1000n, page_index: 1n})).data.length, 5);
 });

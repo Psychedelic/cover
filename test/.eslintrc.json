@@ -53,7 +53,15 @@
     "sonarjs/cognitive-complexity": ["error", 20],
     "promise/catch-or-return": ["error", {"allowFinally": true}]
   },
-  "overrides": [{"files": ["*.test.*"], "rules": {"max-statements": "off"}}],
+  "overrides": [
+    {
+      "files": ["*.test.*"],
+      "rules": {
+        "max-statements": "off",
+        "max-lines": "off"
+      }
+    }
+  ],
   "settings": {
     "import/resolver": {"node": {"extensions": [".ts", ".tsx"]}, "typescript": {}}
   }
