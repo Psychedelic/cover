@@ -54,6 +54,15 @@ export interface ManualReply {
 }
 export interface ManualReply_1 {
   'page_index' : bigint,
+  'data' : Array<MyActivity>,
+  'total_pages' : bigint,
+  'total_items' : bigint,
+  'is_first_page' : boolean,
+  'items_per_page' : bigint,
+  'is_last_page' : boolean,
+}
+export interface ManualReply_2 {
+  'page_index' : bigint,
   'data' : Array<Verification>,
   'total_pages' : bigint,
   'total_items' : bigint,
@@ -61,6 +70,15 @@ export interface ManualReply_1 {
   'items_per_page' : bigint,
   'is_last_page' : boolean,
 }
+export interface MyActivity {
+  'canister_id' : Principal,
+  'created_at' : bigint,
+  'caller_id' : Principal,
+  'build_status' : [] | [BuildStatus],
+  'build_config_status' : [] | [MyBuildConfigActivity],
+}
+export type MyBuildConfigActivity = { 'Save' : null } |
+  { 'Delete' : null };
 export interface PaginationInfo {
   'page_index' : bigint,
   'items_per_page' : bigint,
@@ -151,10 +169,10 @@ export interface _SERVICE {
   >,
   'getBuildConfigs' : ActorMethod<[], Array<BuildConfig>>,
   'getBuilders' : ActorMethod<[], Array<Principal>>,
-  'getMyActivities' : ActorMethod<[PaginationInfo], ManualReply>,
+  'getMyActivities' : ActorMethod<[PaginationInfo], ManualReply_1>,
   'getValidators' : ActorMethod<[], Array<Principal>>,
   'getVerificationByCanisterId' : ActorMethod<[Principal], [] | [Verification]>,
-  'getVerifications' : ActorMethod<[PaginationInfo], ManualReply_1>,
+  'getVerifications' : ActorMethod<[PaginationInfo], ManualReply_2>,
   'getVerificationsStats' : ActorMethod<[], Stats>,
   'registerVerification' : ActorMethod<[RegisterVerification], Result>,
   'saveBuildConfig' : ActorMethod<[SaveBuildConfig], undefined>,

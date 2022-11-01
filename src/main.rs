@@ -5,7 +5,7 @@ mod util;
 
 use crate::common::constants::{MAX_ITEMS_PER_PAGE, MIN_ITEMS_PER_PAGE};
 use crate::common::types::{AdminId, BuilderId, CanisterId, ValidatorId};
-use crate::model::activity::Activity;
+use crate::model::activity::{Activity, MyActivity};
 use crate::model::build_config::{BuildConfig, BuildConfigInfo, SaveBuildConfig};
 use crate::model::config::Config;
 use crate::model::cover_metadata::CoverMetadata;
@@ -69,7 +69,7 @@ fn get_activities(mut pagination_info: PaginationInfo) -> ManualReply<Pagination
 
 #[query(name = "getMyActivities", manual_reply = true)]
 #[candid_method(query, rename = "getMyActivities")]
-fn get_my_activities(mut pagination_info: PaginationInfo) -> ManualReply<Pagination<Activity>> {
+fn get_my_activities(mut pagination_info: PaginationInfo) -> ManualReply<Pagination<MyActivity>> {
     pagination_info.items_per_page = max(MIN_ITEMS_PER_PAGE, pagination_info.items_per_page);
     pagination_info.items_per_page = min(MAX_ITEMS_PER_PAGE, pagination_info.items_per_page);
     activity::get_my_activities(caller(), pagination_info, |result| ManualReply::one(result))
@@ -199,7 +199,7 @@ fn get_verifications(mut pagination_info: PaginationInfo) -> ManualReply<Paginat
 fn submit_verification(verification: SubmitVerification) {
     verification::submit_verification(verification, |canister_id, caller_id, build_status| {
         activity::add_activity(canister_id, build_status);
-        activity::add_my_activity(canister_id, caller_id, build_status);
+        activity::add_my_activity(canister_id, caller_id, Some(build_status), None);
     })
 }
 
@@ -208,7 +208,7 @@ fn submit_verification(verification: SubmitVerification) {
 fn register_verification(verification: RegisterVerification) -> Result<(), Error> {
     verification::register_verification(verification, |canister_id, caller_id, build_status| {
         activity::add_activity(canister_id, build_status);
-        activity::add_my_activity(canister_id, caller_id, build_status);
+        activity::add_my_activity(canister_id, caller_id, Some(build_status), None);
     })
 }
 
