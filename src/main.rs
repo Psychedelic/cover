@@ -4,7 +4,7 @@ mod store;
 mod util;
 
 use crate::common::constants::{MAX_ITEMS_PER_PAGE, MIN_ITEMS_PER_PAGE};
-use crate::common::types::{AdminId, BuilderId, CanisterId, ValidatorId};
+use crate::common::types::{AdminId, BuilderId, CallerId, CanisterId, ValidatorId};
 use crate::model::activity::{Activity, MyActivity, MyBuildConfigActivity};
 use crate::model::build_config::{BuildConfig, BuildConfigInfo, SaveBuildConfig};
 use crate::model::config::Config;
@@ -12,9 +12,12 @@ use crate::model::cover_metadata::CoverMetadata;
 use crate::model::error::Error;
 use crate::model::pagination::{Pagination, PaginationInfo};
 use crate::model::stats::Stats;
-use crate::model::verification::{RegisterVerification, SubmitVerification, Verification};
+use crate::model::verification::{
+    BuildStatus, RegisterVerification, SubmitVerification, Verification,
+};
 use crate::store::{activity, admin, build_config, builder, validator, verification};
 use crate::util::guard::{is_admin, is_builder, is_validator};
+use candid::Principal;
 use compile_time_run::run_command_str;
 use ic_cdk::api::call::ManualReply;
 use ic_cdk::caller;
@@ -53,6 +56,7 @@ fn cover_metadata() -> CoverMetadata {
         dfx_version: "0.11.2",
         rust_version: Some("1.64.0"),
         optimize_count: 0,
+        controller: Some("j3dqd-46f74-s45g5-yt6qa-c5vyq-4zv7t-y4iie-omikc-cjngg-olpgg-rqe"),
     }
 }
 
@@ -208,22 +212,24 @@ fn get_verifications(mut pagination_info: PaginationInfo) -> ManualReply<Paginat
     verification::get_verifications(&pagination_info, |result| ManualReply::one(result))
 }
 
+fn activity_handler(canister_id: CanisterId, caller_id: CallerId, build_status: BuildStatus) {
+    activity::add_activity(canister_id, build_status);
+    // empty CoverMetadata controller
+    if caller_id.ne(&Principal::anonymous()) {
+        activity::add_my_activity(canister_id, caller_id, Some(build_status), None);
+    }
+}
+
 #[update(name = "submitVerification", guard = "is_builder")]
 #[candid_method(update, rename = "submitVerification")]
 fn submit_verification(verification: SubmitVerification) {
-    verification::submit_verification(verification, |canister_id, caller_id, build_status| {
-        activity::add_activity(canister_id, build_status);
-        activity::add_my_activity(canister_id, caller_id, Some(build_status), None);
-    })
+    verification::submit_verification(verification, activity_handler)
 }
 
 #[update(name = "registerVerification", guard = "is_validator")]
 #[candid_method(update, rename = "registerVerification")]
 fn register_verification(verification: RegisterVerification) -> Result<(), Error> {
-    verification::register_verification(verification, |canister_id, caller_id, build_status| {
-        activity::add_activity(canister_id, build_status);
-        activity::add_my_activity(canister_id, caller_id, Some(build_status), None);
-    })
+    verification::register_verification(verification, activity_handler)
 }
 
 #[query(name = "getVerificationsStats")]

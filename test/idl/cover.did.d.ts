@@ -35,6 +35,7 @@ export interface Config {
   'builder' : [] | [Array<Principal>],
 }
 export interface CoverMetadata {
+  'controller' : [] | [string],
   'dfx_version' : string,
   'canister_name' : string,
   'commit_hash' : string,

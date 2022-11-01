@@ -6,6 +6,7 @@ export const idlFactory = ({ IDL }) => {
     'builder' : IDL.Opt(IDL.Vec(IDL.Principal)),
   });
   const CoverMetadata = IDL.Record({
+    'controller' : IDL.Opt(IDL.Text),
     'dfx_version' : IDL.Text,
     'canister_name' : IDL.Text,
     'commit_hash' : IDL.Text,
