@@ -46,6 +46,15 @@ type ManualReply = record {
 };
 type ManualReply_1 = record {
   page_index : nat64;
+  data : vec MyActivity;
+  total_pages : nat64;
+  total_items : nat64;
+  is_first_page : bool;
+  items_per_page : nat64;
+  is_last_page : bool;
+};
+type ManualReply_2 = record {
+  page_index : nat64;
   data : vec Verification;
   total_pages : nat64;
   total_items : nat64;
@@ -53,6 +62,14 @@ type ManualReply_1 = record {
   items_per_page : nat64;
   is_last_page : bool;
 };
+type MyActivity = record {
+  canister_id : principal;
+  created_at : nat64;
+  caller_id : principal;
+  build_status : opt BuildStatus;
+  build_config_status : opt MyBuildConfigActivity;
+};
+type MyBuildConfigActivity = variant { Save; Delete };
 type PaginationInfo = record { page_index : nat64; items_per_page : nat64 };
 type RegisterVerification = record {
   canister_id : principal;
@@ -136,9 +153,10 @@ service : (opt Config) -> {
   getBuildConfigValidator : (BuildConfigInfo) -> (opt BuildConfig) query;
   getBuildConfigs : () -> (vec BuildConfig) query;
   getBuilders : () -> (vec principal) query;
+  getMyActivities : (PaginationInfo) -> (ManualReply_1) query;
   getValidators : () -> (vec principal) query;
   getVerificationByCanisterId : (principal) -> (opt Verification) query;
-  getVerifications : (PaginationInfo) -> (ManualReply_1) query;
+  getVerifications : (PaginationInfo) -> (ManualReply_2) query;
   getVerificationsStats : () -> (Stats) query;
   registerVerification : (RegisterVerification) -> (Result);
   saveBuildConfig : (SaveBuildConfig) -> ();

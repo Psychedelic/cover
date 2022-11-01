@@ -5,7 +5,7 @@ mod util;
 
 use crate::common::constants::{MAX_ITEMS_PER_PAGE, MIN_ITEMS_PER_PAGE};
 use crate::common::types::{AdminId, BuilderId, CanisterId, ValidatorId};
-use crate::model::activity::Activity;
+use crate::model::activity::{Activity, MyActivity, MyBuildConfigActivity};
 use crate::model::build_config::{BuildConfig, BuildConfigInfo, SaveBuildConfig};
 use crate::model::config::Config;
 use crate::model::cover_metadata::CoverMetadata;
@@ -67,6 +67,14 @@ fn get_activities(mut pagination_info: PaginationInfo) -> ManualReply<Pagination
     activity::get_activities(pagination_info, |result| ManualReply::one(result))
 }
 
+#[query(name = "getMyActivities", manual_reply = true)]
+#[candid_method(query, rename = "getMyActivities")]
+fn get_my_activities(mut pagination_info: PaginationInfo) -> ManualReply<Pagination<MyActivity>> {
+    pagination_info.items_per_page = max(MIN_ITEMS_PER_PAGE, pagination_info.items_per_page);
+    pagination_info.items_per_page = min(MAX_ITEMS_PER_PAGE, pagination_info.items_per_page);
+    activity::get_my_activities(caller(), pagination_info, |result| ManualReply::one(result))
+}
+
 // =====================================================================================================
 // Admin
 // =====================================================================================================
@@ -106,13 +114,27 @@ fn get_build_config_by_id(canister_id: CanisterId) -> ManualReply<Option<BuildCo
 #[update(name = "deleteBuildConfig")]
 #[candid_method(update, rename = "deleteBuildConfig")]
 fn delete_build_config(canister_id: CanisterId) {
-    build_config::delete_build_config(&caller(), &canister_id)
+    build_config::delete_build_config(&caller(), &canister_id);
+    activity::add_my_activity(
+        canister_id,
+        caller(),
+        None,
+        Some(MyBuildConfigActivity::Delete),
+    );
 }
 
 #[update(name = "saveBuildConfig", guard = "is_validator")]
 #[candid_method(update, rename = "saveBuildConfig")]
 fn save_build_config(config: SaveBuildConfig) {
-    build_config::save_build_config(config)
+    let canister_id = config.canister_id;
+    let caller_id = config.caller_id;
+    build_config::save_build_config(config);
+    activity::add_my_activity(
+        canister_id,
+        caller_id,
+        None,
+        Some(MyBuildConfigActivity::Save),
+    );
 }
 
 #[query(
@@ -189,13 +211,19 @@ fn get_verifications(mut pagination_info: PaginationInfo) -> ManualReply<Paginat
 #[update(name = "submitVerification", guard = "is_builder")]
 #[candid_method(update, rename = "submitVerification")]
 fn submit_verification(verification: SubmitVerification) {
-    verification::submit_verification(verification, activity::add_activity)
+    verification::submit_verification(verification, |canister_id, caller_id, build_status| {
+        activity::add_activity(canister_id, build_status);
+        activity::add_my_activity(canister_id, caller_id, Some(build_status), None);
+    })
 }
 
 #[update(name = "registerVerification", guard = "is_validator")]
 #[candid_method(update, rename = "registerVerification")]
 fn register_verification(verification: RegisterVerification) -> Result<(), Error> {
-    verification::register_verification(verification, activity::add_activity)
+    verification::register_verification(verification, |canister_id, caller_id, build_status| {
+        activity::add_activity(canister_id, build_status);
+        activity::add_my_activity(canister_id, caller_id, Some(build_status), None);
+    })
 }
 
 #[query(name = "getVerificationsStats")]

@@ -1,4 +1,5 @@
 use super::VERIFICATION_STORE;
+use crate::common::types::CallerId;
 use crate::common::types::CanisterId;
 use crate::model::error::Error;
 use crate::model::pagination::{Pagination, PaginationInfo};
@@ -19,34 +20,34 @@ pub struct VerificationStore {
     records: Vec<CanisterId>,
 }
 
-pub fn submit_verification<F: Fn(CanisterId, BuildStatus)>(
-    new_verification: SubmitVerification,
+pub fn submit_verification<F: Fn(CanisterId, CallerId, BuildStatus)>(
+    verification: SubmitVerification,
     activity_handler: F,
 ) {
     VERIFICATION_STORE.with(|store| {
-        let canister_id = new_verification.canister_id;
-        let build_status = new_verification.build_status;
+        let canister_id = verification.canister_id;
+        let build_status = verification.build_status;
         store.borrow_mut().verifications.insert(
-            new_verification.canister_id,
+            verification.canister_id,
             Verification {
-                delegate_canister_id: new_verification.delegate_canister_id,
-                canister_id: new_verification.canister_id,
-                canister_name: new_verification.canister_name,
-                repo_url: new_verification.repo_url,
-                commit_hash: new_verification.commit_hash,
-                wasm_hash: new_verification.wasm_hash,
-                build_url: Some(new_verification.build_url),
-                build_status: new_verification.build_status,
-                rust_version: new_verification.rust_version,
-                canister_type: new_verification.canister_type,
-                dfx_version: new_verification.dfx_version,
-                optimize_count: new_verification.optimize_count,
-                repo_visibility: new_verification.repo_visibility,
-                updated_by: new_verification.caller_id,
+                delegate_canister_id: verification.delegate_canister_id,
+                canister_id: verification.canister_id,
+                canister_name: verification.canister_name,
+                repo_url: verification.repo_url,
+                commit_hash: verification.commit_hash,
+                wasm_hash: verification.wasm_hash,
+                build_url: Some(verification.build_url),
+                build_status: verification.build_status,
+                rust_version: verification.rust_version,
+                canister_type: verification.canister_type,
+                dfx_version: verification.dfx_version,
+                optimize_count: verification.optimize_count,
+                repo_visibility: verification.repo_visibility,
+                updated_by: verification.caller_id,
                 updated_at: time(),
             },
         );
-        activity_handler(canister_id, build_status);
+        activity_handler(canister_id, verification.caller_id, build_status);
     })
 }
 
@@ -96,7 +97,7 @@ pub fn get_verifications<
     })
 }
 
-pub fn register_verification<F: Fn(CanisterId, BuildStatus)>(
+pub fn register_verification<F: Fn(CanisterId, CallerId, BuildStatus)>(
     register_verification: RegisterVerification,
     activity_handler: F,
 ) -> Result<(), Error> {
@@ -145,7 +146,7 @@ pub fn register_verification<F: Fn(CanisterId, BuildStatus)>(
                     )
                     .is_none()
                     .then(|| store_ref_mut.records.push(canister_id));
-                activity_handler(canister_id, build_status)
+                activity_handler(canister_id, register_verification.caller_id, build_status)
             })
     })
 }

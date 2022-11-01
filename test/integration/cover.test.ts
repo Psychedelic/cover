@@ -251,4 +251,28 @@ test.serial('Activity test', async t => {
     items_per_page: 120n,
     is_last_page: true
   });
+
+  const aliceActivities = await aliceActor.getMyActivities({items_per_page: 1n, page_index: 1n});
+  t.is(aliceActivities.data.length, 3);
+
+  t.like(aliceActivities, {
+    page_index: 1n,
+    total_pages: 1n,
+    total_items: 3n,
+    is_first_page: true,
+    items_per_page: 10n,
+    is_last_page: true
+  });
+
+  const bobActivities = await bobActor.getMyActivities({items_per_page: 1000n, page_index: 1n});
+  t.is(bobActivities.data.length, 2);
+
+  t.like(bobActivities, {
+    page_index: 1n,
+    total_pages: 1n,
+    total_items: 2n,
+    is_first_page: true,
+    items_per_page: 120n,
+    is_last_page: true
+  });
 });

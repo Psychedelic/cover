@@ -53,6 +53,26 @@ export const idlFactory = ({ IDL }) => {
     'canister_id' : IDL.Principal,
     'caller_id' : IDL.Principal,
   });
+  const MyBuildConfigActivity = IDL.Variant({
+    'Save' : IDL.Null,
+    'Delete' : IDL.Null,
+  });
+  const MyActivity = IDL.Record({
+    'canister_id' : IDL.Principal,
+    'created_at' : IDL.Nat64,
+    'caller_id' : IDL.Principal,
+    'build_status' : IDL.Opt(BuildStatus),
+    'build_config_status' : IDL.Opt(MyBuildConfigActivity),
+  });
+  const ManualReply_1 = IDL.Record({
+    'page_index' : IDL.Nat64,
+    'data' : IDL.Vec(MyActivity),
+    'total_pages' : IDL.Nat64,
+    'total_items' : IDL.Nat64,
+    'is_first_page' : IDL.Bool,
+    'items_per_page' : IDL.Nat64,
+    'is_last_page' : IDL.Bool,
+  });
   const CanisterType = IDL.Variant({
     'Rust' : IDL.Null,
     'Custom' : IDL.Null,
@@ -75,7 +95,7 @@ export const idlFactory = ({ IDL }) => {
     'build_url' : IDL.Opt(IDL.Text),
     'wasm_hash' : IDL.Opt(IDL.Text),
   });
-  const ManualReply_1 = IDL.Record({
+  const ManualReply_2 = IDL.Record({
     'page_index' : IDL.Nat64,
     'data' : IDL.Vec(Verification),
     'total_pages' : IDL.Nat64,
@@ -158,13 +178,14 @@ export const idlFactory = ({ IDL }) => {
       ),
     'getBuildConfigs' : IDL.Func([], [IDL.Vec(BuildConfig)], ['query']),
     'getBuilders' : IDL.Func([], [IDL.Vec(IDL.Principal)], ['query']),
+    'getMyActivities' : IDL.Func([PaginationInfo], [ManualReply_1], ['query']),
     'getValidators' : IDL.Func([], [IDL.Vec(IDL.Principal)], ['query']),
     'getVerificationByCanisterId' : IDL.Func(
         [IDL.Principal],
         [IDL.Opt(Verification)],
         ['query'],
       ),
-    'getVerifications' : IDL.Func([PaginationInfo], [ManualReply_1], ['query']),
+    'getVerifications' : IDL.Func([PaginationInfo], [ManualReply_2], ['query']),
     'getVerificationsStats' : IDL.Func([], [Stats], ['query']),
     'registerVerification' : IDL.Func([RegisterVerification], [Result], []),
     'saveBuildConfig' : IDL.Func([SaveBuildConfig], [], []),
