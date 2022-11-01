@@ -158,6 +158,7 @@ export const idlFactory = ({ IDL }) => {
       ),
     'getBuildConfigs' : IDL.Func([], [IDL.Vec(BuildConfig)], ['query']),
     'getBuilders' : IDL.Func([], [IDL.Vec(IDL.Principal)], ['query']),
+    'getMyActivities' : IDL.Func([PaginationInfo], [ManualReply], ['query']),
     'getValidators' : IDL.Func([], [IDL.Vec(IDL.Principal)], ['query']),
     'getVerificationByCanisterId' : IDL.Func(
         [IDL.Principal],

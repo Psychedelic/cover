@@ -151,6 +151,7 @@ export interface _SERVICE {
   >,
   'getBuildConfigs' : ActorMethod<[], Array<BuildConfig>>,
   'getBuilders' : ActorMethod<[], Array<Principal>>,
+  'getMyActivities' : ActorMethod<[PaginationInfo], ManualReply>,
   'getValidators' : ActorMethod<[], Array<Principal>>,
   'getVerificationByCanisterId' : ActorMethod<[Principal], [] | [Verification]>,
   'getVerifications' : ActorMethod<[PaginationInfo], ManualReply_1>,

@@ -136,6 +136,7 @@ service : (opt Config) -> {
   getBuildConfigValidator : (BuildConfigInfo) -> (opt BuildConfig) query;
   getBuildConfigs : () -> (vec BuildConfig) query;
   getBuilders : () -> (vec principal) query;
+  getMyActivities : (PaginationInfo) -> (ManualReply) query;
   getValidators : () -> (vec principal) query;
   getVerificationByCanisterId : (principal) -> (opt Verification) query;
   getVerifications : (PaginationInfo) -> (ManualReply_1) query;

@@ -64,7 +64,17 @@ fn cover_metadata() -> CoverMetadata {
 fn get_activities(mut pagination_info: PaginationInfo) -> ManualReply<Pagination<Activity>> {
     pagination_info.items_per_page = max(MIN_ITEMS_PER_PAGE, pagination_info.items_per_page);
     pagination_info.items_per_page = min(MAX_ITEMS_PER_PAGE, pagination_info.items_per_page);
-    activity::get_activities(pagination_info, |result| ManualReply::one(result))
+    activity::get_activities(None, pagination_info, |result| ManualReply::one(result))
+}
+
+#[query(name = "getMyActivities", manual_reply = true)]
+#[candid_method(query, rename = "getMyActivities")]
+fn get_my_activities(mut pagination_info: PaginationInfo) -> ManualReply<Pagination<Activity>> {
+    pagination_info.items_per_page = max(MIN_ITEMS_PER_PAGE, pagination_info.items_per_page);
+    pagination_info.items_per_page = min(MAX_ITEMS_PER_PAGE, pagination_info.items_per_page);
+    activity::get_activities(Some(caller()), pagination_info, |result| {
+        ManualReply::one(result)
+    })
 }
 
 // =====================================================================================================

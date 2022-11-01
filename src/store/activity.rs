@@ -1,5 +1,5 @@
-use super::ACTIVITY_STORE;
-use crate::common::types::CanisterId;
+use super::{ACTIVITY_STORE, MY_ACTIVITY_STORE};
+use crate::common::types::{CallerId, CanisterId};
 use crate::model::activity::Activity;
 use crate::model::pagination::{Pagination, PaginationInfo};
 use crate::model::verification::BuildStatus;
@@ -8,15 +8,22 @@ use ic_cdk::api::call::ManualReply;
 use ic_cdk::api::time;
 use ic_cdk::export::candid::CandidType;
 use serde::Deserialize;
-use std::collections::LinkedList;
-const MAX_ACTIVITIES_NUMBER: usize = 120;
+use std::collections::{BTreeMap, LinkedList};
+
+const MAX_ACTIVITIES_NUMBER: usize = 12_000;
+const MAX_MY_ACTIVITIES_NUMBER: usize = 120;
 
 #[derive(Default, CandidType, Deserialize)]
 pub struct ActivityStore {
     activities: LinkedList<Activity>,
 }
 
-pub fn add_activity(canister_id: CanisterId, build_status: BuildStatus) {
+#[derive(Default, CandidType, Deserialize)]
+pub struct MyActivityStore {
+    my_activities: BTreeMap<CallerId, LinkedList<Activity>>,
+}
+
+pub fn add_activity(canister_id: CanisterId, caller_id: CallerId, build_status: BuildStatus) {
     ACTIVITY_STORE.with(|store| {
         let mut store_ref_mut = store.borrow_mut();
         if store_ref_mut.activities.len() >= MAX_ACTIVITIES_NUMBER {
@@ -28,10 +35,39 @@ pub fn add_activity(canister_id: CanisterId, build_status: BuildStatus) {
             build_status,
             created_at: time(),
         })
-    })
+    });
+
+    MY_ACTIVITY_STORE.with(|store| {
+        let mut store_ref_mut = store.borrow_mut();
+        let my_activities = store_ref_mut
+            .my_activities
+            .entry(caller_id)
+            .or_insert_with(LinkedList::default);
+
+        if my_activities.len() >= MAX_MY_ACTIVITIES_NUMBER {
+            my_activities.pop_back();
+        }
+
+        my_activities.push_front(Activity {
+            canister_id,
+            build_status,
+            created_at: time(),
+        })
+    });
 }
 
 pub fn get_activities<F: Fn(&Pagination<&Activity>) -> ManualReply<Pagination<Activity>>>(
+    caller_id: Option<CallerId>,
+    pagination_info: PaginationInfo,
+    manual_reply: F,
+) -> ManualReply<Pagination<Activity>> {
+    match caller_id {
+        Some(caller_id) => filter_my_activities(caller_id, pagination_info, manual_reply),
+        None => filter_activities(pagination_info, manual_reply),
+    }
+}
+
+fn filter_activities<F: Fn(&Pagination<&Activity>) -> ManualReply<Pagination<Activity>>>(
     pagination_info: PaginationInfo,
     manual_reply: F,
 ) -> ManualReply<Pagination<Activity>> {
@@ -54,6 +90,50 @@ pub fn get_activities<F: Fn(&Pagination<&Activity>) -> ManualReply<Pagination<Ac
             let end = start + data_length as usize;
 
             for (index, activity) in store_ref.activities.iter().enumerate() {
+                if index == end {
+                    break;
+                }
+
+                if start <= index && index < end {
+                    data.push(activity)
+                }
+            }
+        }
+
+        manual_reply(&Pagination::of(data, &pagination_info, total_items))
+    })
+}
+
+fn filter_my_activities<F: Fn(&Pagination<&Activity>) -> ManualReply<Pagination<Activity>>>(
+    caller_id: CallerId,
+    pagination_info: PaginationInfo,
+    manual_reply: F,
+) -> ManualReply<Pagination<Activity>> {
+    MY_ACTIVITY_STORE.with(|store| {
+        let store_ref = store.borrow();
+        let default_my_activities = LinkedList::default();
+        let my_activities = store_ref
+            .my_activities
+            .get(&caller_id)
+            .unwrap_or(&default_my_activities);
+
+        let total_items = my_activities.len() as u64;
+        let total_pages = total_pages(total_items, pagination_info.items_per_page);
+
+        let mut data: Vec<&Activity> = vec![];
+        if pagination_info.page_index > 0 && pagination_info.page_index <= total_pages {
+            // check if last page
+            let data_length = match pagination_info.page_index == total_pages {
+                true => total_items - (pagination_info.items_per_page * (total_pages - 1)),
+                false => pagination_info.items_per_page,
+            };
+
+            // calculate where the pagination should start and end
+            let start =
+                ((pagination_info.page_index - 1) * pagination_info.items_per_page) as usize;
+            let end = start + data_length as usize;
+
+            for (index, activity) in my_activities.iter().enumerate() {
                 if index == end {
                     break;
                 }
