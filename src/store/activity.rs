@@ -23,7 +23,7 @@ pub struct MyActivityStore {
     my_activities: BTreeMap<CallerId, LinkedList<Activity>>,
 }
 
-pub fn add_activity(canister_id: CanisterId, caller_id: CallerId, build_status: BuildStatus) {
+pub fn add_activity(canister_id: CanisterId, build_status: BuildStatus) {
     ACTIVITY_STORE.with(|store| {
         let mut store_ref_mut = store.borrow_mut();
         if store_ref_mut.activities.len() >= MAX_ACTIVITIES_NUMBER {
@@ -36,7 +36,9 @@ pub fn add_activity(canister_id: CanisterId, caller_id: CallerId, build_status: 
             created_at: time(),
         })
     });
+}
 
+pub fn add_my_activity(canister_id: CanisterId, caller_id: CallerId, build_status: BuildStatus) {
     MY_ACTIVITY_STORE.with(|store| {
         let mut store_ref_mut = store.borrow_mut();
         let my_activities = store_ref_mut
@@ -57,17 +59,6 @@ pub fn add_activity(canister_id: CanisterId, caller_id: CallerId, build_status: 
 }
 
 pub fn get_activities<F: Fn(&Pagination<&Activity>) -> ManualReply<Pagination<Activity>>>(
-    caller_id: Option<CallerId>,
-    pagination_info: PaginationInfo,
-    manual_reply: F,
-) -> ManualReply<Pagination<Activity>> {
-    match caller_id {
-        Some(caller_id) => filter_my_activities(caller_id, pagination_info, manual_reply),
-        None => filter_activities(pagination_info, manual_reply),
-    }
-}
-
-fn filter_activities<F: Fn(&Pagination<&Activity>) -> ManualReply<Pagination<Activity>>>(
     pagination_info: PaginationInfo,
     manual_reply: F,
 ) -> ManualReply<Pagination<Activity>> {
@@ -104,7 +95,7 @@ fn filter_activities<F: Fn(&Pagination<&Activity>) -> ManualReply<Pagination<Act
     })
 }
 
-fn filter_my_activities<F: Fn(&Pagination<&Activity>) -> ManualReply<Pagination<Activity>>>(
+pub fn get_my_activities<F: Fn(&Pagination<&Activity>) -> ManualReply<Pagination<Activity>>>(
     caller_id: CallerId,
     pagination_info: PaginationInfo,
     manual_reply: F,

@@ -64,7 +64,7 @@ fn cover_metadata() -> CoverMetadata {
 fn get_activities(mut pagination_info: PaginationInfo) -> ManualReply<Pagination<Activity>> {
     pagination_info.items_per_page = max(MIN_ITEMS_PER_PAGE, pagination_info.items_per_page);
     pagination_info.items_per_page = min(MAX_ITEMS_PER_PAGE, pagination_info.items_per_page);
-    activity::get_activities(None, pagination_info, |result| ManualReply::one(result))
+    activity::get_activities(pagination_info, |result| ManualReply::one(result))
 }
 
 #[query(name = "getMyActivities", manual_reply = true)]
@@ -72,9 +72,7 @@ fn get_activities(mut pagination_info: PaginationInfo) -> ManualReply<Pagination
 fn get_my_activities(mut pagination_info: PaginationInfo) -> ManualReply<Pagination<Activity>> {
     pagination_info.items_per_page = max(MIN_ITEMS_PER_PAGE, pagination_info.items_per_page);
     pagination_info.items_per_page = min(MAX_ITEMS_PER_PAGE, pagination_info.items_per_page);
-    activity::get_activities(Some(caller()), pagination_info, |result| {
-        ManualReply::one(result)
-    })
+    activity::get_my_activities(caller(), pagination_info, |result| ManualReply::one(result))
 }
 
 // =====================================================================================================
@@ -199,13 +197,19 @@ fn get_verifications(mut pagination_info: PaginationInfo) -> ManualReply<Paginat
 #[update(name = "submitVerification", guard = "is_builder")]
 #[candid_method(update, rename = "submitVerification")]
 fn submit_verification(verification: SubmitVerification) {
-    verification::submit_verification(verification, activity::add_activity)
+    verification::submit_verification(verification, |canister_id, caller_id, build_status| {
+        activity::add_activity(canister_id, build_status);
+        activity::add_my_activity(canister_id, caller_id, build_status);
+    })
 }
 
 #[update(name = "registerVerification", guard = "is_validator")]
 #[candid_method(update, rename = "registerVerification")]
 fn register_verification(verification: RegisterVerification) -> Result<(), Error> {
-    verification::register_verification(verification, activity::add_activity)
+    verification::register_verification(verification, |canister_id, caller_id, build_status| {
+        activity::add_activity(canister_id, build_status);
+        activity::add_my_activity(canister_id, caller_id, build_status);
+    })
 }
 
 #[query(name = "getVerificationsStats")]
