@@ -253,12 +253,12 @@ test.serial('Activity test', async t => {
   });
 
   const aliceActivities = await aliceActor.getMyActivities({items_per_page: 1n, page_index: 1n});
-  t.is(aliceActivities.data.length, 1);
+  t.is(aliceActivities.data.length, 3);
 
   t.like(aliceActivities, {
     page_index: 1n,
     total_pages: 1n,
-    total_items: 1n,
+    total_items: 3n,
     is_first_page: true,
     items_per_page: 10n,
     is_last_page: true

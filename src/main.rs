@@ -5,7 +5,7 @@ mod util;
 
 use crate::common::constants::{MAX_ITEMS_PER_PAGE, MIN_ITEMS_PER_PAGE};
 use crate::common::types::{AdminId, BuilderId, CanisterId, ValidatorId};
-use crate::model::activity::{Activity, MyActivity};
+use crate::model::activity::{Activity, MyActivity, MyBuildConfigActivity};
 use crate::model::build_config::{BuildConfig, BuildConfigInfo, SaveBuildConfig};
 use crate::model::config::Config;
 use crate::model::cover_metadata::CoverMetadata;
@@ -114,13 +114,27 @@ fn get_build_config_by_id(canister_id: CanisterId) -> ManualReply<Option<BuildCo
 #[update(name = "deleteBuildConfig")]
 #[candid_method(update, rename = "deleteBuildConfig")]
 fn delete_build_config(canister_id: CanisterId) {
-    build_config::delete_build_config(&caller(), &canister_id)
+    build_config::delete_build_config(&caller(), &canister_id);
+    activity::add_my_activity(
+        canister_id,
+        caller(),
+        None,
+        Some(MyBuildConfigActivity::Delete),
+    );
 }
 
 #[update(name = "saveBuildConfig", guard = "is_validator")]
 #[candid_method(update, rename = "saveBuildConfig")]
 fn save_build_config(config: SaveBuildConfig) {
-    build_config::save_build_config(config)
+    let canister_id = config.canister_id;
+    let caller_id = config.caller_id;
+    build_config::save_build_config(config);
+    activity::add_my_activity(
+        canister_id,
+        caller_id,
+        None,
+        Some(MyBuildConfigActivity::Save),
+    );
 }
 
 #[query(
