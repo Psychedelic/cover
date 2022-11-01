@@ -37,6 +37,10 @@ export const idlFactory = ({ IDL }) => {
     'items_per_page' : IDL.Nat64,
     'is_last_page' : IDL.Bool,
   });
+  const BuildConfigInfo = IDL.Record({
+    'canister_id' : IDL.Principal,
+    'caller_id' : IDL.Principal,
+  });
   const BuildConfig = IDL.Record({
     'updated_at' : IDL.Nat64,
     'canister_id' : IDL.Principal,
@@ -48,10 +52,6 @@ export const idlFactory = ({ IDL }) => {
     'repo_url' : IDL.Text,
     'rust_version' : IDL.Opt(IDL.Text),
     'optimize_count' : IDL.Nat8,
-  });
-  const BuildConfigInfo = IDL.Record({
-    'canister_id' : IDL.Principal,
-    'caller_id' : IDL.Principal,
   });
   const MyBuildConfigActivity = IDL.Variant({
     'Save' : IDL.Null,
@@ -161,24 +161,24 @@ export const idlFactory = ({ IDL }) => {
     'addValidator' : IDL.Func([IDL.Principal], [], []),
     'coverMetadata' : IDL.Func([], [CoverMetadata], ['query']),
     'deleteAdmin' : IDL.Func([IDL.Principal], [], []),
-    'deleteBuildConfig' : IDL.Func([IDL.Principal], [], []),
     'deleteBuilder' : IDL.Func([IDL.Principal], [], []),
+    'deleteMyBuildConfig' : IDL.Func([IDL.Principal], [], []),
     'deleteValidator' : IDL.Func([IDL.Principal], [], []),
     'getActivities' : IDL.Func([PaginationInfo], [ManualReply], ['query']),
     'getAdmins' : IDL.Func([], [IDL.Vec(IDL.Principal)], ['query']),
-    'getBuildConfigById' : IDL.Func(
-        [IDL.Principal],
-        [IDL.Opt(BuildConfig)],
-        ['query'],
-      ),
     'getBuildConfigValidator' : IDL.Func(
         [BuildConfigInfo],
         [IDL.Opt(BuildConfig)],
         ['query'],
       ),
-    'getBuildConfigs' : IDL.Func([], [IDL.Vec(BuildConfig)], ['query']),
     'getBuilders' : IDL.Func([], [IDL.Vec(IDL.Principal)], ['query']),
     'getMyActivities' : IDL.Func([PaginationInfo], [ManualReply_1], ['query']),
+    'getMyBuildConfigById' : IDL.Func(
+        [IDL.Principal],
+        [IDL.Opt(BuildConfig)],
+        ['query'],
+      ),
+    'getMyBuildConfigs' : IDL.Func([], [IDL.Vec(BuildConfig)], ['query']),
     'getValidators' : IDL.Func([], [IDL.Vec(IDL.Principal)], ['query']),
     'getVerificationByCanisterId' : IDL.Func(
         [IDL.Principal],

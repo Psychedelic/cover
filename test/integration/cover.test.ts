@@ -104,12 +104,12 @@ test.serial('Build config test', async t => {
   await t.throwsAsync(bobActor.saveBuildConfig(config));
 
   // Get build config by id
-  const result = await aliceActor.getBuildConfigById(TEST_CANISTER_ID);
+  const result = await aliceActor.getMyBuildConfigById(TEST_CANISTER_ID);
   t.is(result.length, 1);
   t.like(result[0], config);
 
   // Get build configs
-  const configs = await aliceActor.getBuildConfigs();
+  const configs = await aliceActor.getMyBuildConfigs();
   t.is(configs.length, 1);
   t.like(configs[0], config);
 
@@ -128,8 +128,8 @@ test.serial('Build config test', async t => {
   t.is(res.length, 1);
   t.like(res[0], config);
 
-  await t.notThrowsAsync(aliceActor.deleteBuildConfig(TEST_CANISTER_ID));
-  const emptyList = await aliceActor.getBuildConfigs();
+  await t.notThrowsAsync(aliceActor.deleteMyBuildConfig(TEST_CANISTER_ID));
+  const emptyList = await aliceActor.getMyBuildConfigs();
   t.is(emptyList.length, 0);
 });
 
