@@ -90,16 +90,16 @@ pub fn post_upgrade() {
     stable_restore::<InternalStableStore>()
         .map(
             |(
-                 admin,
-                 validator,
-                 builder,
-                 activity,
-                 my_activity,
-                 build_config,
-                 verification,
-                 stats,
-                 my_stats,
-             )| {
+                admin,
+                validator,
+                builder,
+                activity,
+                my_activity,
+                build_config,
+                verification,
+                stats,
+                my_stats,
+            )| {
                 ADMIN_STORE.with(|admin_store| {
                     VALIDATOR_STORE.with(|validator_store| {
                         BUILDER_STORE.with(|builder_store| {
