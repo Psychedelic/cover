@@ -1,9 +1,12 @@
-use super::BUILDER_STORE;
-use crate::common::types::BuilderId;
+use std::collections::HashSet;
+
 use ic_cdk::api::call::ManualReply;
 use ic_cdk::export::candid::CandidType;
 use serde::Deserialize;
-use std::collections::HashSet;
+
+use crate::common::types::BuilderId;
+
+use super::BUILDER_STORE;
 
 #[derive(CandidType, Deserialize, Default)]
 pub struct BuilderStore {

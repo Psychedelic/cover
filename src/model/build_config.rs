@@ -1,6 +1,7 @@
-use crate::common::types::{CallerId, CanisterId};
 use ic_cdk::export::candid::CandidType;
 use serde::Deserialize;
+
+use crate::common::types::{CallerId, CanisterId};
 
 #[derive(CandidType, Deserialize)]
 pub struct BuildConfig {

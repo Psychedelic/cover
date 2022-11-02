@@ -1,7 +1,8 @@
-use crate::common::types::{CallerId, CanisterId};
-use crate::model::verification::BuildStatus;
 use ic_cdk::export::candid::CandidType;
 use serde::Deserialize;
+
+use crate::common::types::{CallerId, CanisterId};
+use crate::model::verification::BuildStatus;
 
 #[derive(CandidType, Deserialize)]
 pub struct Activity {

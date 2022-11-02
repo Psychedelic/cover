@@ -50,23 +50,23 @@ pub fn pre_upgrade() {
                     MY_ACTIVITY_STORE.with(|my_activity_store|
                         BUILD_CONFIG_STORE.with(|build_config_store|
                             VERIFICATION_STORE.with(|verification_store|
-                            STATS_STORE.with(|stats_store| {
-                                if let Err(e) = stable_save::<InternalStableStoreAsRef>((
-                                    admin_store.borrow().deref(),
-                                    validator_store.borrow().deref(),
-                                    builder_store.borrow().deref(),
-                                    activity_store.borrow().deref(),
-                                    my_activity_store.borrow().deref(),
-                                    build_config_store.borrow().deref(),
-                                    verification_store.borrow().deref(),
-                                    stats_store.borrow().deref()
-                                )) {
-                                    trap(&format!(
-                                        "An error occurred when saving to stable memory (pre_upgrade): {:?}",
-                                        e
-                                    ));
-                                }
-                            }))))))))
+                                STATS_STORE.with(|stats_store| {
+                                    if let Err(e) = stable_save::<InternalStableStoreAsRef>((
+                                        admin_store.borrow().deref(),
+                                        validator_store.borrow().deref(),
+                                        builder_store.borrow().deref(),
+                                        activity_store.borrow().deref(),
+                                        my_activity_store.borrow().deref(),
+                                        build_config_store.borrow().deref(),
+                                        verification_store.borrow().deref(),
+                                        stats_store.borrow().deref()
+                                    )) {
+                                        trap(&format!(
+                                            "An error occurred when saving to stable memory (pre_upgrade): {:?}",
+                                            e
+                                        ));
+                                    }
+                                }))))))))
 }
 
 type InternalStableStore = (

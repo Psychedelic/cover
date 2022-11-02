@@ -1,5 +1,10 @@
-use super::STATS_STORE;
-use super::VERIFICATION_STORE;
+use std::collections::HashMap;
+
+use ic_cdk::api::call::ManualReply;
+use ic_cdk::api::time;
+use ic_cdk::export::candid::CandidType;
+use serde::Deserialize;
+
 use crate::common::types::CallerId;
 use crate::common::types::CanisterId;
 use crate::model::error::Error;
@@ -9,11 +14,9 @@ use crate::model::verification::{
     BuildStatus, CanisterType, RegisterVerification, SubmitVerification, Verification,
 };
 use crate::util::pagination::total_pages;
-use ic_cdk::api::call::ManualReply;
-use ic_cdk::api::time;
-use ic_cdk::export::candid::CandidType;
-use serde::Deserialize;
-use std::collections::HashMap;
+
+use super::STATS_STORE;
+use super::VERIFICATION_STORE;
 
 #[derive(CandidType, Deserialize, Default)]
 pub struct VerificationStore {

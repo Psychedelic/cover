@@ -1,7 +1,11 @@
-mod common;
-mod model;
-mod store;
-mod util;
+use std::cmp::{max, min};
+
+use candid::Principal;
+use compile_time_run::run_command_str;
+use ic_cdk::api::call::ManualReply;
+use ic_cdk::caller;
+use ic_cdk::export::candid::candid_method;
+use ic_cdk_macros::{init, query, update};
 
 use crate::common::constants::{MAX_ITEMS_PER_PAGE, MIN_ITEMS_PER_PAGE};
 use crate::common::types::{AdminId, BuilderId, CallerId, CanisterId, ValidatorId};
@@ -17,13 +21,11 @@ use crate::model::verification::{
 };
 use crate::store::{activity, admin, build_config, builder, validator, verification};
 use crate::util::guard::{is_admin, is_builder, is_validator};
-use candid::Principal;
-use compile_time_run::run_command_str;
-use ic_cdk::api::call::ManualReply;
-use ic_cdk::caller;
-use ic_cdk::export::candid::candid_method;
-use ic_cdk_macros::{init, query, update};
-use std::cmp::{max, min};
+
+mod common;
+mod model;
+mod store;
+mod util;
 
 #[init]
 #[candid_method(init)]
