@@ -187,13 +187,13 @@ pub fn register_verification<F: Fn(CanisterId, CallerId, BuildStatus)>(
     })
 }
 
-pub fn get_verifications_stats<F: Fn(&Stats) -> ManualReply<Stats>>(
+pub fn get_verification_stats<F: Fn(&Stats) -> ManualReply<Stats>>(
     manual_reply: F,
 ) -> ManualReply<Stats> {
     STATS_STORE.with(|store| manual_reply(&store.borrow().stats))
 }
 
-pub fn get_my_verifications_stats<F: Fn(&Stats) -> ManualReply<Stats>>(
+pub fn get_my_verification_stats<F: Fn(&Stats) -> ManualReply<Stats>>(
     caller_id: CallerId,
     manual_reply: F,
 ) -> ManualReply<Stats> {

@@ -156,7 +156,7 @@ test.serial('Verification test', async t => {
   (
     await Promise.all(
       [adminActor, anotherAdminActor, bobActor, aliceActor, johnActor, validatorActor, builderActor].map(actor =>
-        actor.getVerificationsStats()
+        actor.getVerificationStats()
       )
     )
   ).forEach(stats => {
@@ -172,7 +172,7 @@ test.serial('Verification test', async t => {
       build_success_count: 0n
     });
   });
-  t.deepEqual(await bobActor.getMyVerificationsStats(), {
+  t.deepEqual(await bobActor.getMyVerificationStats(), {
     total_canisters: 1n,
     motoko_canisters_count: 0n,
     rust_canisters_count: 0n,
@@ -223,7 +223,7 @@ test.serial('Verification test', async t => {
   (
     await Promise.all(
       [adminActor, anotherAdminActor, bobActor, aliceActor, johnActor, validatorActor, builderActor].map(actor =>
-        actor.getVerificationsStats()
+        actor.getVerificationStats()
       )
     )
   ).forEach(stats => {
@@ -239,7 +239,7 @@ test.serial('Verification test', async t => {
       build_success_count: 0n
     });
   });
-  t.deepEqual(await bobActor.getMyVerificationsStats(), {
+  t.deepEqual(await bobActor.getMyVerificationStats(), {
     total_canisters: 1n,
     motoko_canisters_count: 0n,
     rust_canisters_count: 0n,
@@ -285,7 +285,7 @@ test.serial('Verification test', async t => {
   (
     await Promise.all(
       [adminActor, anotherAdminActor, bobActor, aliceActor, johnActor, validatorActor, builderActor].map(actor =>
-        actor.getVerificationsStats()
+        actor.getVerificationStats()
       )
     )
   ).forEach(stats => {
@@ -301,7 +301,7 @@ test.serial('Verification test', async t => {
       build_success_count: 0n
     });
   });
-  t.deepEqual(await bobActor.getMyVerificationsStats(), {
+  t.deepEqual(await bobActor.getMyVerificationStats(), {
     total_canisters: 1n,
     motoko_canisters_count: 0n,
     rust_canisters_count: 0n,
@@ -312,7 +312,7 @@ test.serial('Verification test', async t => {
     build_error_count: 0n,
     build_success_count: 0n
   });
-  t.deepEqual(await aliceActor.getMyVerificationsStats(), {
+  t.deepEqual(await aliceActor.getMyVerificationStats(), {
     total_canisters: 1n,
     motoko_canisters_count: 0n,
     rust_canisters_count: 0n,
@@ -394,7 +394,7 @@ test.serial('Activity test', async t => {
   (
     await Promise.all(
       [adminActor, anotherAdminActor, bobActor, aliceActor, johnActor, validatorActor, builderActor].map(actor =>
-        actor.getVerificationsStats()
+        actor.getVerificationStats()
       )
     )
   ).forEach(stats => {
@@ -410,7 +410,7 @@ test.serial('Activity test', async t => {
       build_success_count: 0n
     });
   });
-  t.deepEqual(await bobActor.getMyVerificationsStats(), {
+  t.deepEqual(await bobActor.getMyVerificationStats(), {
     total_canisters: 1n,
     motoko_canisters_count: 0n,
     rust_canisters_count: 0n,
@@ -421,7 +421,7 @@ test.serial('Activity test', async t => {
     build_error_count: 0n,
     build_success_count: 0n
   });
-  t.deepEqual(await aliceActor.getMyVerificationsStats(), {
+  t.deepEqual(await aliceActor.getMyVerificationStats(), {
     total_canisters: 1n,
     motoko_canisters_count: 0n,
     rust_canisters_count: 0n,
@@ -454,7 +454,7 @@ test.serial('Activity test', async t => {
   (
     await Promise.all(
       [adminActor, anotherAdminActor, bobActor, aliceActor, johnActor, validatorActor, builderActor].map(actor =>
-        actor.getVerificationsStats()
+        actor.getVerificationStats()
       )
     )
   ).forEach(stats => {
@@ -470,7 +470,7 @@ test.serial('Activity test', async t => {
       build_success_count: 0n
     });
   });
-  t.deepEqual(await bobActor.getMyVerificationsStats(), {
+  t.deepEqual(await bobActor.getMyVerificationStats(), {
     total_canisters: 1n,
     motoko_canisters_count: 0n,
     rust_canisters_count: 0n,
@@ -481,7 +481,7 @@ test.serial('Activity test', async t => {
     build_error_count: 1n,
     build_success_count: 0n
   });
-  t.deepEqual(await aliceActor.getMyVerificationsStats(), {
+  t.deepEqual(await aliceActor.getMyVerificationStats(), {
     total_canisters: 1n,
     motoko_canisters_count: 0n,
     rust_canisters_count: 0n,
@@ -522,7 +522,7 @@ test.serial('Stats test', async t => {
   (
     await Promise.all(
       [adminActor, anotherAdminActor, bobActor, aliceActor, johnActor, validatorActor, builderActor].map(actor =>
-        actor.getVerificationsStats()
+        actor.getVerificationStats()
       )
     )
   ).forEach(stats => {
@@ -538,7 +538,7 @@ test.serial('Stats test', async t => {
       build_success_count: 1n
     });
   });
-  t.deepEqual(await bobActor.getMyVerificationsStats(), {
+  t.deepEqual(await bobActor.getMyVerificationStats(), {
     total_canisters: 1n,
     motoko_canisters_count: 0n,
     rust_canisters_count: 0n,
@@ -549,7 +549,7 @@ test.serial('Stats test', async t => {
     build_error_count: 1n,
     build_success_count: 0n
   });
-  t.deepEqual(await aliceActor.getMyVerificationsStats(), {
+  t.deepEqual(await aliceActor.getMyVerificationStats(), {
     total_canisters: 1n,
     motoko_canisters_count: 0n,
     rust_canisters_count: 1n,
