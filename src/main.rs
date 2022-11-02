@@ -1,6 +1,5 @@
 use std::cmp::{max, min};
 
-use candid::Principal;
 use compile_time_run::run_command_str;
 use ic_cdk::api::call::ManualReply;
 use ic_cdk::caller;
@@ -58,7 +57,7 @@ fn cover_metadata() -> CoverMetadata {
         dfx_version: "0.11.2",
         rust_version: Some("1.64.0"),
         optimize_count: 0,
-        controller: Some("j3dqd-46f74-s45g5-yt6qa-c5vyq-4zv7t-y4iie-omikc-cjngg-olpgg-rqe"),
+        controller: "j3dqd-46f74-s45g5-yt6qa-c5vyq-4zv7t-y4iie-omikc-cjngg-olpgg-rqe",
     }
 }
 
@@ -216,10 +215,7 @@ fn get_verifications(mut pagination_info: PaginationInfo) -> ManualReply<Paginat
 
 fn activity_handler(canister_id: CanisterId, caller_id: CallerId, build_status: BuildStatus) {
     activity::add_activity(canister_id, build_status);
-    // empty CoverMetadata controller
-    if caller_id.ne(&Principal::anonymous()) {
-        activity::add_my_activity(canister_id, caller_id, Some(build_status), None);
-    }
+    activity::add_my_activity(canister_id, caller_id, Some(build_status), None);
 }
 
 #[update(name = "submitVerification", guard = "is_builder")]
@@ -238,6 +234,12 @@ fn register_verification(verification: RegisterVerification) -> Result<(), Error
 #[candid_method(query, rename = "getVerificationsStats")]
 fn get_verifications_stats() -> ManualReply<Stats> {
     verification::get_verifications_stats(|stats| ManualReply::one(stats))
+}
+
+#[query(name = "getMyVerificationsStats", manual_reply = true)]
+#[candid_method(query, rename = "getMyVerificationsStats")]
+fn get_my_verifications_stats() -> ManualReply<Stats> {
+    verification::get_my_verifications_stats(caller(), |stats| ManualReply::one(stats))
 }
 
 #[cfg(any(target_arch = "wasm32"))]
