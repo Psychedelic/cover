@@ -10,7 +10,7 @@ use admin::AdminStore;
 use build_config::BuildConfigStore;
 use builder::BuilderStore;
 use validator::ValidatorStore;
-use verification::VerificationStore;
+use verification::{MyStatsStore, StatsStore, VerificationStore};
 
 pub mod activity;
 pub mod admin;
@@ -27,6 +27,8 @@ thread_local! {
     static MY_ACTIVITY_STORE: RefCell<MyActivityStore> = RefCell::new(MyActivityStore::default());
     static BUILD_CONFIG_STORE: RefCell<BuildConfigStore> = RefCell::new(BuildConfigStore::default());
     static VERIFICATION_STORE: RefCell<VerificationStore> = RefCell::new(VerificationStore::default());
+    static STATS_STORE: RefCell<StatsStore> = RefCell::new(StatsStore::default());
+    static MY_STATS_STORE: RefCell<MyStatsStore> = RefCell::new(MyStatsStore::default());
 }
 
 type InternalStableStoreAsRef<'a> = (
@@ -37,6 +39,8 @@ type InternalStableStoreAsRef<'a> = (
     &'a MyActivityStore,
     &'a BuildConfigStore,
     &'a VerificationStore,
+    &'a StatsStore,
+    &'a MyStatsStore,
 );
 
 #[pre_upgrade]
@@ -47,22 +51,26 @@ pub fn pre_upgrade() {
                 ACTIVITY_STORE.with(|activity_store|
                     MY_ACTIVITY_STORE.with(|my_activity_store|
                         BUILD_CONFIG_STORE.with(|build_config_store|
-                            VERIFICATION_STORE.with(|verification_store| {
-                                if let Err(e) = stable_save::<InternalStableStoreAsRef>((
-                                    admin_store.borrow().deref(),
-                                    validator_store.borrow().deref(),
-                                    builder_store.borrow().deref(),
-                                    activity_store.borrow().deref(),
-                                    my_activity_store.borrow().deref(),
-                                    build_config_store.borrow().deref(),
-                                    verification_store.borrow().deref()
-                                )) {
-                                    trap(&format!(
-                                        "An error occurred when saving to stable memory (pre_upgrade): {:?}",
-                                        e
-                                    ));
-                                }
-                            })))))))
+                            VERIFICATION_STORE.with(|verification_store|
+                                STATS_STORE.with(|stats_store|
+                                    MY_STATS_STORE.with(|my_stats_store| {
+                                        if let Err(e) = stable_save::<InternalStableStoreAsRef>((
+                                            admin_store.borrow().deref(),
+                                            validator_store.borrow().deref(),
+                                            builder_store.borrow().deref(),
+                                            activity_store.borrow().deref(),
+                                            my_activity_store.borrow().deref(),
+                                            build_config_store.borrow().deref(),
+                                            verification_store.borrow().deref(),
+                                            stats_store.borrow().deref(),
+                                            my_stats_store.borrow().deref()
+                                        )) {
+                                            trap(&format!(
+                                                "An error occurred when saving to stable memory (pre_upgrade): {:?}",
+                                                e
+                                            ));
+                                        }
+                                    })))))))))
 }
 
 type InternalStableStore = (
@@ -73,6 +81,8 @@ type InternalStableStore = (
     MyActivityStore,
     BuildConfigStore,
     VerificationStore,
+    StatsStore,
+    MyStatsStore,
 );
 
 #[post_upgrade]
@@ -80,13 +90,15 @@ pub fn post_upgrade() {
     stable_restore::<InternalStableStore>()
         .map(
             |(
-                admin_store_mut,
-                validator_store_mut,
-                builder_store_mut,
-                activity_store_mut,
-                my_activity_store_mut,
-                build_config_store_mut,
-                verification_store_mut,
+                admin,
+                validator,
+                builder,
+                activity,
+                my_activity,
+                build_config,
+                verification,
+                stats,
+                my_stats,
             )| {
                 ADMIN_STORE.with(|admin_store| {
                     VALIDATOR_STORE.with(|validator_store| {
@@ -95,15 +107,19 @@ pub fn post_upgrade() {
                                 MY_ACTIVITY_STORE.with(|my_activity_store| {
                                     BUILD_CONFIG_STORE.with(|build_config_store| {
                                         VERIFICATION_STORE.with(|verification_store| {
-                                            *admin_store.borrow_mut() = admin_store_mut;
-                                            *validator_store.borrow_mut() = validator_store_mut;
-                                            *builder_store.borrow_mut() = builder_store_mut;
-                                            *activity_store.borrow_mut() = activity_store_mut;
-                                            *my_activity_store.borrow_mut() = my_activity_store_mut;
-                                            *build_config_store.borrow_mut() =
-                                                build_config_store_mut;
-                                            *verification_store.borrow_mut() =
-                                                verification_store_mut;
+                                            STATS_STORE.with(|stats_store| {
+                                                MY_STATS_STORE.with(|my_stats_store| {
+                                                    *admin_store.borrow_mut() = admin;
+                                                    *validator_store.borrow_mut() = validator;
+                                                    *builder_store.borrow_mut() = builder;
+                                                    *activity_store.borrow_mut() = activity;
+                                                    *my_activity_store.borrow_mut() = my_activity;
+                                                    *build_config_store.borrow_mut() = build_config;
+                                                    *verification_store.borrow_mut() = verification;
+                                                    *stats_store.borrow_mut() = stats;
+                                                    *my_stats_store.borrow_mut() = my_stats;
+                                                })
+                                            })
                                         })
                                     })
                                 })

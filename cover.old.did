@@ -156,11 +156,11 @@ service : (opt Config) -> {
   getMyActivities : (PaginationInfo) -> (ManualReply_1) query;
   getMyBuildConfigById : (principal) -> (opt BuildConfig) query;
   getMyBuildConfigs : () -> (vec BuildConfig) query;
-  getMyVerificationStats : () -> (ManualReply_2) query;
+  getMyVerificationsStats : () -> (ManualReply_2) query;
   getValidators : () -> (vec principal) query;
   getVerificationByCanisterId : (principal) -> (opt Verification) query;
-  getVerificationStats : () -> (ManualReply_2) query;
   getVerifications : (PaginationInfo) -> (ManualReply_3) query;
+  getVerificationsStats : () -> (ManualReply_2) query;
   registerVerification : (RegisterVerification) -> (Result);
   saveBuildConfig : (SaveBuildConfig) -> ();
   submitVerification : (SubmitVerification) -> ();

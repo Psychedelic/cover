@@ -1,14 +1,17 @@
-use super::{ACTIVITY_STORE, MY_ACTIVITY_STORE};
+use std::collections::{BTreeMap, LinkedList};
+
+use ic_cdk::api::call::ManualReply;
+use ic_cdk::api::time;
+use ic_cdk::export::candid::CandidType;
+use serde::Deserialize;
+
 use crate::common::types::{CallerId, CanisterId};
 use crate::model::activity::{Activity, MyActivity, MyBuildConfigActivity};
 use crate::model::pagination::{Pagination, PaginationInfo};
 use crate::model::verification::BuildStatus;
 use crate::util::pagination::total_pages;
-use ic_cdk::api::call::ManualReply;
-use ic_cdk::api::time;
-use ic_cdk::export::candid::CandidType;
-use serde::Deserialize;
-use std::collections::{BTreeMap, LinkedList};
+
+use super::{ACTIVITY_STORE, MY_ACTIVITY_STORE};
 
 const MAX_ACTIVITIES_NUMBER: usize = 12_000;
 const MAX_MY_ACTIVITIES_NUMBER: usize = 120;

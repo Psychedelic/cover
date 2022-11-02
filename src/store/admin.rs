@@ -1,9 +1,12 @@
-use super::ADMIN_STORE;
-use crate::common::types::AdminId;
+use std::collections::HashSet;
+
 use ic_cdk::api::call::ManualReply;
 use ic_cdk::export::candid::CandidType;
 use serde::Deserialize;
-use std::collections::HashSet;
+
+use crate::common::types::AdminId;
+
+use super::ADMIN_STORE;
 
 #[derive(Default, CandidType, Deserialize)]
 pub struct AdminStore {

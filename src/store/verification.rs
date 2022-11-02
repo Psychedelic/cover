@@ -1,4 +1,10 @@
-use super::VERIFICATION_STORE;
+use std::collections::HashMap;
+
+use ic_cdk::api::call::ManualReply;
+use ic_cdk::api::time;
+use ic_cdk::export::candid::CandidType;
+use serde::Deserialize;
+
 use crate::common::types::CallerId;
 use crate::common::types::CanisterId;
 use crate::model::error::Error;
@@ -8,11 +14,10 @@ use crate::model::verification::{
     BuildStatus, CanisterType, RegisterVerification, SubmitVerification, Verification,
 };
 use crate::util::pagination::total_pages;
-use ic_cdk::api::call::ManualReply;
-use ic_cdk::api::time;
-use ic_cdk::export::candid::CandidType;
-use serde::Deserialize;
-use std::collections::HashMap;
+
+use super::MY_STATS_STORE;
+use super::STATS_STORE;
+use super::VERIFICATION_STORE;
 
 #[derive(CandidType, Deserialize, Default)]
 pub struct VerificationStore {
@@ -20,14 +25,23 @@ pub struct VerificationStore {
     records: Vec<CanisterId>,
 }
 
+#[derive(CandidType, Deserialize, Default)]
+pub struct StatsStore {
+    stats: Stats,
+}
+
+#[derive(CandidType, Deserialize, Default)]
+pub struct MyStatsStore {
+    my_stats: HashMap<CallerId, Stats>,
+}
+
 pub fn submit_verification<F: Fn(CanisterId, CallerId, BuildStatus)>(
     verification: SubmitVerification,
     activity_handler: F,
 ) {
     VERIFICATION_STORE.with(|store| {
-        let canister_id = verification.canister_id;
-        let build_status = verification.build_status;
-        store.borrow_mut().verifications.insert(
+        let mut store_ref_mut = store.borrow_mut();
+        let old_verification = store_ref_mut.verifications.insert(
             verification.canister_id,
             Verification {
                 delegate_canister_id: verification.delegate_canister_id,
@@ -47,7 +61,19 @@ pub fn submit_verification<F: Fn(CanisterId, CallerId, BuildStatus)>(
                 updated_at: time(),
             },
         );
-        activity_handler(canister_id, verification.caller_id, build_status);
+        calculate_stats(
+            old_verification.as_ref(),
+            &VerificationStats {
+                build_status: verification.build_status,
+                canister_type: verification.canister_type,
+                updated_by: verification.caller_id,
+            },
+        );
+        activity_handler(
+            verification.canister_id,
+            verification.caller_id,
+            verification.build_status,
+        );
     })
 }
 
@@ -64,7 +90,7 @@ pub fn get_verifications<
     F: Fn(Pagination<&Verification>) -> ManualReply<Pagination<Verification>>,
 >(
     pagination_info: &PaginationInfo,
-    reply: F,
+    manual_reply: F,
 ) -> ManualReply<Pagination<Verification>> {
     VERIFICATION_STORE.with(|store| {
         let store_ref = store.borrow();
@@ -93,7 +119,7 @@ pub fn get_verifications<
             }
         }
 
-        reply(Pagination::of(data, pagination_info, total_items))
+        manual_reply(Pagination::of(data, pagination_info, total_items))
     })
 }
 
@@ -104,7 +130,6 @@ pub fn register_verification<F: Fn(CanisterId, CallerId, BuildStatus)>(
     VERIFICATION_STORE.with(|store| {
         let mut store_ref_mut = store.borrow_mut();
         let canister_id = register_verification.canister_id;
-        let build_status = BuildStatus::Pending;
         store_ref_mut
             .verifications
             .get_mut(&register_verification.canister_id)
@@ -122,72 +147,166 @@ pub fn register_verification<F: Fn(CanisterId, CallerId, BuildStatus)>(
             })
             .unwrap_or_else(|| Ok(()))
             .map(|_| {
-                store_ref_mut
-                    .verifications
-                    .insert(
-                        register_verification.canister_id,
-                        Verification {
-                            delegate_canister_id: register_verification.delegate_canister_id,
-                            canister_id: register_verification.canister_id,
-                            canister_name: register_verification.canister_name,
-                            repo_url: register_verification.repo_url,
-                            commit_hash: register_verification.commit_hash,
-                            wasm_hash: None,
-                            build_url: None,
-                            build_status,
-                            canister_type: None,
-                            rust_version: register_verification.rust_version,
-                            dfx_version: register_verification.dfx_version,
-                            optimize_count: register_verification.optimize_count,
-                            repo_visibility: register_verification.repo_visibility,
-                            updated_by: register_verification.caller_id,
-                            updated_at: time(),
-                        },
-                    )
+                let old_verification = store_ref_mut.verifications.insert(
+                    register_verification.canister_id,
+                    Verification {
+                        delegate_canister_id: register_verification.delegate_canister_id,
+                        canister_id: register_verification.canister_id,
+                        canister_name: register_verification.canister_name,
+                        repo_url: register_verification.repo_url,
+                        commit_hash: register_verification.commit_hash,
+                        wasm_hash: None,
+                        build_url: None,
+                        build_status: BuildStatus::Pending,
+                        canister_type: None,
+                        rust_version: register_verification.rust_version,
+                        dfx_version: register_verification.dfx_version,
+                        optimize_count: register_verification.optimize_count,
+                        repo_visibility: register_verification.repo_visibility,
+                        updated_by: register_verification.caller_id,
+                        updated_at: time(),
+                    },
+                );
+                calculate_stats(
+                    old_verification.as_ref(),
+                    &VerificationStats {
+                        build_status: BuildStatus::Pending,
+                        canister_type: None,
+                        updated_by: register_verification.caller_id,
+                    },
+                );
+                old_verification
                     .is_none()
                     .then(|| store_ref_mut.records.push(canister_id));
-                activity_handler(canister_id, register_verification.caller_id, build_status)
+                activity_handler(
+                    canister_id,
+                    register_verification.caller_id,
+                    BuildStatus::Pending,
+                )
             })
     })
 }
 
-pub fn get_verifications_stats() -> Stats {
-    VERIFICATION_STORE.with(|store| {
-        let store_ref = store.borrow();
-        let verifications = store_ref
-            .verifications
-            .iter()
-            .map(|(_, verification)| verification)
-            .collect::<Vec<&Verification>>();
+pub fn get_verification_stats<F: Fn(&Stats) -> ManualReply<Stats>>(
+    manual_reply: F,
+) -> ManualReply<Stats> {
+    STATS_STORE.with(|store| manual_reply(&store.borrow().stats))
+}
 
-        let mut stats = Stats {
-            total_canisters: verifications.len(),
-            motoko_canisters_count: 0,
-            rust_canisters_count: 0,
-            custom_canisters_count: 0,
-            build_pending_count: 0,
-            build_in_progress_count: 0,
-            build_error_count: 0,
-            build_success_count: 0,
-        };
+pub fn get_my_verification_stats<F: Fn(&Stats) -> ManualReply<Stats>>(
+    caller_id: CallerId,
+    manual_reply: F,
+) -> ManualReply<Stats> {
+    let default_stats = Stats::default();
+    MY_STATS_STORE.with(|store| {
+        manual_reply(
+            store
+                .borrow()
+                .my_stats
+                .get(&caller_id)
+                .unwrap_or(&default_stats),
+        )
+    })
+}
 
-        for v in verifications {
-            if let Some(canister_type) = v.canister_type {
+struct VerificationStats {
+    canister_type: Option<CanisterType>,
+    build_status: BuildStatus,
+    updated_by: CallerId,
+}
+
+fn calculate_stats(old: Option<&Verification>, new: &VerificationStats) {
+    STATS_STORE.with(|store| {
+        let mut store_ref_mut = store.borrow_mut();
+
+        // remove old verification stats
+        if let Some(old) = old {
+            if let Some(canister_type) = old.canister_type {
                 match canister_type {
-                    CanisterType::Rust => stats.rust_canisters_count += 1,
-                    CanisterType::Motoko => stats.motoko_canisters_count += 1,
-                    CanisterType::Custom => stats.custom_canisters_count += 1,
+                    CanisterType::Rust => store_ref_mut.stats.rust_canisters_count -= 1,
+                    CanisterType::Motoko => store_ref_mut.stats.motoko_canisters_count -= 1,
+                    CanisterType::Custom => store_ref_mut.stats.custom_canisters_count -= 1,
                 }
+            } else {
+                store_ref_mut.stats.unknown_canisters_count -= 1;
+            }
+            match old.build_status {
+                BuildStatus::Pending => store_ref_mut.stats.build_pending_count -= 1,
+                BuildStatus::Building => store_ref_mut.stats.build_in_progress_count -= 1,
+                BuildStatus::Error => store_ref_mut.stats.build_error_count -= 1,
+                BuildStatus::Success => store_ref_mut.stats.build_success_count -= 1,
             };
-
-            match v.build_status {
-                BuildStatus::Pending => stats.build_pending_count += 1,
-                BuildStatus::Building => stats.build_in_progress_count += 1,
-                BuildStatus::Error => stats.build_error_count += 1,
-                BuildStatus::Success => stats.build_success_count += 1,
-            };
+            store_ref_mut.stats.total_canisters -= 1;
         }
 
-        stats
+        // update new verification stats
+        if let Some(canister_type) = new.canister_type {
+            match canister_type {
+                CanisterType::Rust => store_ref_mut.stats.rust_canisters_count += 1,
+                CanisterType::Motoko => store_ref_mut.stats.motoko_canisters_count += 1,
+                CanisterType::Custom => store_ref_mut.stats.custom_canisters_count += 1,
+            }
+        } else {
+            store_ref_mut.stats.unknown_canisters_count += 1;
+        }
+        match new.build_status {
+            BuildStatus::Pending => store_ref_mut.stats.build_pending_count += 1,
+            BuildStatus::Building => store_ref_mut.stats.build_in_progress_count += 1,
+            BuildStatus::Error => store_ref_mut.stats.build_error_count += 1,
+            BuildStatus::Success => store_ref_mut.stats.build_success_count += 1,
+        };
+        store_ref_mut.stats.total_canisters += 1;
+    });
+
+    MY_STATS_STORE.with(|store| {
+        let mut store_ref_mut = store.borrow_mut();
+
+        // remove old verification stats
+        if let Some(old) = old {
+            let old_stats = store_ref_mut
+                .my_stats
+                .get_mut(&old.updated_by)
+                .unwrap_or_else(|| panic!("No stats found for: {:?}", old.updated_by.to_text()));
+
+            if let Some(canister_type) = old.canister_type {
+                match canister_type {
+                    CanisterType::Rust => old_stats.rust_canisters_count -= 1,
+                    CanisterType::Motoko => old_stats.motoko_canisters_count -= 1,
+                    CanisterType::Custom => old_stats.custom_canisters_count -= 1,
+                }
+            } else {
+                old_stats.unknown_canisters_count -= 1;
+            }
+            match old.build_status {
+                BuildStatus::Pending => old_stats.build_pending_count -= 1,
+                BuildStatus::Building => old_stats.build_in_progress_count -= 1,
+                BuildStatus::Error => old_stats.build_error_count -= 1,
+                BuildStatus::Success => old_stats.build_success_count -= 1,
+            };
+            old_stats.total_canisters -= 1;
+        }
+
+        let new_stats = store_ref_mut
+            .my_stats
+            .entry(new.updated_by)
+            .or_insert_with(Stats::default);
+
+        // update new verification stats
+        if let Some(canister_type) = new.canister_type {
+            match canister_type {
+                CanisterType::Rust => new_stats.rust_canisters_count += 1,
+                CanisterType::Motoko => new_stats.motoko_canisters_count += 1,
+                CanisterType::Custom => new_stats.custom_canisters_count += 1,
+            }
+        } else {
+            new_stats.unknown_canisters_count += 1;
+        }
+        match new.build_status {
+            BuildStatus::Pending => new_stats.build_pending_count += 1,
+            BuildStatus::Building => new_stats.build_in_progress_count += 1,
+            BuildStatus::Error => new_stats.build_error_count += 1,
+            BuildStatus::Success => new_stats.build_success_count += 1,
+        };
+        new_stats.total_canisters += 1;
     })
 }

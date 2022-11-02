@@ -58,7 +58,8 @@
       "files": ["*.test.*"],
       "rules": {
         "max-statements": "off",
-        "max-lines": "off"
+        "max-lines": "off",
+        "max-lines-per-function": "off"
       }
     }
   ],

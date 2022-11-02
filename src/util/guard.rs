@@ -1,5 +1,6 @@
-use crate::store::{admin, builder, validator};
 use ic_cdk::caller;
+
+use crate::store::{admin, builder, validator};
 
 pub fn is_admin() -> Result<(), String> {
     admin::admin_existed(&caller())

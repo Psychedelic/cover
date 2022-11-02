@@ -9,5 +9,5 @@ pub struct CoverMetadata {
     pub rust_version: Option<&'static str>,
     pub dfx_version: &'static str,
     pub optimize_count: u8,
-    pub controller: Option<&'static str>, // "myActivity" indexing
+    pub controller: &'static str, // "myActivity" and "myStats" indexing
 }

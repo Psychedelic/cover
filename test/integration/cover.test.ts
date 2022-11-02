@@ -34,7 +34,7 @@ test.serial('CoverMetadata test', async t => {
     t.is(coverMetadata.optimize_count, 0);
     t.is(coverMetadata.repo_url, 'psychedelic/cover');
     t.deepEqual(coverMetadata.rust_version, ['1.64.0']);
-    t.deepEqual(coverMetadata.controller, ['j3dqd-46f74-s45g5-yt6qa-c5vyq-4zv7t-y4iie-omikc-cjngg-olpgg-rqe']);
+    t.is(coverMetadata.controller, 'j3dqd-46f74-s45g5-yt6qa-c5vyq-4zv7t-y4iie-omikc-cjngg-olpgg-rqe');
   });
 });
 
@@ -151,6 +151,39 @@ test.serial('Verification test', async t => {
   // Register a verification
   await t.throwsAsync(bobActor.registerVerification(registerVerification));
   await t.notThrowsAsync(validatorActor.registerVerification(registerVerification));
+
+  // Test stats
+  (
+    await Promise.all(
+      [adminActor, anotherAdminActor, bobActor, aliceActor, johnActor, validatorActor, builderActor].map(actor =>
+        actor.getVerificationStats()
+      )
+    )
+  ).forEach(stats => {
+    t.deepEqual(stats, {
+      total_canisters: 1n,
+      motoko_canisters_count: 0n,
+      rust_canisters_count: 0n,
+      custom_canisters_count: 0n,
+      unknown_canisters_count: 1n,
+      build_pending_count: 1n,
+      build_in_progress_count: 0n,
+      build_error_count: 0n,
+      build_success_count: 0n
+    });
+  });
+  t.deepEqual(await bobActor.getMyVerificationStats(), {
+    total_canisters: 1n,
+    motoko_canisters_count: 0n,
+    rust_canisters_count: 0n,
+    custom_canisters_count: 0n,
+    unknown_canisters_count: 1n,
+    build_pending_count: 1n,
+    build_in_progress_count: 0n,
+    build_error_count: 0n,
+    build_success_count: 0n
+  });
+
   let verification = await validatorActor.getVerificationByCanisterId(TEST_CANISTER_ID);
   t.is(verification.length, 1);
   t.like(verification[0], {
@@ -166,11 +199,11 @@ test.serial('Verification test', async t => {
 
   // Submit a verification
   const submitVerification = {
-    build_status: {Success: null},
+    build_status: {Building: null},
     build_url: 'build/test',
     canister_id: TEST_CANISTER_ID,
     canister_name: 'test',
-    canister_type: [{Motoko: null}] as [CanisterType],
+    canister_type: [] as [] | [CanisterType],
     commit_hash: 'abc',
     dfx_version: '0.8.2',
     optimize_count: 1,
@@ -178,28 +211,61 @@ test.serial('Verification test', async t => {
     repo_url: 'url/test',
     repo_visibility: 'public',
     rust_version: ['1.2.3'] as [string],
-    wasm_hash: ['hash'] as [string],
+    wasm_hash: [] as [] | [string],
     delegate_canister_id: [] as []
   };
 
   await t.throwsAsync(bobActor.submitVerification(submitVerification));
   await t.throwsAsync(validatorActor.submitVerification(submitVerification));
   await t.notThrowsAsync(builderActor.submitVerification(submitVerification));
+
+  // Test stats
+  (
+    await Promise.all(
+      [adminActor, anotherAdminActor, bobActor, aliceActor, johnActor, validatorActor, builderActor].map(actor =>
+        actor.getVerificationStats()
+      )
+    )
+  ).forEach(stats => {
+    t.deepEqual(stats, {
+      total_canisters: 1n,
+      motoko_canisters_count: 0n,
+      rust_canisters_count: 0n,
+      custom_canisters_count: 0n,
+      unknown_canisters_count: 1n,
+      build_pending_count: 0n,
+      build_in_progress_count: 1n,
+      build_error_count: 0n,
+      build_success_count: 0n
+    });
+  });
+  t.deepEqual(await bobActor.getMyVerificationStats(), {
+    total_canisters: 1n,
+    motoko_canisters_count: 0n,
+    rust_canisters_count: 0n,
+    custom_canisters_count: 0n,
+    unknown_canisters_count: 1n,
+    build_pending_count: 0n,
+    build_in_progress_count: 1n,
+    build_error_count: 0n,
+    build_success_count: 0n
+  });
+
   verification = await validatorActor.getVerificationByCanisterId(TEST_CANISTER_ID);
   t.is(verification.length, 1);
   t.like(verification[0], {
-    build_status: {Success: null},
+    build_status: {Building: null},
     build_url: ['build/test'],
     canister_id: TEST_CANISTER_ID,
     canister_name: 'test',
-    canister_type: [{Motoko: null}] as [CanisterType],
+    canister_type: [],
     commit_hash: 'abc',
     dfx_version: '0.8.2',
     optimize_count: 1,
     repo_url: 'url/test',
     repo_visibility: 'public',
     rust_version: ['1.2.3'],
-    wasm_hash: ['hash']
+    wasm_hash: []
   });
 
   await validatorActor.registerVerification({
@@ -214,6 +280,50 @@ test.serial('Verification test', async t => {
     delegate_canister_id: [],
     repo_visibility: 'public'
   });
+
+  // Test stats
+  (
+    await Promise.all(
+      [adminActor, anotherAdminActor, bobActor, aliceActor, johnActor, validatorActor, builderActor].map(actor =>
+        actor.getVerificationStats()
+      )
+    )
+  ).forEach(stats => {
+    t.deepEqual(stats, {
+      total_canisters: 2n,
+      motoko_canisters_count: 0n,
+      rust_canisters_count: 0n,
+      custom_canisters_count: 0n,
+      unknown_canisters_count: 2n,
+      build_pending_count: 1n,
+      build_in_progress_count: 1n,
+      build_error_count: 0n,
+      build_success_count: 0n
+    });
+  });
+  t.deepEqual(await bobActor.getMyVerificationStats(), {
+    total_canisters: 1n,
+    motoko_canisters_count: 0n,
+    rust_canisters_count: 0n,
+    custom_canisters_count: 0n,
+    unknown_canisters_count: 1n,
+    build_pending_count: 0n,
+    build_in_progress_count: 1n,
+    build_error_count: 0n,
+    build_success_count: 0n
+  });
+  t.deepEqual(await aliceActor.getMyVerificationStats(), {
+    total_canisters: 1n,
+    motoko_canisters_count: 0n,
+    rust_canisters_count: 0n,
+    custom_canisters_count: 0n,
+    unknown_canisters_count: 1n,
+    build_pending_count: 1n,
+    build_in_progress_count: 0n,
+    build_error_count: 0n,
+    build_success_count: 0n
+  });
+
   const verifications = await validatorActor.getVerifications({items_per_page: 2n, page_index: 1n});
   t.is(verifications.data.length, 2);
   t.like(verifications, {
@@ -223,19 +333,6 @@ test.serial('Verification test', async t => {
     is_first_page: true,
     items_per_page: 10n,
     is_last_page: true
-  });
-
-  // Get verification stats
-  const stats = await validatorActor.getVerificationsStats();
-  t.deepEqual(stats, {
-    total_canisters: 2n,
-    motoko_canisters_count: 1n,
-    rust_canisters_count: 0n,
-    custom_canisters_count: 0n,
-    build_pending_count: 1n,
-    build_in_progress_count: 0n,
-    build_error_count: 0n,
-    build_success_count: 1n
   });
 });
 
@@ -277,31 +374,75 @@ test.serial('Activity test', async t => {
   });
 
   await builderActor.submitVerification({
+    build_status: {Building: null},
+    canister_type: [],
     canister_id: ANOTHER_TEST_CANISTER_ID,
-    build_status: {Success: null},
-    build_url: 'build/test',
-    canister_name: 'test',
-    canister_type: [{Motoko: null}] as [CanisterType],
-    commit_hash: 'abc',
+    canister_name: '',
+    commit_hash: 'anotherHash',
     dfx_version: '0.8.2',
-    optimize_count: 1,
-    caller_id: Principal.anonymous(),
-    repo_url: 'url/test',
+    optimize_count: 0,
+    caller_id: aliceIdentity.getPrincipal(),
+    repo_url: '',
+    rust_version: ['0.8.3'],
+    delegate_canister_id: [],
     repo_visibility: 'public',
-    rust_version: ['1.2.3'] as [string],
-    wasm_hash: ['hash'] as [string],
-    delegate_canister_id: [] as []
+    build_url: 'another_build/url',
+    wasm_hash: []
   });
+
+  // Test stats
+  (
+    await Promise.all(
+      [adminActor, anotherAdminActor, bobActor, aliceActor, johnActor, validatorActor, builderActor].map(actor =>
+        actor.getVerificationStats()
+      )
+    )
+  ).forEach(stats => {
+    t.deepEqual(stats, {
+      total_canisters: 2n,
+      motoko_canisters_count: 0n,
+      rust_canisters_count: 0n,
+      custom_canisters_count: 0n,
+      unknown_canisters_count: 2n,
+      build_pending_count: 0n,
+      build_in_progress_count: 2n,
+      build_error_count: 0n,
+      build_success_count: 0n
+    });
+  });
+  t.deepEqual(await bobActor.getMyVerificationStats(), {
+    total_canisters: 1n,
+    motoko_canisters_count: 0n,
+    rust_canisters_count: 0n,
+    custom_canisters_count: 0n,
+    unknown_canisters_count: 1n,
+    build_pending_count: 0n,
+    build_in_progress_count: 1n,
+    build_error_count: 0n,
+    build_success_count: 0n
+  });
+  t.deepEqual(await aliceActor.getMyVerificationStats(), {
+    total_canisters: 1n,
+    motoko_canisters_count: 0n,
+    rust_canisters_count: 0n,
+    custom_canisters_count: 0n,
+    unknown_canisters_count: 1n,
+    build_pending_count: 0n,
+    build_in_progress_count: 1n,
+    build_error_count: 0n,
+    build_success_count: 0n
+  });
+
   await builderActor.submitVerification({
-    build_status: {Success: null},
+    build_status: {Error: null},
     build_url: 'build/test',
     canister_id: TEST_CANISTER_ID,
     canister_name: 'test',
-    canister_type: [{Motoko: null}] as [CanisterType],
+    canister_type: [{Custom: null}] as [CanisterType],
     commit_hash: 'abc',
     dfx_version: '0.8.2',
     optimize_count: 1,
-    caller_id: Principal.anonymous(),
+    caller_id: bobIdentity.getPrincipal(),
     repo_url: 'url/test',
     repo_visibility: 'public',
     rust_version: ['1.2.3'] as [string],
@@ -309,9 +450,114 @@ test.serial('Activity test', async t => {
     delegate_canister_id: [] as []
   });
 
-  t.is((await aliceActor.getMyActivities({items_per_page: 1000n, page_index: 1n})).data.length, 3);
-  t.is((await bobActor.getMyActivities({items_per_page: 1000n, page_index: 1n})).data.length, 2);
+  // Test stats
+  (
+    await Promise.all(
+      [adminActor, anotherAdminActor, bobActor, aliceActor, johnActor, validatorActor, builderActor].map(actor =>
+        actor.getVerificationStats()
+      )
+    )
+  ).forEach(stats => {
+    t.deepEqual(stats, {
+      total_canisters: 2n,
+      motoko_canisters_count: 0n,
+      rust_canisters_count: 0n,
+      custom_canisters_count: 1n,
+      unknown_canisters_count: 1n,
+      build_pending_count: 0n,
+      build_in_progress_count: 1n,
+      build_error_count: 1n,
+      build_success_count: 0n
+    });
+  });
+  t.deepEqual(await bobActor.getMyVerificationStats(), {
+    total_canisters: 1n,
+    motoko_canisters_count: 0n,
+    rust_canisters_count: 0n,
+    custom_canisters_count: 1n,
+    unknown_canisters_count: 0n,
+    build_pending_count: 0n,
+    build_in_progress_count: 0n,
+    build_error_count: 1n,
+    build_success_count: 0n
+  });
+  t.deepEqual(await aliceActor.getMyVerificationStats(), {
+    total_canisters: 1n,
+    motoko_canisters_count: 0n,
+    rust_canisters_count: 0n,
+    custom_canisters_count: 0n,
+    unknown_canisters_count: 1n,
+    build_pending_count: 0n,
+    build_in_progress_count: 1n,
+    build_error_count: 0n,
+    build_success_count: 0n
+  });
+
+  t.is((await aliceActor.getMyActivities({items_per_page: 1000n, page_index: 1n})).data.length, 4);
+  t.is((await bobActor.getMyActivities({items_per_page: 1000n, page_index: 1n})).data.length, 3);
 
   t.is((await aliceActor.getActivities({items_per_page: 1000n, page_index: 1n})).data.length, 5);
   t.is((await bobActor.getActivities({items_per_page: 1000n, page_index: 1n})).data.length, 5);
+});
+
+test.serial('Stats test', async t => {
+  await builderActor.submitVerification({
+    build_status: {Success: null},
+    canister_type: [{Rust: null}],
+    canister_id: ANOTHER_TEST_CANISTER_ID,
+    canister_name: '',
+    commit_hash: 'anotherHash',
+    dfx_version: '0.8.2',
+    optimize_count: 0,
+    caller_id: aliceIdentity.getPrincipal(),
+    repo_url: '',
+    rust_version: ['0.8.3'],
+    delegate_canister_id: [],
+    repo_visibility: 'public',
+    build_url: 'another_build/url',
+    wasm_hash: ['another_hash']
+  });
+
+  // Test stats
+  (
+    await Promise.all(
+      [adminActor, anotherAdminActor, bobActor, aliceActor, johnActor, validatorActor, builderActor].map(actor =>
+        actor.getVerificationStats()
+      )
+    )
+  ).forEach(stats => {
+    t.deepEqual(stats, {
+      total_canisters: 2n,
+      motoko_canisters_count: 0n,
+      rust_canisters_count: 1n,
+      custom_canisters_count: 1n,
+      unknown_canisters_count: 0n,
+      build_pending_count: 0n,
+      build_in_progress_count: 0n,
+      build_error_count: 1n,
+      build_success_count: 1n
+    });
+  });
+  t.deepEqual(await bobActor.getMyVerificationStats(), {
+    total_canisters: 1n,
+    motoko_canisters_count: 0n,
+    rust_canisters_count: 0n,
+    custom_canisters_count: 1n,
+    unknown_canisters_count: 0n,
+    build_pending_count: 0n,
+    build_in_progress_count: 0n,
+    build_error_count: 1n,
+    build_success_count: 0n
+  });
+  t.deepEqual(await aliceActor.getMyVerificationStats(), {
+    total_canisters: 1n,
+    motoko_canisters_count: 0n,
+    rust_canisters_count: 1n,
+    custom_canisters_count: 0n,
+    unknown_canisters_count: 0n,
+    build_pending_count: 0n,
+    build_in_progress_count: 0n,
+    build_error_count: 0n,
+    build_success_count: 1n
+  });
 });

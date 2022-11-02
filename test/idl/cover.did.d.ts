@@ -35,7 +35,7 @@ export interface Config {
   'builder' : [] | [Array<Principal>],
 }
 export interface CoverMetadata {
-  'controller' : [] | [string],
+  'controller' : string,
   'dfx_version' : string,
   'canister_name' : string,
   'commit_hash' : string,
@@ -63,6 +63,17 @@ export interface ManualReply_1 {
   'is_last_page' : boolean,
 }
 export interface ManualReply_2 {
+  'custom_canisters_count' : bigint,
+  'build_error_count' : bigint,
+  'build_in_progress_count' : bigint,
+  'rust_canisters_count' : bigint,
+  'build_pending_count' : bigint,
+  'motoko_canisters_count' : bigint,
+  'unknown_canisters_count' : bigint,
+  'total_canisters' : bigint,
+  'build_success_count' : bigint,
+}
+export interface ManualReply_3 {
   'page_index' : bigint,
   'data' : Array<Verification>,
   'total_pages' : bigint,
@@ -108,16 +119,6 @@ export interface SaveBuildConfig {
   'repo_url' : string,
   'rust_version' : [] | [string],
   'optimize_count' : number,
-}
-export interface Stats {
-  'custom_canisters_count' : bigint,
-  'build_error_count' : bigint,
-  'build_in_progress_count' : bigint,
-  'rust_canisters_count' : bigint,
-  'build_pending_count' : bigint,
-  'motoko_canisters_count' : bigint,
-  'total_canisters' : bigint,
-  'build_success_count' : bigint,
 }
 export interface SubmitVerification {
   'canister_id' : Principal,
@@ -171,10 +172,11 @@ export interface _SERVICE {
   'getMyActivities' : ActorMethod<[PaginationInfo], ManualReply_1>,
   'getMyBuildConfigById' : ActorMethod<[Principal], [] | [BuildConfig]>,
   'getMyBuildConfigs' : ActorMethod<[], Array<BuildConfig>>,
+  'getMyVerificationStats' : ActorMethod<[], ManualReply_2>,
   'getValidators' : ActorMethod<[], Array<Principal>>,
   'getVerificationByCanisterId' : ActorMethod<[Principal], [] | [Verification]>,
-  'getVerifications' : ActorMethod<[PaginationInfo], ManualReply_2>,
-  'getVerificationsStats' : ActorMethod<[], Stats>,
+  'getVerificationStats' : ActorMethod<[], ManualReply_2>,
+  'getVerifications' : ActorMethod<[PaginationInfo], ManualReply_3>,
   'registerVerification' : ActorMethod<[RegisterVerification], Result>,
   'saveBuildConfig' : ActorMethod<[SaveBuildConfig], undefined>,
   'submitVerification' : ActorMethod<[SubmitVerification], undefined>,
