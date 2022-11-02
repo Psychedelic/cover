@@ -35,7 +35,7 @@ export interface Config {
   'builder' : [] | [Array<Principal>],
 }
 export interface CoverMetadata {
-  'controller' : [] | [string],
+  'controller' : string,
   'dfx_version' : string,
   'canister_name' : string,
   'commit_hash' : string,
@@ -63,15 +63,6 @@ export interface ManualReply_1 {
   'is_last_page' : boolean,
 }
 export interface ManualReply_2 {
-  'page_index' : bigint,
-  'data' : Array<Verification>,
-  'total_pages' : bigint,
-  'total_items' : bigint,
-  'is_first_page' : boolean,
-  'items_per_page' : bigint,
-  'is_last_page' : boolean,
-}
-export interface ManualReply_3 {
   'custom_canisters_count' : bigint,
   'build_error_count' : bigint,
   'build_in_progress_count' : bigint,
@@ -81,6 +72,15 @@ export interface ManualReply_3 {
   'unknown_canisters_count' : bigint,
   'total_canisters' : bigint,
   'build_success_count' : bigint,
+}
+export interface ManualReply_3 {
+  'page_index' : bigint,
+  'data' : Array<Verification>,
+  'total_pages' : bigint,
+  'total_items' : bigint,
+  'is_first_page' : boolean,
+  'items_per_page' : bigint,
+  'is_last_page' : boolean,
 }
 export interface MyActivity {
   'canister_id' : Principal,
@@ -172,10 +172,11 @@ export interface _SERVICE {
   'getMyActivities' : ActorMethod<[PaginationInfo], ManualReply_1>,
   'getMyBuildConfigById' : ActorMethod<[Principal], [] | [BuildConfig]>,
   'getMyBuildConfigs' : ActorMethod<[], Array<BuildConfig>>,
+  'getMyVerificationsStats' : ActorMethod<[], ManualReply_2>,
   'getValidators' : ActorMethod<[], Array<Principal>>,
   'getVerificationByCanisterId' : ActorMethod<[Principal], [] | [Verification]>,
-  'getVerifications' : ActorMethod<[PaginationInfo], ManualReply_2>,
-  'getVerificationsStats' : ActorMethod<[], ManualReply_3>,
+  'getVerifications' : ActorMethod<[PaginationInfo], ManualReply_3>,
+  'getVerificationsStats' : ActorMethod<[], ManualReply_2>,
   'registerVerification' : ActorMethod<[RegisterVerification], Result>,
   'saveBuildConfig' : ActorMethod<[SaveBuildConfig], undefined>,
   'submitVerification' : ActorMethod<[SubmitVerification], undefined>,

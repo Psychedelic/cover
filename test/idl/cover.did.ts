@@ -6,7 +6,7 @@ export const idlFactory = ({ IDL }) => {
     'builder' : IDL.Opt(IDL.Vec(IDL.Principal)),
   });
   const CoverMetadata = IDL.Record({
-    'controller' : IDL.Opt(IDL.Text),
+    'controller' : IDL.Text,
     'dfx_version' : IDL.Text,
     'canister_name' : IDL.Text,
     'commit_hash' : IDL.Text,
@@ -74,6 +74,17 @@ export const idlFactory = ({ IDL }) => {
     'items_per_page' : IDL.Nat64,
     'is_last_page' : IDL.Bool,
   });
+  const ManualReply_2 = IDL.Record({
+    'custom_canisters_count' : IDL.Nat64,
+    'build_error_count' : IDL.Nat64,
+    'build_in_progress_count' : IDL.Nat64,
+    'rust_canisters_count' : IDL.Nat64,
+    'build_pending_count' : IDL.Nat64,
+    'motoko_canisters_count' : IDL.Nat64,
+    'unknown_canisters_count' : IDL.Nat64,
+    'total_canisters' : IDL.Nat64,
+    'build_success_count' : IDL.Nat64,
+  });
   const CanisterType = IDL.Variant({
     'Rust' : IDL.Null,
     'Custom' : IDL.Null,
@@ -96,7 +107,7 @@ export const idlFactory = ({ IDL }) => {
     'build_url' : IDL.Opt(IDL.Text),
     'wasm_hash' : IDL.Opt(IDL.Text),
   });
-  const ManualReply_2 = IDL.Record({
+  const ManualReply_3 = IDL.Record({
     'page_index' : IDL.Nat64,
     'data' : IDL.Vec(Verification),
     'total_pages' : IDL.Nat64,
@@ -104,17 +115,6 @@ export const idlFactory = ({ IDL }) => {
     'is_first_page' : IDL.Bool,
     'items_per_page' : IDL.Nat64,
     'is_last_page' : IDL.Bool,
-  });
-  const ManualReply_3 = IDL.Record({
-    'custom_canisters_count' : IDL.Nat64,
-    'build_error_count' : IDL.Nat64,
-    'build_in_progress_count' : IDL.Nat64,
-    'rust_canisters_count' : IDL.Nat64,
-    'build_pending_count' : IDL.Nat64,
-    'motoko_canisters_count' : IDL.Nat64,
-    'unknown_canisters_count' : IDL.Nat64,
-    'total_canisters' : IDL.Nat64,
-    'build_success_count' : IDL.Nat64,
   });
   const RegisterVerification = IDL.Record({
     'canister_id' : IDL.Principal,
@@ -181,14 +181,15 @@ export const idlFactory = ({ IDL }) => {
         ['query'],
       ),
     'getMyBuildConfigs' : IDL.Func([], [IDL.Vec(BuildConfig)], ['query']),
+    'getMyVerificationsStats' : IDL.Func([], [ManualReply_2], ['query']),
     'getValidators' : IDL.Func([], [IDL.Vec(IDL.Principal)], ['query']),
     'getVerificationByCanisterId' : IDL.Func(
         [IDL.Principal],
         [IDL.Opt(Verification)],
         ['query'],
       ),
-    'getVerifications' : IDL.Func([PaginationInfo], [ManualReply_2], ['query']),
-    'getVerificationsStats' : IDL.Func([], [ManualReply_3], ['query']),
+    'getVerifications' : IDL.Func([PaginationInfo], [ManualReply_3], ['query']),
+    'getVerificationsStats' : IDL.Func([], [ManualReply_2], ['query']),
     'registerVerification' : IDL.Func([RegisterVerification], [Result], []),
     'saveBuildConfig' : IDL.Func([SaveBuildConfig], [], []),
     'submitVerification' : IDL.Func([SubmitVerification], [], []),

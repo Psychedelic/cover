@@ -34,7 +34,7 @@ test.serial('CoverMetadata test', async t => {
     t.is(coverMetadata.optimize_count, 0);
     t.is(coverMetadata.repo_url, 'psychedelic/cover');
     t.deepEqual(coverMetadata.rust_version, ['1.64.0']);
-    t.deepEqual(coverMetadata.controller, ['j3dqd-46f74-s45g5-yt6qa-c5vyq-4zv7t-y4iie-omikc-cjngg-olpgg-rqe']);
+    t.is(coverMetadata.controller, 'j3dqd-46f74-s45g5-yt6qa-c5vyq-4zv7t-y4iie-omikc-cjngg-olpgg-rqe');
   });
 });
 
@@ -152,7 +152,7 @@ test.serial('Verification test', async t => {
   await t.throwsAsync(bobActor.registerVerification(registerVerification));
   await t.notThrowsAsync(validatorActor.registerVerification(registerVerification));
 
-  // Stats test
+  // Test stats
   (
     await Promise.all(
       [adminActor, anotherAdminActor, bobActor, aliceActor, johnActor, validatorActor, builderActor].map(actor =>
@@ -171,6 +171,17 @@ test.serial('Verification test', async t => {
       build_error_count: 0n,
       build_success_count: 0n
     });
+  });
+  t.deepEqual(await bobActor.getMyVerificationsStats(), {
+    total_canisters: 1n,
+    motoko_canisters_count: 0n,
+    rust_canisters_count: 0n,
+    custom_canisters_count: 0n,
+    unknown_canisters_count: 1n,
+    build_pending_count: 1n,
+    build_in_progress_count: 0n,
+    build_error_count: 0n,
+    build_success_count: 0n
   });
 
   let verification = await validatorActor.getVerificationByCanisterId(TEST_CANISTER_ID);
@@ -228,6 +239,17 @@ test.serial('Verification test', async t => {
       build_success_count: 0n
     });
   });
+  t.deepEqual(await bobActor.getMyVerificationsStats(), {
+    total_canisters: 1n,
+    motoko_canisters_count: 0n,
+    rust_canisters_count: 0n,
+    custom_canisters_count: 0n,
+    unknown_canisters_count: 1n,
+    build_pending_count: 0n,
+    build_in_progress_count: 1n,
+    build_error_count: 0n,
+    build_success_count: 0n
+  });
 
   verification = await validatorActor.getVerificationByCanisterId(TEST_CANISTER_ID);
   t.is(verification.length, 1);
@@ -278,6 +300,28 @@ test.serial('Verification test', async t => {
       build_error_count: 0n,
       build_success_count: 0n
     });
+  });
+  t.deepEqual(await bobActor.getMyVerificationsStats(), {
+    total_canisters: 1n,
+    motoko_canisters_count: 0n,
+    rust_canisters_count: 0n,
+    custom_canisters_count: 0n,
+    unknown_canisters_count: 1n,
+    build_pending_count: 0n,
+    build_in_progress_count: 1n,
+    build_error_count: 0n,
+    build_success_count: 0n
+  });
+  t.deepEqual(await aliceActor.getMyVerificationsStats(), {
+    total_canisters: 1n,
+    motoko_canisters_count: 0n,
+    rust_canisters_count: 0n,
+    custom_canisters_count: 0n,
+    unknown_canisters_count: 1n,
+    build_pending_count: 1n,
+    build_in_progress_count: 0n,
+    build_error_count: 0n,
+    build_success_count: 0n
   });
 
   const verifications = await validatorActor.getVerifications({items_per_page: 2n, page_index: 1n});
@@ -337,7 +381,7 @@ test.serial('Activity test', async t => {
     commit_hash: 'anotherHash',
     dfx_version: '0.8.2',
     optimize_count: 0,
-    caller_id: Principal.anonymous(),
+    caller_id: aliceIdentity.getPrincipal(),
     repo_url: '',
     rust_version: ['0.8.3'],
     delegate_canister_id: [],
@@ -366,6 +410,28 @@ test.serial('Activity test', async t => {
       build_success_count: 0n
     });
   });
+  t.deepEqual(await bobActor.getMyVerificationsStats(), {
+    total_canisters: 1n,
+    motoko_canisters_count: 0n,
+    rust_canisters_count: 0n,
+    custom_canisters_count: 0n,
+    unknown_canisters_count: 1n,
+    build_pending_count: 0n,
+    build_in_progress_count: 1n,
+    build_error_count: 0n,
+    build_success_count: 0n
+  });
+  t.deepEqual(await aliceActor.getMyVerificationsStats(), {
+    total_canisters: 1n,
+    motoko_canisters_count: 0n,
+    rust_canisters_count: 0n,
+    custom_canisters_count: 0n,
+    unknown_canisters_count: 1n,
+    build_pending_count: 0n,
+    build_in_progress_count: 1n,
+    build_error_count: 0n,
+    build_success_count: 0n
+  });
 
   await builderActor.submitVerification({
     build_status: {Error: null},
@@ -376,13 +442,15 @@ test.serial('Activity test', async t => {
     commit_hash: 'abc',
     dfx_version: '0.8.2',
     optimize_count: 1,
-    caller_id: Principal.anonymous(),
+    caller_id: bobIdentity.getPrincipal(),
     repo_url: 'url/test',
     repo_visibility: 'public',
     rust_version: ['1.2.3'] as [string],
     wasm_hash: ['hash'] as [string],
     delegate_canister_id: [] as []
   });
+
+  // Test stats
   (
     await Promise.all(
       [adminActor, anotherAdminActor, bobActor, aliceActor, johnActor, validatorActor, builderActor].map(actor =>
@@ -402,9 +470,31 @@ test.serial('Activity test', async t => {
       build_success_count: 0n
     });
   });
+  t.deepEqual(await bobActor.getMyVerificationsStats(), {
+    total_canisters: 1n,
+    motoko_canisters_count: 0n,
+    rust_canisters_count: 0n,
+    custom_canisters_count: 1n,
+    unknown_canisters_count: 0n,
+    build_pending_count: 0n,
+    build_in_progress_count: 0n,
+    build_error_count: 1n,
+    build_success_count: 0n
+  });
+  t.deepEqual(await aliceActor.getMyVerificationsStats(), {
+    total_canisters: 1n,
+    motoko_canisters_count: 0n,
+    rust_canisters_count: 0n,
+    custom_canisters_count: 0n,
+    unknown_canisters_count: 1n,
+    build_pending_count: 0n,
+    build_in_progress_count: 1n,
+    build_error_count: 0n,
+    build_success_count: 0n
+  });
 
-  t.is((await aliceActor.getMyActivities({items_per_page: 1000n, page_index: 1n})).data.length, 3);
-  t.is((await bobActor.getMyActivities({items_per_page: 1000n, page_index: 1n})).data.length, 2);
+  t.is((await aliceActor.getMyActivities({items_per_page: 1000n, page_index: 1n})).data.length, 4);
+  t.is((await bobActor.getMyActivities({items_per_page: 1000n, page_index: 1n})).data.length, 3);
 
   t.is((await aliceActor.getActivities({items_per_page: 1000n, page_index: 1n})).data.length, 5);
   t.is((await bobActor.getActivities({items_per_page: 1000n, page_index: 1n})).data.length, 5);
@@ -428,6 +518,7 @@ test.serial('Stats test', async t => {
     wasm_hash: ['another_hash']
   });
 
+  // Test stats
   (
     await Promise.all(
       [adminActor, anotherAdminActor, bobActor, aliceActor, johnActor, validatorActor, builderActor].map(actor =>
@@ -446,5 +537,27 @@ test.serial('Stats test', async t => {
       build_error_count: 1n,
       build_success_count: 1n
     });
+  });
+  t.deepEqual(await bobActor.getMyVerificationsStats(), {
+    total_canisters: 1n,
+    motoko_canisters_count: 0n,
+    rust_canisters_count: 0n,
+    custom_canisters_count: 1n,
+    unknown_canisters_count: 0n,
+    build_pending_count: 0n,
+    build_in_progress_count: 0n,
+    build_error_count: 1n,
+    build_success_count: 0n
+  });
+  t.deepEqual(await aliceActor.getMyVerificationsStats(), {
+    total_canisters: 1n,
+    motoko_canisters_count: 0n,
+    rust_canisters_count: 1n,
+    custom_canisters_count: 0n,
+    unknown_canisters_count: 0n,
+    build_pending_count: 0n,
+    build_in_progress_count: 0n,
+    build_error_count: 0n,
+    build_success_count: 1n
   });
 });
