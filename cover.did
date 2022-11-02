@@ -63,6 +63,17 @@ type ManualReply_2 = record {
   items_per_page : nat64;
   is_last_page : bool;
 };
+type ManualReply_3 = record {
+  custom_canisters_count : nat64;
+  build_error_count : nat64;
+  build_in_progress_count : nat64;
+  rust_canisters_count : nat64;
+  build_pending_count : nat64;
+  motoko_canisters_count : nat64;
+  unknown_canisters_count : nat64;
+  total_canisters : nat64;
+  build_success_count : nat64;
+};
 type MyActivity = record {
   canister_id : principal;
   created_at : nat64;
@@ -95,16 +106,6 @@ type SaveBuildConfig = record {
   repo_url : text;
   rust_version : opt text;
   optimize_count : nat8;
-};
-type Stats = record {
-  custom_canisters_count : nat64;
-  build_error_count : nat64;
-  build_in_progress_count : nat64;
-  rust_canisters_count : nat64;
-  build_pending_count : nat64;
-  motoko_canisters_count : nat64;
-  total_canisters : nat64;
-  build_success_count : nat64;
 };
 type SubmitVerification = record {
   canister_id : principal;
@@ -158,7 +159,7 @@ service : (opt Config) -> {
   getValidators : () -> (vec principal) query;
   getVerificationByCanisterId : (principal) -> (opt Verification) query;
   getVerifications : (PaginationInfo) -> (ManualReply_2) query;
-  getVerificationsStats : () -> (Stats) query;
+  getVerificationsStats : () -> (ManualReply_3) query;
   registerVerification : (RegisterVerification) -> (Result);
   saveBuildConfig : (SaveBuildConfig) -> ();
   submitVerification : (SubmitVerification) -> ();

@@ -105,13 +105,14 @@ export const idlFactory = ({ IDL }) => {
     'items_per_page' : IDL.Nat64,
     'is_last_page' : IDL.Bool,
   });
-  const Stats = IDL.Record({
+  const ManualReply_3 = IDL.Record({
     'custom_canisters_count' : IDL.Nat64,
     'build_error_count' : IDL.Nat64,
     'build_in_progress_count' : IDL.Nat64,
     'rust_canisters_count' : IDL.Nat64,
     'build_pending_count' : IDL.Nat64,
     'motoko_canisters_count' : IDL.Nat64,
+    'unknown_canisters_count' : IDL.Nat64,
     'total_canisters' : IDL.Nat64,
     'build_success_count' : IDL.Nat64,
   });
@@ -187,7 +188,7 @@ export const idlFactory = ({ IDL }) => {
         ['query'],
       ),
     'getVerifications' : IDL.Func([PaginationInfo], [ManualReply_2], ['query']),
-    'getVerificationsStats' : IDL.Func([], [Stats], ['query']),
+    'getVerificationsStats' : IDL.Func([], [ManualReply_3], ['query']),
     'registerVerification' : IDL.Func([RegisterVerification], [Result], []),
     'saveBuildConfig' : IDL.Func([SaveBuildConfig], [], []),
     'submitVerification' : IDL.Func([SubmitVerification], [], []),

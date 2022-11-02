@@ -232,10 +232,10 @@ fn register_verification(verification: RegisterVerification) -> Result<(), Error
     verification::register_verification(verification, activity_handler)
 }
 
-#[query(name = "getVerificationsStats")]
+#[query(name = "getVerificationsStats", manual_reply = true)]
 #[candid_method(query, rename = "getVerificationsStats")]
-fn get_verifications_stats() -> Stats {
-    verification::get_verifications_stats()
+fn get_verifications_stats() -> ManualReply<Stats> {
+    verification::get_verifications_stats(|stats| ManualReply::one(stats))
 }
 
 #[cfg(any(target_arch = "wasm32"))]

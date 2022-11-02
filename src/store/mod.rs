@@ -10,7 +10,7 @@ use admin::AdminStore;
 use build_config::BuildConfigStore;
 use builder::BuilderStore;
 use validator::ValidatorStore;
-use verification::VerificationStore;
+use verification::{StatsStore, VerificationStore};
 
 pub mod activity;
 pub mod admin;
@@ -27,6 +27,7 @@ thread_local! {
     static MY_ACTIVITY_STORE: RefCell<MyActivityStore> = RefCell::new(MyActivityStore::default());
     static BUILD_CONFIG_STORE: RefCell<BuildConfigStore> = RefCell::new(BuildConfigStore::default());
     static VERIFICATION_STORE: RefCell<VerificationStore> = RefCell::new(VerificationStore::default());
+    static STATS_STORE: RefCell<StatsStore> = RefCell::new(StatsStore::default());
 }
 
 type InternalStableStoreAsRef<'a> = (
@@ -37,6 +38,7 @@ type InternalStableStoreAsRef<'a> = (
     &'a MyActivityStore,
     &'a BuildConfigStore,
     &'a VerificationStore,
+    &'a StatsStore,
 );
 
 #[pre_upgrade]
@@ -47,7 +49,8 @@ pub fn pre_upgrade() {
                 ACTIVITY_STORE.with(|activity_store|
                     MY_ACTIVITY_STORE.with(|my_activity_store|
                         BUILD_CONFIG_STORE.with(|build_config_store|
-                            VERIFICATION_STORE.with(|verification_store| {
+                            VERIFICATION_STORE.with(|verification_store|
+                            STATS_STORE.with(|stats_store| {
                                 if let Err(e) = stable_save::<InternalStableStoreAsRef>((
                                     admin_store.borrow().deref(),
                                     validator_store.borrow().deref(),
@@ -55,14 +58,15 @@ pub fn pre_upgrade() {
                                     activity_store.borrow().deref(),
                                     my_activity_store.borrow().deref(),
                                     build_config_store.borrow().deref(),
-                                    verification_store.borrow().deref()
+                                    verification_store.borrow().deref(),
+                                    stats_store.borrow().deref()
                                 )) {
                                     trap(&format!(
                                         "An error occurred when saving to stable memory (pre_upgrade): {:?}",
                                         e
                                     ));
                                 }
-                            })))))))
+                            }))))))))
 }
 
 type InternalStableStore = (
