@@ -226,6 +226,7 @@ fn calculate_stats(old: Option<&Verification>, new: &VerificationStats) {
                     CanisterType::Rust => store_ref_mut.stats.rust_canisters_count -= 1,
                     CanisterType::Motoko => store_ref_mut.stats.motoko_canisters_count -= 1,
                     CanisterType::Custom => store_ref_mut.stats.custom_canisters_count -= 1,
+                    CanisterType::Assets => store_ref_mut.stats.assets_canisters_count -= 1,
                 }
             } else {
                 store_ref_mut.stats.unknown_canisters_count -= 1;
@@ -245,6 +246,7 @@ fn calculate_stats(old: Option<&Verification>, new: &VerificationStats) {
                 CanisterType::Rust => store_ref_mut.stats.rust_canisters_count += 1,
                 CanisterType::Motoko => store_ref_mut.stats.motoko_canisters_count += 1,
                 CanisterType::Custom => store_ref_mut.stats.custom_canisters_count += 1,
+                CanisterType::Assets => store_ref_mut.stats.assets_canisters_count += 1,
             }
         } else {
             store_ref_mut.stats.unknown_canisters_count += 1;
@@ -273,6 +275,7 @@ fn calculate_stats(old: Option<&Verification>, new: &VerificationStats) {
                     CanisterType::Rust => old_stats.rust_canisters_count -= 1,
                     CanisterType::Motoko => old_stats.motoko_canisters_count -= 1,
                     CanisterType::Custom => old_stats.custom_canisters_count -= 1,
+                    CanisterType::Assets => old_stats.assets_canisters_count -= 1,
                 }
             } else {
                 old_stats.unknown_canisters_count -= 1;
@@ -297,6 +300,7 @@ fn calculate_stats(old: Option<&Verification>, new: &VerificationStats) {
                 CanisterType::Rust => new_stats.rust_canisters_count += 1,
                 CanisterType::Motoko => new_stats.motoko_canisters_count += 1,
                 CanisterType::Custom => new_stats.custom_canisters_count += 1,
+                CanisterType::Assets => new_stats.assets_canisters_count += 1,
             }
         } else {
             new_stats.unknown_canisters_count += 1;

@@ -28,6 +28,7 @@ export type BuildStatus = { 'Error' : null } |
   { 'Pending' : null };
 export type CanisterType = { 'Rust' : null } |
   { 'Custom' : null } |
+  { 'Assets' : null } |
   { 'Motoko' : null };
 export interface Config {
   'admin' : [] | [Array<Principal>],
@@ -65,6 +66,7 @@ export interface ManualReply_1 {
 export interface ManualReply_2 {
   'custom_canisters_count' : bigint,
   'build_error_count' : bigint,
+  'assets_canisters_count' : bigint,
   'build_in_progress_count' : bigint,
   'rust_canisters_count' : bigint,
   'build_pending_count' : bigint,

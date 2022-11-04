@@ -67,4 +67,5 @@ pub enum CanisterType {
     Rust,
     Motoko,
     Custom,
+    Assets,
 }

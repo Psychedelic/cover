@@ -77,6 +77,7 @@ export const idlFactory = ({ IDL }) => {
   const ManualReply_2 = IDL.Record({
     'custom_canisters_count' : IDL.Nat64,
     'build_error_count' : IDL.Nat64,
+    'assets_canisters_count' : IDL.Nat64,
     'build_in_progress_count' : IDL.Nat64,
     'rust_canisters_count' : IDL.Nat64,
     'build_pending_count' : IDL.Nat64,
@@ -88,6 +89,7 @@ export const idlFactory = ({ IDL }) => {
   const CanisterType = IDL.Variant({
     'Rust' : IDL.Null,
     'Custom' : IDL.Null,
+    'Assets' : IDL.Null,
     'Motoko' : IDL.Null,
   });
   const Verification = IDL.Record({

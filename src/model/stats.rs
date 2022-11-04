@@ -7,6 +7,7 @@ pub struct Stats {
     pub motoko_canisters_count: usize,
     pub rust_canisters_count: usize,
     pub custom_canisters_count: usize,
+    pub assets_canisters_count: usize,
     pub unknown_canisters_count: usize,
     pub build_pending_count: usize,
     pub build_in_progress_count: usize,

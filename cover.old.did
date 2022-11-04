@@ -20,7 +20,7 @@ type BuildConfigInfo = record {
   caller_id : principal;
 };
 type BuildStatus = variant { Error; Building; Success; Pending };
-type CanisterType = variant { Rust; Custom; Motoko };
+type CanisterType = variant { Rust; Custom; Assets; Motoko };
 type Config = record {
   admin : opt vec principal;
   validator : opt vec principal;
@@ -57,6 +57,7 @@ type ManualReply_1 = record {
 type ManualReply_2 = record {
   custom_canisters_count : nat64;
   build_error_count : nat64;
+  assets_canisters_count : nat64;
   build_in_progress_count : nat64;
   rust_canisters_count : nat64;
   build_pending_count : nat64;
@@ -156,11 +157,11 @@ service : (opt Config) -> {
   getMyActivities : (PaginationInfo) -> (ManualReply_1) query;
   getMyBuildConfigById : (principal) -> (opt BuildConfig) query;
   getMyBuildConfigs : () -> (vec BuildConfig) query;
-  getMyVerificationsStats : () -> (ManualReply_2) query;
+  getMyVerificationStats : () -> (ManualReply_2) query;
   getValidators : () -> (vec principal) query;
   getVerificationByCanisterId : (principal) -> (opt Verification) query;
+  getVerificationStats : () -> (ManualReply_2) query;
   getVerifications : (PaginationInfo) -> (ManualReply_3) query;
-  getVerificationsStats : () -> (ManualReply_2) query;
   registerVerification : (RegisterVerification) -> (Result);
   saveBuildConfig : (SaveBuildConfig) -> ();
   submitVerification : (SubmitVerification) -> ();
