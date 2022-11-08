@@ -33,7 +33,7 @@ test.serial('CoverMetadata test', async t => {
     t.is(coverMetadata.dfx_version, '0.11.2');
     t.is(coverMetadata.optimize_count, 0);
     t.is(coverMetadata.repo_url, 'psychedelic/cover');
-    t.deepEqual(coverMetadata.rust_version, ['1.64.0']);
+    t.deepEqual(coverMetadata.rust_version, ['1.65.0']);
     t.is(coverMetadata.controller, 'j3dqd-46f74-s45g5-yt6qa-c5vyq-4zv7t-y4iie-omikc-cjngg-olpgg-rqe');
   });
 });

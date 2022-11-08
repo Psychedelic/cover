@@ -55,7 +55,7 @@ fn cover_metadata() -> CoverMetadata {
         repo_url: "psychedelic/cover",
         commit_hash: run_command_str!("git", "rev-parse", "HEAD"),
         dfx_version: "0.11.2",
-        rust_version: Some("1.64.0"),
+        rust_version: Some("1.65.0"),
         optimize_count: 0,
         controller: "j3dqd-46f74-s45g5-yt6qa-c5vyq-4zv7t-y4iie-omikc-cjngg-olpgg-rqe",
     }
